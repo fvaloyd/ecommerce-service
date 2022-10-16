@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+
+  sqlServer:
+    ports:
+      - 1433:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=francis.123
+    container_name: sqlServer
+    image: mcr.microsoft.com/mssql/server:2022-latest
+
+  EcommerceApi:
+    ports:
+      - 5200:80
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings:ApplicationConnection=Server=sqlServer,1433;User=sa;Password=francis.123;Database=EcommerceDb;MultipleActiveResultSets=True;
+    volumes:
+      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+      - ~/.aspnet/https:/root/.aspnet/https:ro
+    depends_on:
+      - sqlServer
+    command: ./efbundle --connection "Server=sqlServer,1433;User=sa;Password=francis.123;Database=EcommerceDb;MultipleActiveResultSets=True;" && echo "Execute efbundle"
+    image: ecommerce:v5

@@ -1,0 +1,32 @@
+<body>
+    <style>
+        main {
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        footer {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+    <main>
+        <header>
+            <h1>Ecommerce</h1>
+            <p>
+                Thank @Model.User.UserName for registering in the ecommerce</p>
+        </header>
+        <section>
+            <p>You can confirm you email here</p>
+            <a href="@Model?.ConfirmationLink" style="display: inline-block;">
+                <button>Confirm email</button>
+            </a>
+        </section>
+        <footer>
+            <span>Copyright &copy; 2022 Ecommerce, All rights reserved</span>
+        </footer>
+    </main>
+</body>

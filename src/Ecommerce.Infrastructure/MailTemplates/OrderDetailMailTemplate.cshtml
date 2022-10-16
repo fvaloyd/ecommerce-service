@@ -1,0 +1,38 @@
+<body>
+  <section>
+    <header>
+      <h1>Ecommerce</h1>
+      <h3>Thanks for your purchase @Model?.User?.UserName</h3>
+      <span>Below is the details of your purchase</span>
+      </h>
+      <ul>
+        @foreach (var orderDetail in Model?.OrderDetails!)
+        {
+          <li>
+            <div>
+              <img src="@orderDetail.Product.ImageUrl" alt="@orderDetail.Product.Name" width="150" height="130" />
+              <p>Product Name: <span>@orderDetail.Product.Name</span></p>
+              <p>Price: <span>@orderDetail.Product.Price</span></p>
+              <p>Quantity: <span>@orderDetail.Quantity</span></p>
+            </div>
+          </li>
+        }
+      </ul>
+      @{
+        float total = 0;
+        foreach (var orderDetail in Model?.OrderDetails!)
+        {
+          total = total + orderDetail.Product.Price * orderDetail.Quantity;
+        }
+      }
+      <p><strong>Total: </strong><span>@total</span>$</p>
+      <div>
+        <a href="https://localhost:7037/swagger/index.html">
+          <button>Keep buying</button>
+        </a>
+      </div>
+      <footer>
+        <span>Copyright &copy; 2022 Ecommerce, All rights reserved</span>
+      </footer>
+  </section>
+</body>
