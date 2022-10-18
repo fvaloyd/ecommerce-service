@@ -29,8 +29,7 @@ public class Product : BaseEntity
     {
         Uri.TryCreate(imageUrl, UriKind.Absolute, out Uri? result);
 
-        if (result is null) throw new ArgumentException();
-        if (!( (result!.Scheme == Uri.UriSchemeHttp) || (result.Scheme == Uri.UriSchemeHttps) ))
+        if (result is null || !( (result!.Scheme == Uri.UriSchemeHttp) || (result.Scheme == Uri.UriSchemeHttps) ))
         {
             throw new ArgumentException("The ImageUrl is invalid");
         }
