@@ -32,6 +32,7 @@ public class BasketController : ApiControllerBase
     }
 
     [HttpPost("AddProduct")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddProduct(int productId)
     {
         ClaimsPrincipal currentUser = HttpContext.User;
@@ -45,6 +46,7 @@ public class BasketController : ApiControllerBase
     }
 
     [HttpPost("IncreaseProductQuantity")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> IncreaseProductQuantity(int productId)
     {
         ClaimsPrincipal currentUser = HttpContext.User;
@@ -58,6 +60,7 @@ public class BasketController : ApiControllerBase
     }
 
     [HttpPost("DecreaseProductQuantity")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DecreaseProductQuantity(int productId)
     {
         ClaimsPrincipal currentUser = HttpContext.User;

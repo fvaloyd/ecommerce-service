@@ -43,6 +43,7 @@ public class PaymentController : ApiControllerBase
     }
 
     [HttpPost("pay")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateOrder(CardOptions card)
     {
         try
@@ -110,6 +111,7 @@ public class PaymentController : ApiControllerBase
     }
 
     [HttpPost("refound")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> RefoundCharge(string chargeToken)
     {
         try

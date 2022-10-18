@@ -42,6 +42,7 @@ public class CategoryController : ApiControllerBase
     }
 
     [HttpPost("Create")]
+    [ValidateAntiForgeryToken]
     [Authorize(Roles = UserRoles.Admin)]
     public async Task<IActionResult> CreateCategory([FromBody] PostCategoryDto categoryDto)
     {

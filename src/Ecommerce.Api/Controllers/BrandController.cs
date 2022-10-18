@@ -42,6 +42,7 @@ public class BrandController : ApiControllerBase
     }
 
     [HttpPost("Create")]
+    [ValidateAntiForgeryToken]
     [Authorize(Roles = UserRoles.Admin)]
     public async Task<IActionResult> CreateBrand([FromBody] PostBrandDto brandDto)
     {

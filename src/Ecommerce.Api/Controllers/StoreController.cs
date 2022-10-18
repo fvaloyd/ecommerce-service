@@ -52,6 +52,7 @@ public class StoreController : ApiControllerBase
     }
 
     [HttpPost("Create")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateStore([FromBody] PostStoreDto storeDto)
     {
         if (!ModelState.IsValid) return BadRequest("Invalid store");
@@ -107,6 +108,7 @@ public class StoreController : ApiControllerBase
     }
 
     [HttpPost("IncreaseProduct")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> IncreaseProduct(int storeId, int productId)
     {
         if (storeId < 1 || productId < 1) return BadRequest("Invalid id");
@@ -119,6 +121,7 @@ public class StoreController : ApiControllerBase
     }
 
     [HttpPost("DecreaseProduct")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DecreaseProduct(int storeId, int productId)
     {
         if (storeId < 1 || productId < 1) return BadRequest("Invalid id");
@@ -131,6 +134,7 @@ public class StoreController : ApiControllerBase
     }
 
     [HttpPost("AddProduct")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddProduct(int productId, int storeId)
     {
         if (storeId < 1 || productId < 1) return BadRequest("Invalid id");
