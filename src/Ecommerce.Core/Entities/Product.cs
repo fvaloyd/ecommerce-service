@@ -13,7 +13,30 @@ public class Product : BaseEntity
 
     public void ChangePrice(float newPrice)
     {
+        if (newPrice < 1) throw new ArgumentException("The price could not be less than 1");
+        
         Price = newPrice;
+    }
+
+    public void SetName(string name)
+    {
+        if (name is null) throw new ArgumentNullException();
+        if (name.Count() < 1) throw new ArgumentException("The Name could not have a length less than 1");
+
+        Name = name;
+    }
+    public void SetImage(string imageUrl)
+    {
+        Uri.TryCreate(imageUrl, UriKind.Absolute, out Uri? result);
+
+        if (result is null) throw new ArgumentException();
+        if (!( (result!.Scheme == Uri.UriSchemeHttp) || (result.Scheme == Uri.UriSchemeHttps) ))
+        {
+            throw new ArgumentException("The ImageUrl is invalid");
+        }
+        if (imageUrl is null) throw new ArgumentNullException();
+
+        ImageUrl = imageUrl;
     }
 
     public Product(){}
@@ -24,10 +47,10 @@ public class Product : BaseEntity
         int categoryId,
         string imageUrl)
     {
-        Name = name;
+        SetName(name);
         Price = price;
         BrandId = brandId;
         CategoryId = categoryId;
-        ImageUrl = imageUrl;
+        SetImage(imageUrl);
     }
 }
