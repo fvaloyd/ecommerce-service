@@ -15,4 +15,19 @@ public class Product : BaseEntity
     {
         Price = newPrice;
     }
+
+    public Product(){}
+    public Product(
+        string name,
+        float price,
+        int brandId,
+        int categoryId,
+        string imageUrl)
+    {
+        Name = name;
+        Price = price;
+        BrandId = brandId;
+        CategoryId = categoryId;
+        ImageUrl = imageUrl;
+    }
 }
