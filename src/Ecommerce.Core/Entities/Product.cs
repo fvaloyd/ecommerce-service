@@ -36,7 +36,7 @@ public class Product : BaseEntity
             throw new ArgumentException("The ImageUrl is invalid");
         }
 
-        ImageUrl = imageUrl;
+        ImageUrl = result.AbsoluteUri;
     }
 
     public Product(){}
