@@ -6,13 +6,17 @@ public class Brand : BaseEntity
     public string Name { get; set; } = null!;
     public bool State { get; set; }
 
-    public void ChangeState(bool newState)
+    public void SetName(string newName)
     {
-        State = newState;
+        if (newName is null) throw new ArgumentNullException();
+        if (newName.Count() < 2) throw new ArgumentException("The length of the name could not be less than 1");
+        Name = newName;
     }
 
-    public void ModifyName(string newName)
+    public Brand(){}
+    public Brand(string name, bool state)
     {
-        Name = newName;
+        SetName(name);
+        State = state;
     }
 }
