@@ -16,7 +16,7 @@ public class ProductTest
     public void ChangePrice_With_Valid_Params_Should_Change_The_Price()
     {
         float newPrice = 199.99f;
-        Product productMock = new("product1", 100, 1, 1, "url.com");
+        Product productMock = new("product1", 100, 1, 1, "http://facebook.com");
 
         productMock.ChangePrice(newPrice);
 
@@ -28,7 +28,7 @@ public class ProductTest
     [InlineData(-1)]
     public void ChangePrice_With_Invalid_Params_Should_Throw_ArgumentException(float invalidValue)
     {
-        Product productMock = new("product1", 100, 1, 1, "url.com");       
+        Product productMock = new("product1", 100, 1, 1, "https://Facebook.com");       
 
         Action act = () => productMock.ChangePrice(invalidValue);
         
