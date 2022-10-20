@@ -10,6 +10,7 @@ public class Basket : BaseEntity
 
     public void IncreaseProductQuantity(int quantity = 1)
     {
+        if (quantity < 1) throw new ArgumentException("Quantity could not be less than 1");
         Quantity += quantity;
     }
 
@@ -23,13 +24,21 @@ public class Basket : BaseEntity
         Total -= productPrice;
     }
 
-    public void DecreaseProductQuantity(int quantity = 1)
+    public void DecreaseProductQuantity(int amountToDecrease = 1)
     {
-        if (Quantity == 0)
-        {
-            return;
-        }
+        if (Quantity == 0) throw new InvalidOperationException("The Basket doesn't have a quantity to decrease");
 
-        Quantity -= quantity;
+        if (amountToDecrease < 1) throw new ArgumentException("Amount to decrease could not be less than 1");
+
+        Quantity -= amountToDecrease;
+    }
+
+    public Basket(){}
+
+    public Basket(int productId, string applicationUserId, int quantity)
+    {
+        ProductId = productId;
+        ApplicationUserId = applicationUserId;
+        Quantity = quantity;
     }
 }
