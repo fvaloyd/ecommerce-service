@@ -10,7 +10,7 @@ public class Basket : BaseEntity
 
     public void IncreaseProductQuantity(int quantity = 1)
     {
-        if (quantity < 1) throw new ArgumentException("Quantity could not be less than 1");
+        if (quantity < 1) throw new ArgumentException("Amount to increase could not be less than 1");
         Quantity += quantity;
     }
 
