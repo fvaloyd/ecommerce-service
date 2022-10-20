@@ -8,4 +8,14 @@ public class OrderDetail : BaseEntity
     public Product Product { get; set; } = null!;
     public int Quantity { get; set; }
     public double UnitPrice { get; set; }
+    public OrderDetail(){}
+    public OrderDetail(int orderId, string userName, int productId,
+    int quantity, double unitPrice)
+    {
+        OrderId = orderId;
+        UserName = userName;
+        ProductId = productId;
+        Quantity = quantity;
+        UnitPrice = unitPrice;
+    }
 }
