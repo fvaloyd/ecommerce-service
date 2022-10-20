@@ -8,4 +8,14 @@ public class Order : BaseEntity
     public decimal Total { get; set; }
     public string PaymentTransactionId { get; set; } = null!;
     public List<OrderDetail> OrderDetails { get; set; } = null!;
+
+    public Order(){}
+    public Order(
+        string applicationUserId,
+        string paymentTransactionId)
+    {
+        OrderDate = DateTime.Now;
+        ApplicationUserId = applicationUserId;
+        OrderDetails = new();
+    }
 }
