@@ -8,27 +8,29 @@ public class ProductStore : BaseEntity
     public Store Store { get; set; } = null!;
     public int Quantity { get; set; } = 0;
 
-    public void AddProduct(int storeId, int productId)
+    public ProductStore(){}
+    public ProductStore(
+        int productId,
+        int storeId,
+        int quantity)
     {
-        StoreId = storeId;
         ProductId = productId;
+        StoreId = storeId;
+        Quantity = quantity;
     }
 
-    public void IncreaseQuantity(int quantity = 1)
+    public void IncreaseQuantity(int amountToIncrease = 1)
     {
-        if (quantity > 1)
-        {
-            Quantity += quantity;
-            return;
-        }
-        Quantity++;
+        if (amountToIncrease < 1) throw new ArgumentException("Amount could not be less than 1");
+
+        Quantity = Quantity + amountToIncrease;
     }
-    public void DecreaseQuantity()
+
+    public void DecreaseQuantity(int amountToDecrease = 1)
     {
-        if (Quantity == 0)
-        {
-            return;
-        }
-        Quantity--;
+        if (amountToDecrease < 1) throw new ArgumentException("Amount to decrease could not be less than 1");
+        if (amountToDecrease > Quantity) throw new InvalidOperationException("Amount to decrease could not be greater than Quantity");
+
+        Quantity = Quantity - amountToDecrease;
     }
 }
