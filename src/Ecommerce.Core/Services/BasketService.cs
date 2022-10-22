@@ -35,9 +35,9 @@ public class BasketService : IBasketService
 
         productStore.IncreaseQuantity(basket.Quantity);
 
-        int operationResult = await _productStoreRepo.SaveChangeAsync();
+        int rowsAffectInThePersistence = await _productStoreRepo.SaveChangeAsync();
 
-        if (operationResult < 1) return false;
+        if (rowsAffectInThePersistence < 1) return false;
 
         return true;
     }
@@ -90,9 +90,9 @@ public class BasketService : IBasketService
         userBasket.IncreaseProductQuantity();
         userBasket.IncreaseTotal(userBasket.Product.Price);
 
-        int operationResult = await _basketRepo.SaveChangeAsync();
+        int rowsAffectInThePersistence = await _basketRepo.SaveChangeAsync();
 
-        if (operationResult < 1) return false;
+        if (rowsAffectInThePersistence < 1) return false;
 
         return true;
     }
@@ -112,9 +112,9 @@ public class BasketService : IBasketService
         userBasket.DecreaseProductQuantity(1);
         userBasket.DecreaseTotal(userBasket.Product.Price);
 
-        int operationResult = await _basketRepo.SaveChangeAsync();
+        int rowsAffectInThePersistence = await _basketRepo.SaveChangeAsync();
 
-        if (operationResult < 1) return false;
+        if (rowsAffectInThePersistence < 1) return false;
 
         return true;
     }
@@ -124,6 +124,8 @@ public class BasketService : IBasketService
         Store store = _storeRepo.GetFirst();
 
         IEnumerable<Basket> userBaskets = await _basketRepo.GetAllAsync(b => b.ApplicationUserId == userId, IncludeProperty: "Product");
+
+        if (userBaskets is null) throw new InvalidOperationException("The user did not have a basket associated");
 
         IEnumerable<Product> userBasketProducts = userBaskets.Select(sb => sb.Product).ToList();
 
