@@ -1,6 +1,4 @@
 using Ecommerce.Core.Entities;
-using FluentAssertions;
-using Xunit;
 
 namespace Ecommerce.Core.UnitTests.Entities;
 
