@@ -21,6 +21,16 @@ public class BasketServiceTest
     private readonly Mock<IEfRepository<ProductStore>> productStoreRepoMoq = new Mock<IEfRepository<ProductStore>>();
     private readonly Mock<IStoreService> storeServiceMoq = new Mock<IStoreService>();
 
+    private BasketService CreateBasketServiceMock()
+    {
+        return new BasketService(
+            storeRepoMoq.Object,
+            basketRepoMoq.Object,
+            productStoreRepoMoq.Object,
+            storeServiceMoq.Object
+        );
+    }
+
     [Fact]
     public void Should_Implement_IBasketService()
     {
@@ -276,14 +286,5 @@ public class BasketServiceTest
         result.Should().BeOfType<List<Product>>();
    }
 
-    private BasketService CreateBasketServiceMock()
-    {
-        return new BasketService(
-            storeRepoMoq.Object,
-            productRepoMoq.Object,
-            basketRepoMoq.Object,
-            productStoreRepoMoq.Object,
-            storeServiceMoq.Object
-        );
-    }
+
 }

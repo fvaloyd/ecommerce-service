@@ -17,8 +17,6 @@ public class ProductServiceTest
     private ProductService CreateProductService()
     {
         return new ProductService(
-            productRepoMock.Object,
-            storeRepoMock.Object,
             productStoreRepoMock.Object
         );
     }
