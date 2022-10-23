@@ -98,7 +98,7 @@ public class StoreController : ApiControllerBase
 
         _storeRepo.Remove(storeToDelete);
 
-        await _storeService.DeleteRelationProduct(id);
+        await _storeService.DeleteProductStoreRelation(id);
 
         int operationResult = await _db.SaveChangesAsync();
 
