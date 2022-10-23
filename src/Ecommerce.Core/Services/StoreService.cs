@@ -62,7 +62,7 @@ public class StoreService : IStoreService
     {
         IEnumerable<ProductStore> productStore = await _productStoreRepo.GetAllAsync(ps => ps.StoreId == storeId);
 
-        if (productStore is null) return;
+        if (productStore is null) throw new InvalidOperationException("Store doesn't exist.");
 
         _productStoreRepo.RemoveRange(productStore);
     }
