@@ -6,20 +6,17 @@ namespace Ecommerce.Core.Services;
 public class BasketService : IBasketService
 {
     private readonly IEfRepository<Basket> _basketRepo;
-    private readonly IEfRepository<Product> _productRepo;
     private readonly IEfRepository<Store> _storeRepo;
     private readonly IEfRepository<ProductStore> _productStoreRepo;
     private readonly IStoreService _storeService;
 
     public BasketService(
         IEfRepository<Store> storeRepo,
-        IEfRepository<Product> productRepo,
         IEfRepository<Basket> basketRepo,
         IEfRepository<ProductStore> productStoreRepo,
         IStoreService storeService)
     {
         _storeRepo = storeRepo;
-        _productRepo = productRepo;
         _basketRepo = basketRepo;
         _productStoreRepo = productStoreRepo;
         _storeService = storeService;
