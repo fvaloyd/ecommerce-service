@@ -3,7 +3,7 @@ using Ecommerce.Core.Entities;
 using Ecommerce.Core.Interfaces;
 using Ecommerce.Core.Services;
 
-
+namespace Ecommerce.Core.UnitTests.Services;
 public class BasketServiceTest
 {
     private readonly Store storeMock = new Store
