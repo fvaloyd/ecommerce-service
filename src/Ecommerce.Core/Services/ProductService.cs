@@ -23,8 +23,7 @@ public class ProductService : IProductService
     {
         var storeProduct = await _storeProductRepo.GetAllAsync(sp => sp.ProductId == productId);
 
-        if (storeProduct is null)
-            return;
+        if (storeProduct is null) throw new InvalidOperationException($"Store doesnt have a product with Id: ${productId}");
 
         _storeProductRepo.RemoveRange(storeProduct);
     }
@@ -33,11 +32,7 @@ public class ProductService : IProductService
     {
         var storeProduct = _storeProductRepo.GetFirst(sp => sp.StoreId == storeId && sp.ProductId == productId);
 
-        if (storeProduct is not null)
-        {
-            storeProduct.IncreaseQuantity();
-            return await _storeProductRepo.SaveChangeAsync();
-        }
+        if (storeProduct is not null) throw new InvalidOperationException("The product is already related to the store.");
 
         storeProduct = new ProductStore()
         {
