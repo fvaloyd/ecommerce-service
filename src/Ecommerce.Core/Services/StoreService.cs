@@ -58,7 +58,7 @@ public class StoreService : IStoreService
         return true;
     }
 
-    public async Task DeleteRelationProduct(int storeId)
+    public async Task DeleteProductStoreRelation(int storeId)
     {
         IEnumerable<ProductStore> productStore = await _productStoreRepo.GetAllAsync(ps => ps.StoreId == storeId);
 
