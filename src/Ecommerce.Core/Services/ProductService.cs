@@ -5,17 +5,11 @@ namespace Ecommerce.Core.Services;
 
 public class ProductService : IProductService
 {
-    private readonly IEfRepository<Product> _productRepo;
-    private readonly IEfRepository<Store> _storeRepo;
     private readonly IEfRepository<ProductStore> _storeProductRepo;
 
     public ProductService(
-        IEfRepository<Product> productRepo,
-        IEfRepository<Store> storeRepo,
         IEfRepository<ProductStore> storeProductRepo)
     {
-        _productRepo = productRepo;
-        _storeRepo = storeRepo;
         _storeProductRepo = storeProductRepo;
     }
 
