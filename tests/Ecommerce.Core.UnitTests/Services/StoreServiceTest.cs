@@ -35,15 +35,14 @@ public class StoreServiceTest
     [Fact]
     public async Task AddProductAsync_WhenTheStoreDoesntHaveTheProduct_AddTheProduct()
     {
-        int addProductCall = 0;
         productStoreRepoMock.Setup(psr => psr.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns<ProductStore>(null);
-        productStoreRepoMock.Setup(psr => psr.AddAsync(It.IsAny<ProductStore>()).Result).Returns(productStoreMock).Callback(() => ++addProductCall);
-        var storeServiceMock = CreateStoreService();            
+        productStoreRepoMock.Setup(psr => psr.AddAsync(It.IsAny<ProductStore>()).Result).Returns(productStoreMock);
+        var storeServiceMock = CreateStoreService();
 
         var result = await storeServiceMock.AddProductAsync(It.IsAny<int>(), It.IsAny<int>());
 
         result.Should().Be(true);
-        addProductCall.Should().Be(1);
+        productStoreRepoMock.Verify(ps => ps.AddAsync(It.IsAny<ProductStore>()), Times.Once);
     }
 
     [Fact]
