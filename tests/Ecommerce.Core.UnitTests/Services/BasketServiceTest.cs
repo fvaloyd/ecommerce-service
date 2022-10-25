@@ -147,21 +147,19 @@ public class BasketServiceTest
     [Fact]
     public async Task AddProductAsync_FailWhenDecreaseTheProductFromTheStore_ShouldReturnFalseAndRemoveTheBasket()
     {
-        int timeCalled = 0;
         productStoreMock.Product = productMock;
         storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
         productStoreRepoMoq.Setup(ps => ps.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), It.IsAny<string>())).Returns(productStoreMock);
         basketRepoMoq.Setup(b => b.GetFirst(It.IsAny<Expression<Func<Basket, bool>>>(), null!)).Returns<Basket>(null);
         basketRepoMoq.Setup(b => b.AddAsync(It.IsAny<Basket>()).Result).Returns(basketMock);
         storeServiceMoq.Setup(s => s.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(false);
-        basketRepoMoq.Setup(b => b.Remove(It.IsAny<Basket>())).Callback(() => ++timeCalled);
 
         var basketServiceMock =  CreateBasketServiceMock();
 
         var result = await basketServiceMock.AddProductAsync(It.IsAny<int>(), "");
 
         result.Should().Be(false);
-        timeCalled.Should().Be(1);
+        basketRepoMoq.Verify(br => br.Remove(It.Is<Basket>(b => b.ProductId == basketMock.ProductId)), Times.Once);
     }
 
     [Fact]
@@ -285,6 +283,4 @@ public class BasketServiceTest
 
         result.Should().BeOfType<List<Product>>();
    }
-
-
 }
