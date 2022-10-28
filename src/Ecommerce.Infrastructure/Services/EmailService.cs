@@ -51,9 +51,9 @@ public class EmailService : IEmailService
 
     private string LoadTemplate(string mailTemplateName)
     {
-        string baseDir = Environment.CurrentDirectory;
-        string newbasedir = baseDir.Replace("Ecommerce.Api", "Ecommerce.Infrastructure");
-        string templateDir = Path.Combine(newbasedir, "MailTemplates");
+        string incorrectBaseDir = Environment.CurrentDirectory;
+        string basedir = incorrectBaseDir.Replace("Ecommerce.Api", "Ecommerce.Infrastructure");
+        string templateDir = Path.Combine(basedir, "MailTemplates");
         string templatePath = Path.Combine(templateDir, $"{mailTemplateName}.cshtml");
 
         using FileStream fileStream = new(templatePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
