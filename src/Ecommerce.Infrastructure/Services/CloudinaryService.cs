@@ -31,6 +31,8 @@ public class CloudinaryService : ICloudinaryService
 
     public async Task<string> GetImage(string imageName)
     {
+        if (string.IsNullOrEmpty(imageName)) throw new InvalidOperationException("Image name could not be null or empty"); 
+
         string publicId = $"{FOLDER}/{imageName}";
         var getResourceParams = new GetResourceParams(publicId)
         {
@@ -44,6 +46,8 @@ public class CloudinaryService : ICloudinaryService
 
     public async Task<(string ImageUrl, string PublicId)> UploadImage(IFormFile file, string imageName)
     {
+        if (string.IsNullOrEmpty(imageName)) throw new InvalidOperationException("Image name could not be null or empty"); 
+
         var filePath = Path.GetTempFileName();
 
         using (var stream = System.IO.File.Create(filePath))
