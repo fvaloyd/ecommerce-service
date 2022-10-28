@@ -19,6 +19,8 @@ public class CloudinaryService : ICloudinaryService
 
     public async Task<DeletionResult> DeleteImage(string imageName)
     {
+        if (string.IsNullOrEmpty(imageName)) throw new InvalidOperationException("Image name could not be null or empty");
+
         var deletionParams = new DeletionParams($"{FOLDER}/{imageName}")
         {
             ResourceType = ResourceType.Image
