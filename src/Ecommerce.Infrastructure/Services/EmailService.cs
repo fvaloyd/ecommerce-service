@@ -26,9 +26,6 @@ public class EmailService : IEmailService
         mailMessage.To.Add(new MailboxAddress("", mailRequest.Email));
 
         mailMessage.Subject = mailRequest.Subject;
-        // var body = new BodyBuilder();
-        // body.HtmlBody = mailRequest.Body;
-        // mailMessage.Body = body.ToMessageBody();
         mailMessage.Body = new TextPart("html"){Text = mailRequest.Body};
 
         using var smtpClient = new SmtpClient();
