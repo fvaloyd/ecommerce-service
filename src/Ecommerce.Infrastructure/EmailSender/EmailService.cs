@@ -1,7 +1,6 @@
 using System.Text;
 using Ecommerce.Core.Interfaces;
 using Ecommerce.Core.Models;
-using Ecommerce.Infrastructure.Options;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;

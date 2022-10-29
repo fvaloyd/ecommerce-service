@@ -4,4 +4,4 @@ using Ecommerce.Infrastructure.Identity;
 
 namespace Ecommerce.Infrastructure.EmailSender;
 
-public record OrderDetailMailModel (ApplicationUser User, IEnumerable<OrderDetail> OrderDetails);
+public record PurchaseDetailsMailModel (ApplicationUser User, IEnumerable<OrderDetail> OrderDetails);
