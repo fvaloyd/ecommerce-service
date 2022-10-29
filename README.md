@@ -19,6 +19,7 @@
     "ApiSecret": ""
   },
   "Smtp": {
+    "ApiKey": "",
     "Server": "",
     "Port": "",
     "SenderName": "",
