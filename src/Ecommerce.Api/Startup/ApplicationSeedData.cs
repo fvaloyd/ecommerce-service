@@ -1,7 +1,6 @@
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Persistence;
 using Ecommerce.Infrastructure.Persistence.Identity;
-using Ecommerce.Infrastructure.Persitence;
 using Microsoft.AspNetCore.Identity;
 
 namespace Ecommerce.Api.Startup;

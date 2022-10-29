@@ -4,7 +4,7 @@ using Ecommerce.Infrastructure.Persistence.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Ecommerce.Infrastructure.Persitence;
+namespace Ecommerce.Infrastructure.Persistence;
 
 public static class SeedIdentityData
 {
