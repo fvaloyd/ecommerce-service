@@ -5,7 +5,7 @@ public class ArchitectureTest
 {
     private readonly static Type coreType = typeof(Ecommerce.Core.Entities.BaseEntity);
     private readonly static Type ApiType = typeof(Ecommerce.Api.Dtos.Basket.BasketProductDto);
-    private readonly static Type InfrastructureType = typeof(Ecommerce.Infrastructure.EmailSender.EmailService);
+    private readonly static Type InfrastructureType = typeof(Ecommerce.Infrastructure.EmailSender.SendiblueService);
 
     private readonly Assembly coreAssembly = Assembly.GetAssembly(coreType)!;
     private readonly Assembly apiAssembly = Assembly.GetAssembly(ApiType)!;

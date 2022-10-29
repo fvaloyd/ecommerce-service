@@ -9,11 +9,11 @@ using RazorEngineCore;
 
 namespace Ecommerce.Infrastructure.EmailSender;
 
-public class EmailService : IEmailSender
+public class SendiblueService : IEmailSender
 {
     private readonly SmtpOptions _smtpOptions;
 
-    public EmailService(IOptions<SmtpOptions> smtpOptions)
+    public SendiblueService(IOptions<SmtpOptions> smtpOptions)
     {
         _smtpOptions = smtpOptions.Value;
     }

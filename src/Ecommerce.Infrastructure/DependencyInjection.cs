@@ -76,7 +76,7 @@ public static class DependencyInjection
         services.AddScoped<IBasketService, BasketService>();
         services.AddScoped<IStripeService, StripeService>();
         services.AddScoped<ICloudinaryService, CloudinaryService>();
-        services.AddScoped<IEmailSender, EmailService>();
+        services.AddScoped<IEmailSender, SendiblueService>();
 
         return services;
     }
