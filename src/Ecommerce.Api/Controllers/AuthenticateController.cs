@@ -60,7 +60,7 @@ public class AuthenticateController : ApiControllerBase
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user); 
         var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authenticate", new { token, email = user.Email}, Request.Scheme);
 
-        var mailRequest = CreateMailRequest(user, confirmationLink!);
+        var mailRequest = await CreateMailRequest(user, confirmationLink!);
         await _emailService.SendAsync(mailRequest);
 
         return Ok(new Response(Status: HttpStatusCode.OK, Message: "Check you mail message and confirm your email"));
@@ -76,11 +76,14 @@ public class AuthenticateController : ApiControllerBase
         return Ok("Email confirm successfully");
     }
 
-    private MailRequest CreateMailRequest(ApplicationUser user, string confirmationLink)
+    private async Task<MailRequest> CreateMailRequest(ApplicationUser user, string confirmationLink)
     {
         var emailConfirmationMailModel = new EmailConfirmationMailModel(User: user, ConfirmationLink: confirmationLink);
+        string template = await _emailService.GetTemplate(((int)MailTemplates.EmailConfirmation));
+        string compiledTemplate = await _emailService.GetCompiledTemplateAsync(template, emailConfirmationMailModel);
+
         return new MailRequest(
-            Body: _emailService.GetTemplate(mailTemplateName: MailTemplateNames.EmailRegister, emailConfirmationMailModel),
+            Body: compiledTemplate,
             Subject: "Email confirmation",
             Email: user.Email
         );
@@ -124,7 +127,7 @@ public class AuthenticateController : ApiControllerBase
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user); 
             var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authenticate", new { token, email = user.Email}, Request.Scheme);
 
-            var mailRequest = CreateMailRequest(user, confirmationLink!);
+            var mailRequest = await CreateMailRequest(user, confirmationLink!);
             await _emailService.SendAsync(mailRequest);
             return BadRequest("You need to confirm your email");
         }
