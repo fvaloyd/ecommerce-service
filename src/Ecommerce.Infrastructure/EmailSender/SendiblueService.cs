@@ -1,5 +1,3 @@
-using System.Text;
-using Ecommerce.Core.Interfaces;
 using Ecommerce.Core.Models;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -25,7 +23,7 @@ public class SendiblueService : IEmailSender
         mailMessage.To.Add(new MailboxAddress("", mailRequest.Email));
 
         mailMessage.Subject = mailRequest.Subject;
-        mailMessage.Body = new TextPart("html"){Text = mailRequest.Body};
+        mailMessage.Body = new TextPart("html") { Text = mailRequest.Body };
 
         using var smtpClient = new SmtpClient();
         await smtpClient.ConnectAsync(_smtpOptions.Server, Convert.ToInt32(_smtpOptions.Port), SecureSocketOptions.StartTls);
@@ -35,29 +33,18 @@ public class SendiblueService : IEmailSender
         return true;
     }
 
-    public string GetTemplate<T>(string mailTemplateName, T mailTemplateModel) where T : class
+    public async Task<string> GetCompiledTemplateAsync<T>(string template, T mailModel) where T : class
     {
-        string mailTemplate = LoadTemplate(mailTemplateName);
-
         IRazorEngine razorEngine = new RazorEngine();
-        IRazorEngineCompiledTemplate modifiedMailTemplate = razorEngine.Compile(mailTemplate);
-
-        return modifiedMailTemplate.Run(model: mailTemplateModel);
+        IRazorEngineCompiledTemplate modifiedMailTemplate = await razorEngine.CompileAsync(template);
+        return await modifiedMailTemplate.RunAsync(model: mailModel);
     }
 
-    private string LoadTemplate(string mailTemplateName)
+    public async Task<string> GetTemplate(int templateId)
     {
-        string incorrectBaseDir = Environment.CurrentDirectory;
-        string basedir = incorrectBaseDir.Replace("Ecommerce.Api", "Ecommerce.Infrastructure");
-        string templateDir = Path.Combine(basedir, "MailTemplates");
-        string templatePath = Path.Combine(templateDir, $"{mailTemplateName}.cshtml");
-
-        using FileStream fileStream = new(templatePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-        using StreamReader streamReader = new(fileStream, Encoding.Default);
-
-        string mailTemplate = streamReader.ReadToEnd();
-        streamReader.Close();
-
-        return mailTemplate;
+        var sendiblueApi = new sib_api_v3_sdk.Api.TransactionalEmailsApi();
+        sib_api_v3_sdk.Model.GetSmtpTemplateOverview result = await sendiblueApi.GetSmtpTemplateAsync((long)templateId);
+        string template = result.HtmlContent.Replace("@media", "@@ media");
+        return template;
     }
 }

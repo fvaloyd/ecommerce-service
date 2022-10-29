@@ -5,5 +5,6 @@ namespace Ecommerce.Infrastructure.EmailSender;
 public interface IEmailSender
 {
     Task<bool> SendAsync(MailRequest mailRequest);
-    string GetCompiledTemplateAsync<T>(int templateId, T mailModel) where T : class;
+    Task<string> GetCompiledTemplateAsync<T>(string template, T templateModel) where T : class;
+    Task<string> GetTemplate(int templateId);
 }
