@@ -1,5 +1,5 @@
 using Ecommerce.Core.Interfaces;
-using Ecommerce.Infrastructure.Services;
+using Ecommerce.Infrastructure.EmailSender;
 
 namespace Ecommerce.Infrastructure.UnitTests.Services;
 

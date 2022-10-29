@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using RazorEngineCore;
 
-namespace Ecommerce.Infrastructure.Services;
+namespace Ecommerce.Infrastructure.EmailSender;
 
 public class EmailService : IEmailService
 {

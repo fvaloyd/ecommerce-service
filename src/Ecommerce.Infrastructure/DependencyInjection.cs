@@ -14,6 +14,7 @@ using Ecommerce.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using Ecommerce.Infrastructure.Repository;
 using Ecommerce.Core.Services;
+using Ecommerce.Infrastructure.EmailSender;
 
 namespace Ecommerce.Infrastructure;
 
