@@ -2,6 +2,7 @@ namespace Ecommerce.Infrastructure.EmailSender;
 
 public class SmtpOptions
 {
+    public string ApiKey { get; set; } = null!;
     public string Server { get; set; } = null!;
     public string Port { get; set; } = null!;
     public string SenderName { get; set; } = null!;
