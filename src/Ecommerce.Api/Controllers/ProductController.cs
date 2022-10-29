@@ -58,7 +58,6 @@ public class ProductController : ApiControllerBase
     }
 
     [HttpPost("Create")]
-    [ValidateAntiForgeryToken]
     [Authorize(Roles = UserRoles.Admin)]
     public async Task<IActionResult> CreateProduct([FromForm] PostProductDto productDto)
     {

@@ -34,7 +34,6 @@ public class AuthenticateController : ApiControllerBase
     }
 
     [HttpPost("register")]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register([FromBody] RegisterUser model)
     {
         ApplicationUser userExist = await _userManager.FindByEmailAsync(model.Email);
@@ -88,7 +87,6 @@ public class AuthenticateController : ApiControllerBase
     }
 
     [HttpPost("register-admin")]
-    [ValidateAntiForgeryToken]
     [Authorize(Roles = UserRoles.Admin)]
     public async Task<IActionResult> RegisterAdmin([FromBody] RegisterUser model)
     {
@@ -115,7 +113,6 @@ public class AuthenticateController : ApiControllerBase
     }
 
     [HttpPost("login")]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login([FromBody] LoginUser model)
     {
         ApplicationUser user = await _userManager.FindByEmailAsync(model.Email);

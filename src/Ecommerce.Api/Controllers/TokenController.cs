@@ -24,7 +24,6 @@ public class TokenController : ApiControllerBase
     }
 
     [HttpPost("refresh",Name = "refresh")]
-    [ValidateAntiForgeryToken]
     public async Task<ActionResult> RefreshToken([FromBody] ApiToken apiToken)
     {
         if (apiToken is null) return BadRequest("Invalid apiToken");
@@ -50,7 +49,6 @@ public class TokenController : ApiControllerBase
     }
 
     [HttpPost("revoke")]
-    [ValidateAntiForgeryToken]
     [Authorize]
     public async Task<IActionResult> Revoke()
     {
