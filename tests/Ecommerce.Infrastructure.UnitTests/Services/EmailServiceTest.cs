@@ -8,6 +8,6 @@ public class EmailServiceTest
     [Fact]
     public void ShouldImplementIEmailService()
     {
-        typeof(EmailService).Should().BeAssignableTo<IEmailService>();
+        typeof(EmailService).Should().BeAssignableTo<IEmailSender>();
     }
 }

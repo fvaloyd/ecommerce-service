@@ -21,7 +21,7 @@ public class PaymentController : ApiControllerBase
     private readonly IBasketService _basketService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IStripeService _stripeService;
-    private readonly IEmailService _emailService;
+    private readonly IEmailSender _emailService;
 
     public PaymentController(
         IBasketService basketService,
@@ -30,7 +30,7 @@ public class PaymentController : ApiControllerBase
         IStripeService stripeService,
         IEfRepository<Order> orderRepo,
         IEfRepository<OrderDetail> orderDetailRepo,
-        IEmailService emailService)
+        IEmailSender emailService)
     {
         _basketService = basketService;
         _basketRepo = basketRepo;
@@ -93,7 +93,7 @@ public class PaymentController : ApiControllerBase
             #region SEND MAIL
             IEnumerable<OrderDetail> OrderDetailWithProduct = await _orderDetailRepo.GetAllAsync(od => od.OrderId == orderCreated.Id, IncludeProperty: "Product");
             var mailRequest = CreateMailRequest(user, OrderDetailWithProduct);
-            await _emailService.SendEmailAsync(mailRequest);
+            await _emailService.SendAsync(mailRequest);
             #endregion
 
             return Ok(new { Order = orderCreated, Charge = chargeToken.Id });
@@ -130,7 +130,7 @@ public class PaymentController : ApiControllerBase
         (
             Email: user.Email,
             Subject: "test email send",
-            Body: _emailService.GetMailTemplate<PurchaseDetailsMailModel>(mailTemplateName: MailTemplateNames.OrderDetail, mailTemplateModel: purchaseDetailsMailModel)
+            Body: _emailService.GetTemplate<PurchaseDetailsMailModel>(mailTemplateName: MailTemplateNames.OrderDetail, mailTemplateModel: purchaseDetailsMailModel)
         );
     }
 

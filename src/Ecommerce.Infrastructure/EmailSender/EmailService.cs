@@ -9,7 +9,7 @@ using RazorEngineCore;
 
 namespace Ecommerce.Infrastructure.EmailSender;
 
-public class EmailService : IEmailService
+public class EmailService : IEmailSender
 {
     private readonly SmtpOptions _smtpOptions;
 
@@ -18,7 +18,7 @@ public class EmailService : IEmailService
         _smtpOptions = smtpOptions.Value;
     }
 
-    public async Task<bool> SendEmailAsync(MailRequest mailRequest)
+    public async Task<bool> SendAsync(MailRequest mailRequest)
     {
         var mailMessage = new MimeMessage();
         mailMessage.From.Add(new MailboxAddress(_smtpOptions.SenderName, _smtpOptions.SenderEmail));
@@ -35,7 +35,7 @@ public class EmailService : IEmailService
         return true;
     }
 
-    public string GetMailTemplate<T>(string mailTemplateName, T mailTemplateModel) where T : class
+    public string GetTemplate<T>(string mailTemplateName, T mailTemplateModel) where T : class
     {
         string mailTemplate = LoadTemplate(mailTemplateName);
 
