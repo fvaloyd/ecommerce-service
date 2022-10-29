@@ -124,13 +124,13 @@ public class PaymentController : ApiControllerBase
 
     private MailRequest CreateMailRequest(ApplicationUser user, IEnumerable<OrderDetail> orderDetail)
     {
-        OrderDetailMailModel orderDetailMailModel = new(User: user, OrderDetails: orderDetail);
+        PurchaseDetailsMailModel purchaseDetailsMailModel = new(User: user, OrderDetails: orderDetail);
 
         return new MailRequest
         (
             Email: user.Email,
             Subject: "test email send",
-            Body: _emailService.GetMailTemplate<OrderDetailMailModel>(mailTemplateName: MailTemplateNames.OrderDetail, mailTemplateModel: orderDetailMailModel)
+            Body: _emailService.GetMailTemplate<PurchaseDetailsMailModel>(mailTemplateName: MailTemplateNames.OrderDetail, mailTemplateModel: purchaseDetailsMailModel)
         );
     }
 

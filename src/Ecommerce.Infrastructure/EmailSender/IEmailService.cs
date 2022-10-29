@@ -1,6 +1,6 @@
 using Ecommerce.Core.Models;
 
-namespace Ecommerce.Core.Interfaces;
+namespace Ecommerce.Infrastructure.EmailSender;
 
 public interface IEmailService
 {

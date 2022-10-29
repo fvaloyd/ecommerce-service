@@ -78,9 +78,9 @@ public class AuthenticateController : ApiControllerBase
 
     private MailRequest CreateMailRequest(ApplicationUser user, string confirmationLink)
     {
-        var emailRegisterConfirmationModel = new EmailRegisterConfirmationModel(User: user, ConfirmationLink: confirmationLink);
+        var emailConfirmationMailModel = new EmailConfirmationMailModel(User: user, ConfirmationLink: confirmationLink);
         return new MailRequest(
-            Body: _emailService.GetMailTemplate(mailTemplateName: MailTemplateNames.EmailRegister, emailRegisterConfirmationModel),
+            Body: _emailService.GetMailTemplate(mailTemplateName: MailTemplateNames.EmailRegister, emailConfirmationMailModel),
             Subject: "Email confirmation",
             Email: user.Email
         );
