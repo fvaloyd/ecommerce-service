@@ -35,6 +35,7 @@ public class SendiblueService : IEmailSender
 
     public async Task<string> GetCompiledTemplateAsync<T>(string template, T mailModel) where T : class
     {
+        template = template.Replace("@media", "@@ media");
         IRazorEngine razorEngine = new RazorEngine();
         IRazorEngineCompiledTemplate modifiedMailTemplate = await razorEngine.CompileAsync(template);
         return await modifiedMailTemplate.RunAsync(model: mailModel);
@@ -44,7 +45,6 @@ public class SendiblueService : IEmailSender
     {
         var sendiblueApi = new sib_api_v3_sdk.Api.TransactionalEmailsApi();
         sib_api_v3_sdk.Model.GetSmtpTemplateOverview result = await sendiblueApi.GetSmtpTemplateAsync((long)templateId);
-        string template = result.HtmlContent.Replace("@media", "@@ media");
-        return template;
+        return result.HtmlContent;
     }
 }
