@@ -92,7 +92,7 @@ public class PaymentController : ApiControllerBase
 
             #region SEND MAIL
             IEnumerable<OrderDetail> OrderDetailWithProduct = await _orderDetailRepo.GetAllAsync(od => od.OrderId == orderCreated.Id, IncludeProperty: "Product");
-            var mailRequest = CreateMailRequest(user, OrderDetailWithProduct);
+            var mailRequest = await CreateMailRequest(user, OrderDetailWithProduct);
             await _emailService.SendAsync(mailRequest);
             #endregion
 
@@ -122,15 +122,16 @@ public class PaymentController : ApiControllerBase
         }
     }
 
-    private MailRequest CreateMailRequest(ApplicationUser user, IEnumerable<OrderDetail> orderDetail)
+    private async Task<MailRequest> CreateMailRequest(ApplicationUser user, IEnumerable<OrderDetail> orderDetail)
     {
         PurchaseDetailsMailModel purchaseDetailsMailModel = new(User: user, OrderDetails: orderDetail);
-
+        string template = await _emailService.GetTemplate(((int)MailTemplates.PurchaseDetails));
+        string templateCompiled = await _emailService.GetCompiledTemplateAsync(template, purchaseDetailsMailModel);
         return new MailRequest
         (
             Email: user.Email,
             Subject: "test email send",
-            Body: _emailService.GetTemplate<PurchaseDetailsMailModel>(mailTemplateName: MailTemplateNames.OrderDetail, mailTemplateModel: purchaseDetailsMailModel)
+            Body: templateCompiled
         );
     }
 
