@@ -22,4 +22,4 @@ services:
       - ~/.aspnet/https:/root/.aspnet/https:ro
     depends_on:
       - sqlServer
-    image: ecommerce:v5
+    image: ecommerce:v7
