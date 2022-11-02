@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Ecommerce.Core.Entities;
 using Ecommerce.Core.Interfaces;
+using Ecommerce.Infrastructure.Persistence;
 using Ecommerce.Infrastructure.Persistence.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,10 +9,10 @@ namespace Ecommerce.Infrastructure.Repository;
 
 public class EfRepository<T> : IEfRepository<T> where T : BaseEntity
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IDbContext _db;
     internal DbSet<T> dbset;
 
-    public EfRepository(ApplicationDbContext db)
+    public EfRepository(IDbContext db)
     {
         _db = db;
         this.dbset = _db.Set<T>();

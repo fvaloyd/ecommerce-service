@@ -3,6 +3,7 @@ using Ecommerce.Api.Dtos.Store;
 using Ecommerce.Core.Consts;
 using Ecommerce.Core.Entities;
 using Ecommerce.Core.Interfaces;
+using Ecommerce.Infrastructure.Persistence;
 using Ecommerce.Infrastructure.Persistence.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,14 +16,14 @@ public class StoreController : ApiControllerBase
     private readonly IStoreService _storeService;
     private readonly IEfRepository<Store> _storeRepo;
     private readonly IEfRepository<ProductStore> _productStoreRepo;
-    private readonly ApplicationDbContext _db;
+    private readonly IDbContext _db;
     private readonly IMapper _mapper;
 
     public StoreController(
         IStoreService storeService,
         IEfRepository<Store> storeRepo,
         IMapper mapper,
-        ApplicationDbContext db,
+        IDbContext db,
         IEfRepository<ProductStore> productStoreRepo)
     {
         _storeService = storeService;

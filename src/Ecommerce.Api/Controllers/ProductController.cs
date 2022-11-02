@@ -5,6 +5,7 @@ using Ecommerce.Core.Consts;
 using Ecommerce.Core.Entities;
 using Ecommerce.Core.Interfaces;
 using Ecommerce.Core.Models;
+using Ecommerce.Infrastructure.Persistence;
 using Ecommerce.Infrastructure.Persistence.Identity;
 using Ecommerce.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -18,14 +19,14 @@ public class ProductController : ApiControllerBase
     private readonly IProductService _productService;
     private readonly IEfRepository<Product> _productRepo;
     private readonly IMapper _mapper;
-    private readonly ApplicationDbContext _db;
+    private readonly IDbContext _db;
     private readonly ICloudinaryService _cloudinaryService;
 
     public ProductController(
         IProductService productService,
         IMapper mapper,
         IEfRepository<Product> productRepo,
-        ApplicationDbContext db,
+        IDbContext db,
         ICloudinaryService cloudinaryService)
     {
         _productService = productService;
