@@ -13,9 +13,9 @@ public class ProductService : IProductService
         _storeProductRepo = storeProductRepo;
     }
 
-    public async Task DeleteProductStoreRelation(int productId)
+    public void DeleteProductStoreRelation(int productId)
     {
-        var storeProduct = await _storeProductRepo.GetAllAsync(sp => sp.ProductId == productId);
+        var storeProduct = _storeProductRepo.GetAll(sp => sp.ProductId == productId);
 
         if (storeProduct is null) throw new InvalidOperationException($"Store doesnt have a product with Id: ${productId}");
 

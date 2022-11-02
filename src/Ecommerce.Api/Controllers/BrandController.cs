@@ -21,9 +21,9 @@ public class BrandController : ApiControllerBase
     }
 
     [HttpGet("GetAll")]
-    public async Task<ActionResult<IEnumerable<Brand>>> GetAllBrands()
+    public ActionResult<IEnumerable<Brand>> GetAllBrands()
     {
-        IEnumerable<Brand> brands = await _brandRepo.GetAllAsync(); 
+        IEnumerable<Brand> brands = _brandRepo.GetAll(); 
         return brands.ToList();
     }
 
@@ -72,7 +72,7 @@ public class BrandController : ApiControllerBase
         brandToUpdate.Name = brandDto.Name;
         brandToUpdate.State = brandDto.State;
 
-        _brandRepo.UpdateAsync(id, brandToUpdate);
+        _brandRepo.Update(id, brandToUpdate);
 
         int result = await _brandRepo.SaveChangeAsync();
 

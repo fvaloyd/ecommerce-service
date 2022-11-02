@@ -116,11 +116,11 @@ public class BasketService : IBasketService
         return true;
     }
 
-    public async Task<IEnumerable<Product>> GetAllProducts(string userId)
+    public IEnumerable<Product> GetAllProducts(string userId)
     {
         Store store = _storeRepo.GetFirst();
 
-        IEnumerable<Basket> userBaskets = await _basketRepo.GetAllAsync(b => b.ApplicationUserId == userId, IncludeProperty: "Product");
+        IEnumerable<Basket> userBaskets = _basketRepo.GetAll(b => b.ApplicationUserId == userId, IncludeProperty: "Product");
 
         if (userBaskets is null) throw new InvalidOperationException("The user did not have a basket associated");
 

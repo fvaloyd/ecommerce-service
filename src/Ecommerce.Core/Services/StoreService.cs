@@ -58,9 +58,9 @@ public class StoreService : IStoreService
         return true;
     }
 
-    public async Task DeleteProductStoreRelation(int storeId)
+    public void DeleteProductStoreRelation(int storeId)
     {
-        IEnumerable<ProductStore> productStore = await _productStoreRepo.GetAllAsync(ps => ps.StoreId == storeId);
+        IEnumerable<ProductStore> productStore = _productStoreRepo.GetAll(ps => ps.StoreId == storeId);
 
         if (productStore is null) throw new InvalidOperationException("Store doesn't exist.");
 

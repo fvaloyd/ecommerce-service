@@ -37,9 +37,9 @@ public class ProductController : ApiControllerBase
     }
 
     [HttpGet("GetAll")]
-    public async Task<ActionResult<IEnumerable<GetProductDto>>> GetAllProducts()
+    public ActionResult<IEnumerable<GetProductDto>> GetAllProducts()
     {
-        IEnumerable<Product> products = await _productRepo.GetAllAsync(IncludeProperty: "Brand,Category");
+        IEnumerable<Product> products = _productRepo.GetAll(IncludeProperty: "Brand,Category");
         IEnumerable<GetProductDto> productsDto = products.Select(p => _mapper.Map<GetProductDto>(p));
         return productsDto.ToList();
     }
@@ -95,7 +95,7 @@ public class ProductController : ApiControllerBase
 
         _mapper.Map(productDto, productToEdit);
 
-        _productRepo.UpdateAsync(id, productToEdit);
+        _productRepo.Update(id, productToEdit);
 
         int result = await _productRepo.SaveChangeAsync();
 
@@ -116,7 +116,7 @@ public class ProductController : ApiControllerBase
 
         _productRepo.Remove(productToDelete);
 
-        await _productService.DeleteProductStoreRelation(id);
+        _productService.DeleteProductStoreRelation(id);
 
         await _cloudinaryService.DeleteImage(productToDelete.Name.Replace(' ', '-'));
 

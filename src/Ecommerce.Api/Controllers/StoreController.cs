@@ -34,9 +34,9 @@ public class StoreController : ApiControllerBase
     }
 
     [HttpGet("GetAll")]
-    public async Task<ActionResult<IEnumerable<Store>>> GetAllStores()
+    public ActionResult<IEnumerable<Store>> GetAllStores()
     {
-        IEnumerable<Store> stores = await _storeRepo.GetAllAsync();
+        IEnumerable<Store> stores = _storeRepo.GetAll();
         return stores.ToList();
     }
 
@@ -78,7 +78,7 @@ public class StoreController : ApiControllerBase
         storeToUpdate.Name = storeDto.Name;
         storeToUpdate.State = storeDto.State;
 
-        _storeRepo.UpdateAsync(id, storeToUpdate);
+        _storeRepo.Update(id, storeToUpdate);
 
         int result = await _storeRepo.SaveChangeAsync();
 
@@ -98,7 +98,7 @@ public class StoreController : ApiControllerBase
 
         _storeRepo.Remove(storeToDelete);
 
-        await _storeService.DeleteProductStoreRelation(id);
+        _storeService.DeleteProductStoreRelation(id);
 
         int operationResult = await _db.SaveChangesAsync();
 
@@ -144,13 +144,13 @@ public class StoreController : ApiControllerBase
     }
 
     [HttpGet("GetStoreWithProducts/{id}")]
-    public async Task<ActionResult<StoreWithProductDto>> GetStoreWithProducts(int id)
+    public ActionResult<StoreWithProductDto> GetStoreWithProducts(int id)
     {
         var store = _storeRepo.GetFirst(s => s.Id == id);
 
         if (store is null) return NotFound("Could not found the store");
 
-        var productStore = await _productStoreRepo.GetAllAsync(s => s.StoreId == id, IncludeProperty: "Product");
+        var productStore = _productStoreRepo.GetAll(s => s.StoreId == id, IncludeProperty: "Product");
 
         if (productStore is null) return NotFound("Could not found the store");
 

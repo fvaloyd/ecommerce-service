@@ -51,7 +51,7 @@ public class PaymentController : ApiControllerBase
 
             if (user is null) return NotFound("Could not found the user");
 
-            IEnumerable<Basket> userBasket = await _basketRepo.GetAllAsync(b => b.ApplicationUserId == user.Id, IncludeProperty: "Product");
+            IEnumerable<Basket> userBasket = _basketRepo.GetAll(b => b.ApplicationUserId == user.Id, IncludeProperty: "Product");
 
             if (userBasket is null) return BadRequest("The user not have items in basket");
             #endregion
@@ -91,7 +91,7 @@ public class PaymentController : ApiControllerBase
             #endregion
 
             #region SEND MAIL
-            IEnumerable<OrderDetail> OrderDetailWithProduct = await _orderDetailRepo.GetAllAsync(od => od.OrderId == orderCreated.Id, IncludeProperty: "Product");
+            IEnumerable<OrderDetail> OrderDetailWithProduct = _orderDetailRepo.GetAll(od => od.OrderId == orderCreated.Id, IncludeProperty: "Product");
             var mailRequest = await CreateMailRequest(user, OrderDetailWithProduct);
             await _emailService.SendAsync(mailRequest);
             #endregion

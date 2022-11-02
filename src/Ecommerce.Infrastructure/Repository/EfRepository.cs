@@ -18,7 +18,7 @@ public class EfRepository<T> : IEfRepository<T> where T : BaseEntity
         this.dbset = _db.Set<T>();
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> Filter = null!, string IncludeProperty = null!)
+    public IEnumerable<T> GetAll(Expression<Func<T, bool>> Filter = null!, string IncludeProperty = null!)
     {
         IQueryable<T> query = dbset;
         if (Filter is not null)
@@ -32,7 +32,7 @@ public class EfRepository<T> : IEfRepository<T> where T : BaseEntity
                 query = query.Include(prop);
             }
         }
-        return await query.ToListAsync();
+        return query.ToList();
     }
 
     public T GetFirst(Expression<Func<T, bool>> Filter = null!, string IncludeProperty = null!)
@@ -82,7 +82,7 @@ public class EfRepository<T> : IEfRepository<T> where T : BaseEntity
         dbset.RemoveRange(entities);
     }
 
-    public void UpdateAsync(int id, T entity)
+    public void Update(int id, T entity)
     {
         dbset.Update(entity);
     }

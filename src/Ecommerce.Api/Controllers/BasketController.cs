@@ -94,12 +94,12 @@ public class BasketController : ApiControllerBase
     }
 
     [HttpGet("GetAllProduct")]
-    public async Task<ActionResult<BasketProductDto>> GetAllProduct()
+    public ActionResult<BasketProductDto> GetAllProduct()
     {
         ClaimsPrincipal currentUser = HttpContext.User;
         string userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
-        IEnumerable<Basket> userBasket = await _basketRepo.GetAllAsync(b => b.ApplicationUserId == userId, IncludeProperty: "Product");
+        IEnumerable<Basket> userBasket = _basketRepo.GetAll(b => b.ApplicationUserId == userId, IncludeProperty: "Product");
 
         if (userBasket.Count() == 0) return NotFound("No basket associated");
 

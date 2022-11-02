@@ -21,9 +21,9 @@ public class CategoryController : ApiControllerBase
     }
 
     [HttpGet("GetAll")]
-    public async Task<ActionResult<IEnumerable<Category>>> GetAllCategories()
+    public ActionResult<IEnumerable<Category>> GetAllCategories()
     {
-        IEnumerable<Category> categories = await _categoryRepo.GetAllAsync();
+        IEnumerable<Category> categories = _categoryRepo.GetAll();
         return categories.ToList();
     }
 

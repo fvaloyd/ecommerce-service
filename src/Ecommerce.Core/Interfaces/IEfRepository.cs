@@ -5,7 +5,7 @@ namespace Ecommerce.Core.Interfaces;
 
 public interface IEfRepository<T> where T : BaseEntity
 {
-    Task<IEnumerable<T>> GetAllAsync(
+    IEnumerable<T> GetAll(
         Expression<Func<T, bool>> Filter = null!,
         string IncludeProperty = null!);
 
@@ -16,7 +16,7 @@ public interface IEfRepository<T> where T : BaseEntity
     Task<T> AddAsync(T entity);
     Task<bool> AddRangeAsync(IEnumerable<T> entities);
 
-    void UpdateAsync(int id, T entity);
+    void Update(int id, T entity);
 
     Task RemoveAsync(int id);
 
