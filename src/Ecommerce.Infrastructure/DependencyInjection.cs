@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Ecommerce.Infrastructure.Repository;
 using Ecommerce.Core.Services;
 using Ecommerce.Infrastructure.EmailSender;
+using Ecommerce.Infrastructure.Persistence;
 
 namespace Ecommerce.Infrastructure;
 
@@ -69,6 +70,7 @@ public static class DependencyInjection
         });
 
         // Services
+        services.AddScoped<IDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped(typeof(IEfRepository<>), typeof(EfRepository<>));
         services.AddScoped<IProductService, ProductService>();
