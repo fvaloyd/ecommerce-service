@@ -28,19 +28,19 @@ public class ProductServiceTest
     }
 
     [Fact]
-    public async Task DeleteProductStoreRelation_WithNoSpecificProductInStore_ShouldThrowInvalidOperationException()
+    public void DeleteProductStoreRelation_WithNoSpecificProductInStore_ShouldThrowInvalidOperationException()
     {
-        productStoreRepoMock.Setup(psr => psr.GetAllAsync(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!).Result).Returns<ProductStore>(null);
+        productStoreRepoMock.Setup(psr => psr.GetAll(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns<ProductStore>(null);
 
         var productServiceMock = CreateProductService();
 
-        Func<Task> act = () => productServiceMock.DeleteProductStoreRelation(productMock.Id);
+        Action act = () => productServiceMock.DeleteProductStoreRelation(productMock.Id);
 
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage($"Store doesnt have a product with Id: ${productMock.Id}");
+        act.Should().Throw<InvalidOperationException>().WithMessage($"Store doesnt have a product with Id: ${productMock.Id}");
     }
 
     [Fact]
-    public async Task DeleteProductStoreRelation_WithSpecificProductInStore_ShouldRemoveTheStoreProductRelatedWithSpecificProduct()
+    public void DeleteProductStoreRelation_WithSpecificProductInStore_ShouldRemoveTheStoreProductRelatedWithSpecificProduct()
     {
         IEnumerable<ProductStore> productStores = new List<ProductStore>()
         {
@@ -49,12 +49,12 @@ public class ProductServiceTest
 
         int removeStoreCall = 0;
 
-        productStoreRepoMock.Setup(psr => psr.GetAllAsync(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!).Result).Returns(productStores);
+        productStoreRepoMock.Setup(psr => psr.GetAll(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns(productStores);
         productStoreRepoMock.Setup(psr => psr.RemoveRange(It.IsAny<IEnumerable<ProductStore>>())).Callback(() => ++removeStoreCall);
 
         var productServiceMock = CreateProductService();
 
-        await productServiceMock.DeleteProductStoreRelation(productMock.Id);
+        productServiceMock.DeleteProductStoreRelation(productMock.Id);
 
         removeStoreCall.Should().Be(1);
     }

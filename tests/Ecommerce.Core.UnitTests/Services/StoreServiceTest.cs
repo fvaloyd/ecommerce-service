@@ -92,31 +92,31 @@ public class StoreServiceTest
     }
 
     [Fact]
-    public async Task DeleteRelationProduct_WithUnExistProductStoreRelation_ShouldThrowInvalidOperationException()
+    public void DeleteRelationProduct_WithUnExistProductStoreRelation_ShouldThrowInvalidOperationException()
     {
-        productStoreRepoMock.Setup(psr => psr.GetAllAsync(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!).Result).Returns<IEnumerable<ProductStore>>(null);
+        productStoreRepoMock.Setup(psr => psr.GetAll(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns<IEnumerable<ProductStore>>(null);
 
         var storeServiceMock = CreateStoreService();
 
-        Func<Task> act = () => storeServiceMock.DeleteProductStoreRelation(It.IsAny<int>());
+        Action act = () => storeServiceMock.DeleteProductStoreRelation(It.IsAny<int>());
 
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("Store doesn't exist.");
+        act.Should().Throw<InvalidOperationException>().WithMessage("Store doesn't exist.");
     }
 
     [Fact]
-    public async Task DeleteRelationProduct_WhenExistAListOfProductStore_ShouldRemoveTheListOfProductStores()
+    public void DeleteRelationProduct_WhenExistAListOfProductStore_ShouldRemoveTheListOfProductStores()
     {
         IEnumerable<ProductStore> productStoresMock = new List<ProductStore>
         {
             productStoreMock
         };
         int removeRangeProductStoresCall = 0;
-        productStoreRepoMock.Setup(psr => psr.GetAllAsync(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!).Result).Returns(productStoresMock);
+        productStoreRepoMock.Setup(psr => psr.GetAll(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns(productStoresMock);
         productStoreRepoMock.Setup(psr => psr.RemoveRange(It.IsAny<IEnumerable<ProductStore>>())).Callback(() => ++removeRangeProductStoresCall);
 
         var storeServiceMock = CreateStoreService();
 
-        await storeServiceMock.DeleteProductStoreRelation(It.IsAny<int>());
+        storeServiceMock.DeleteProductStoreRelation(It.IsAny<int>());
 
         removeRangeProductStoresCall.Should().Be(1);
     } 

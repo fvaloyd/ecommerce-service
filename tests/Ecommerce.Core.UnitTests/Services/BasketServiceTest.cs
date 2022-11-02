@@ -254,17 +254,17 @@ public class BasketServiceTest
     public void GetAllProducts_WithNoUserBasket_ShouldThrowInvalidOperationException()
     {
         storeRepoMoq.Setup(sr => sr.GetFirst(null!, null!)).Returns(storeMock);
-        basketRepoMoq.Setup(br => br.GetAllAsync(It.IsAny<Expression<Func<Basket, bool>>>(), It.IsAny<string>()).Result).Returns<IEnumerable<Basket>>(null);
+        basketRepoMoq.Setup(br => br.GetAll(It.IsAny<Expression<Func<Basket, bool>>>(), It.IsAny<string>())).Returns<IEnumerable<Basket>>(null);
         
         var basketServiceMock =  CreateBasketServiceMock();
 
-        var act = () => basketServiceMock.GetAllProducts("").Result;
+        var act = () => basketServiceMock.GetAllProducts("");
 
         act.Should().Throw<InvalidOperationException>().WithMessage("The user did not have a basket associated");
     }
 
     [Fact]
-    public async Task GetAllProducts_WithBasketAssociateAndProductOnBasket_Should_ReturnAListOfProducts()
+    public void GetAllProducts_WithBasketAssociateAndProductOnBasket_Should_ReturnAListOfProducts()
     {
         basketMock.Product = productMock;
 
@@ -274,12 +274,12 @@ public class BasketServiceTest
         };
 
         storeRepoMoq.Setup(sr => sr.GetFirst(null!, null!)).Returns(storeMock);
-        basketRepoMoq.Setup(br => br.GetAllAsync(It.IsAny<Expression<Func<Basket, bool>>>(), It.IsAny<string>()).Result).Returns(userBasketsMock);
+        basketRepoMoq.Setup(br => br.GetAll(It.IsAny<Expression<Func<Basket, bool>>>(), It.IsAny<string>())).Returns(userBasketsMock);
 
         
         var basketServiceMock =  CreateBasketServiceMock();      
 
-        var result = await basketServiceMock.GetAllProducts("");
+        var result = basketServiceMock.GetAllProducts("");
 
         result.Should().BeOfType<List<Product>>();
    }
