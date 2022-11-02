@@ -10,14 +10,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IDbConte
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options){}
 
-    public DbSet<Product> Products { get; set; } = null!;
-    public DbSet<Store> Stores { get; set; } = null!;
-    public DbSet<ProductStore> ProductStores { get; set; } = null!;
-    public DbSet<Brand> Brands { get; set; } = null!;
-    public DbSet<Category> Categories { get; set; } = null!;
-    public DbSet<Basket> Baskets { get; set; } = null!;
-    public DbSet<Order> Orders { get; set; } = null!;
-    public DbSet<OrderDetail> OrderDetails { get; set; } = null!;
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<Store> Stores => Set<Store>();
+    public DbSet<ProductStore> ProductStores => Set<ProductStore>();
+    public DbSet<Brand> Brands => Set<Brand>();
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Basket> Baskets => Set<Basket>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderDetail> OrderDetails => Set<OrderDetail>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
