@@ -3,16 +3,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Infrastructure.Persistence;
 
-public interface IDbContext
+public interface IDbContext : IDisposable
 {
-    DbSet<Product> Products { get; set; }
-    DbSet<Store> Stores { get; set; }
-    DbSet<ProductStore> ProductStores { get; set; }
-    DbSet<Brand> Brands { get; set; }
-    DbSet<Category> Categories { get; set; }
-    DbSet<Basket> Baskets { get; set; }
-    DbSet<Order> Orders { get; set; }
-    DbSet<OrderDetail> OrderDetails { get; set; }
+    DbSet<TEntity> Set<TEntity>() where TEntity : class;
+    DbSet<Product> Products { get; }
+    DbSet<Store> Stores { get; }
+    DbSet<ProductStore> ProductStores { get; }
+    DbSet<Brand> Brands { get; }
+    DbSet<Category> Categories { get; }
+    DbSet<Basket> Baskets { get; }
+    DbSet<Order> Orders { get; }
+    DbSet<OrderDetail> OrderDetails { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
