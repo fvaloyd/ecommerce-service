@@ -16,7 +16,7 @@ public interface IEfRepository<T> where T : BaseEntity
     Task<T> AddAsync(T entity);
     Task<bool> AddRangeAsync(IEnumerable<T> entities);
 
-    void Update(int id, T entity);
+    void Update(T entity);
 
     Task RemoveAsync(int id);
 

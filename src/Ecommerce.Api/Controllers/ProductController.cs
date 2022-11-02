@@ -95,7 +95,7 @@ public class ProductController : ApiControllerBase
 
         _mapper.Map(productDto, productToEdit);
 
-        _productRepo.Update(id, productToEdit);
+        _productRepo.Update(productToEdit);
 
         int result = await _productRepo.SaveChangeAsync();
 

@@ -78,7 +78,7 @@ public class StoreController : ApiControllerBase
         storeToUpdate.Name = storeDto.Name;
         storeToUpdate.State = storeDto.State;
 
-        _storeRepo.Update(id, storeToUpdate);
+        _storeRepo.Update(storeToUpdate);
 
         int result = await _storeRepo.SaveChangeAsync();
 

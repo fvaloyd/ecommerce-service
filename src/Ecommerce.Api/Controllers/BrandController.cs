@@ -72,7 +72,7 @@ public class BrandController : ApiControllerBase
         brandToUpdate.Name = brandDto.Name;
         brandToUpdate.State = brandDto.State;
 
-        _brandRepo.Update(id, brandToUpdate);
+        _brandRepo.Update(brandToUpdate);
 
         int result = await _brandRepo.SaveChangeAsync();
 

@@ -82,7 +82,7 @@ public class EfRepository<T> : IEfRepository<T> where T : BaseEntity
         dbset.RemoveRange(entities);
     }
 
-    public void Update(int id, T entity)
+    public void Update(T entity)
     {
         dbset.Update(entity);
     }
