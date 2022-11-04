@@ -79,6 +79,7 @@ public static class DependencyInjection
         services.AddScoped<IStripeService, StripeService>();
         services.AddScoped<ICloudinaryService, CloudinaryService>();
         services.AddScoped<IEmailSender, SendiblueService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         return services;
     }
