@@ -35,6 +35,8 @@ public class BasketController : ApiControllerBase
     }
 
     [HttpPost("AddProduct")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddProduct(int productId)
     {
         var userId = _currentUserService.UserId;
@@ -47,6 +49,8 @@ public class BasketController : ApiControllerBase
     }
 
     [HttpPost("IncreaseProductQuantity")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> IncreaseProductQuantity(int productId)
     {
         var userId = _currentUserService.UserId;
@@ -59,6 +63,8 @@ public class BasketController : ApiControllerBase
     }
 
     [HttpPost("DecreaseProductQuantity")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DecreaseProductQuantity(int productId)
     {
         var userId = _currentUserService.UserId;
@@ -71,6 +77,9 @@ public class BasketController : ApiControllerBase
     }
 
     [HttpDelete("RemoveProduct")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RemoveProduct(int productId)
     {
         var userId = _currentUserService.UserId;
@@ -93,6 +102,9 @@ public class BasketController : ApiControllerBase
     }
 
     [HttpGet("GetAllProduct")]
+    [ProducesResponseType(typeof(BasketProductDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<BasketProductDto> GetAllProduct()
     {
         var userId = _currentUserService.UserId;
@@ -111,6 +123,6 @@ public class BasketController : ApiControllerBase
             Total: userBasket.Select(ub => ub.Total).ToList().Aggregate((acc, next) => acc + next)
         );
 
-        return basketProductDto;
+        return Ok(basketProductDto);
     }
 }
