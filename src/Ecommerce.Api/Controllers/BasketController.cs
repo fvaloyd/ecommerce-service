@@ -15,6 +15,7 @@ namespace Ecommerce.Api.Controllers;
 public class BasketController : ApiControllerBase
 {
     private readonly IEfRepository<Basket> _basketRepo;
+    private readonly ICurrentUserService _currentUserService;
     private readonly IBasketService _basketService;
     private readonly IMapper _mapper;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -23,21 +24,22 @@ public class BasketController : ApiControllerBase
         IEfRepository<Basket> basketRepo,
         IBasketService basketService,
         IMapper mapper,
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager,
+        ICurrentUserService currentUserService)
     {
         _basketRepo = basketRepo;
         _basketService = basketService;
         _mapper = mapper;
         _userManager = userManager;
+        _currentUserService = currentUserService;
     }
 
     [HttpPost("AddProduct")]
     public async Task<IActionResult> AddProduct(int productId)
     {
-        ClaimsPrincipal currentUser = HttpContext.User;
-        string userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var userId = _currentUserService.UserId;
 
-        bool operationResult = await _basketService.AddProductAsync(productId: productId, userId: userId);
+        bool operationResult = await _basketService.AddProductAsync(productId: productId, userId: userId!);
 
         if (operationResult is false) return BadRequest("Could not add the product to the basket");
 
@@ -47,10 +49,9 @@ public class BasketController : ApiControllerBase
     [HttpPost("IncreaseProductQuantity")]
     public async Task<IActionResult> IncreaseProductQuantity(int productId)
     {
-        ClaimsPrincipal currentUser = HttpContext.User;
-        string userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var userId = _currentUserService.UserId;
 
-        bool operationResult = await _basketService.IncreaseProduct(productId: productId, userId: userId);
+        bool operationResult = await _basketService.IncreaseProduct(productId: productId, userId: userId!);
 
         if (operationResult is false) return BadRequest("Could not increase the quantity");
 
@@ -60,21 +61,19 @@ public class BasketController : ApiControllerBase
     [HttpPost("DecreaseProductQuantity")]
     public async Task<IActionResult> DecreaseProductQuantity(int productId)
     {
-        ClaimsPrincipal currentUser = HttpContext.User;
-        string userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var userId = _currentUserService.UserId;
 
-        bool operationResult = await _basketService.DecreaseProduct(productId: productId, userId: userId);
+        bool operationResult = await _basketService.DecreaseProduct(productId: productId, userId: userId!);
 
         if (operationResult is false) return BadRequest("Could not decrease the quantity");
 
-        return Ok("Quantity decrease sucessfully");
+        return Ok("Quantity decrease successfully");
     }
 
     [HttpDelete("RemoveProduct")]
     public async Task<IActionResult> RemoveProduct(int productId)
     {
-        ClaimsPrincipal currentUser = HttpContext.User;
-        string userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var userId = _currentUserService.UserId;
 
         Basket productToDelete = _basketRepo.GetFirst(b => b.ProductId == productId && b.ApplicationUserId == userId, IncludeProperty: "Product");
 
@@ -96,8 +95,7 @@ public class BasketController : ApiControllerBase
     [HttpGet("GetAllProduct")]
     public ActionResult<BasketProductDto> GetAllProduct()
     {
-        ClaimsPrincipal currentUser = HttpContext.User;
-        string userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        var userId = _currentUserService.UserId;
 
         IEnumerable<Basket> userBasket = _basketRepo.GetAll(b => b.ApplicationUserId == userId, IncludeProperty: "Product");
 
