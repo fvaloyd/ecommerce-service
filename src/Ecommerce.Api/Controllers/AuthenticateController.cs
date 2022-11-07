@@ -120,30 +120,34 @@ public class AuthenticateController : ApiControllerBase
     {
         ApplicationUser user = await _userManager.FindByEmailAsync(model.Email);
 
+        if (user is null) return Unauthorized();
+
         bool isEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
 
         if (!isEmailConfirmed)
         {
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user); 
-            var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authenticate", new { token, email = user.Email}, Request.Scheme);
-
-            var mailRequest = await CreateMailRequest(user, confirmationLink!);
-            await _emailService.SendAsync(mailRequest);
-            return BadRequest("You need to confirm your email");
+            await SendMailToConfirmEmail(user);
+            return BadRequest("You need to confirm your email. Check your mail to confirm");
         }
 
-        if (user is not null && await _userManager.CheckPasswordAsync(user, model.Password))
-        {
-            string token = await _tokenService.CreateToken(model);
-            string RefreshToken = _tokenService.CreateRefreshToken();
+        if (!await _userManager.CheckPasswordAsync(user, model.Password)) return BadRequest("Incorrect password");
 
-            user.RefreshToken = RefreshToken;
-            user.RefreshTokenExpireTime = DateTime.Now.AddHours(3);
-            await _userManager.UpdateAsync(user);
+        string accessToken = await _tokenService.CreateToken(model);
+        string RefreshToken = _tokenService.CreateRefreshToken();
 
+        user.RefreshToken = RefreshToken;
+        user.RefreshTokenExpireTime = DateTime.Now.AddHours(3);
 
-            return Ok(new AuthenticateResponse(AccessToken: token, RefreshToken: RefreshToken));
-        }
-        return Unauthorized();
+        await _userManager.UpdateAsync(user);
+
+        return Ok(new AuthenticateResponse(AccessToken: accessToken, RefreshToken: RefreshToken));
+    }
+    private async Task SendMailToConfirmEmail(ApplicationUser user)
+    {
+        var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user); 
+        var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authenticate", new { emailConfirmationToken, email = user.Email}, Request.Scheme);
+
+        var mailRequest = await CreateMailRequest(user, confirmationLink!);
+        await _emailService.SendAsync(mailRequest);
     }
 }
