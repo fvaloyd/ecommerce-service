@@ -1,4 +1,3 @@
-using Castle.Core.Smtp;
 using Ecommerce.Core.Models;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers.Authenticate;
