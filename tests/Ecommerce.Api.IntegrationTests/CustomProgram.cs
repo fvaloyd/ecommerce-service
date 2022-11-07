@@ -13,15 +13,6 @@ internal class CustomProgram : WebApplicationFactory<Program>
 {
     protected override IHost CreateHost(IHostBuilder builder)
     {
-        builder.ConfigureAppConfiguration(configurationBuilder => {
-            var integrationConfig = new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json")
-                    .AddEnvironmentVariables()
-                    .Build();
-
-            configurationBuilder.AddConfiguration(integrationConfig);
-        });
-
         builder.ConfigureServices((builder, services) => {
             services.Remove<DbContextOptions<ApplicationDbContext>>()
                     .AddDbContext<ApplicationDbContext>((sp, options) => {
