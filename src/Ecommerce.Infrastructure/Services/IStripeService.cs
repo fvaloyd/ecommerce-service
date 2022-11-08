@@ -11,4 +11,5 @@ public interface IStripeService
     Charge CreateChargeToken(string cardToken, decimal amount, ApplicationUser user);
     Task<Refund> CreateRefundToken(string chargeToken);
     Task<Customer> CreateCustomerToken(ApplicationUser user);
+    void DeleteCustomer(ApplicationUser user);
 }

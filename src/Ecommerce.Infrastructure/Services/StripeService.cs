@@ -77,4 +77,10 @@ public class StripeService : IStripeService
         var service = new RefundService();
         return await service.CreateAsync(refundOptions);
     }
+
+    public void DeleteCustomer(ApplicationUser user)
+    {
+        var customerService = new CustomerService();
+        customerService.Delete(user.CustomerId);
+    }
 }
