@@ -2,14 +2,8 @@ using Ecommerce.Core.Models;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers.Authenticate;
 
-public sealed class LoginTests
+public sealed class LoginTests : BaseIntegrationTest
 {
-    public LoginTests()
-    {
-        var app = new CustomProgram();
-        httpClient = app.CreateDefaultClient();
-    }
-    private HttpClient httpClient;
     private string endPointPath = "/api/authenticate/login";
     private Object authenticatedUser = new {
         Email = "admin@gmail.com",
@@ -27,7 +21,7 @@ public sealed class LoginTests
     [Fact]
     public async Task Login_WithAuthenticatedUser_ShouldReturnAnAuthenticationResponse()
     {
-        var httpResponse = await httpClient.PostAsJsonAsync("/api/authenticate/login", authenticatedUser);
+        var httpResponse = await _httpClient.PostAsJsonAsync(endPointPath, authenticatedUser);
 
         var stringResult = await httpResponse.Content.ReadAsStringAsync();
 
@@ -43,7 +37,7 @@ public sealed class LoginTests
     [Fact]
     public async Task Login_WithUnAuthenticateUser_ShouldReturnUnauthorize()
     {
-        var httpResponse = await httpClient.PostAsJsonAsync("/api/authenticate/login", unAuthenticatedUser);
+        var httpResponse = await _httpClient.PostAsJsonAsync(endPointPath, unAuthenticatedUser);
 
         httpResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -51,7 +45,7 @@ public sealed class LoginTests
     [Fact]
     public async Task Login_WithIncorrectPassword_ShouldReturnBadRequest()
     {
-        var httpResponse = await httpClient.PostAsJsonAsync("/api/authenticate/login", authenticatedUserWithIncorrectPassword);
+        var httpResponse = await _httpClient.PostAsJsonAsync(endPointPath, authenticatedUserWithIncorrectPassword);
         httpResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }
