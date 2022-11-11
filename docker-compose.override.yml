@@ -6,5 +6,5 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings:ApplicationConnection=Server=sqlServer,1433;User=sa;Password=francis.123;Database=EcommerceDb;MultipleActiveResultSets=True;
     volumes:
-      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+      - ~/AppData/Roaming/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ~/.aspnet/https:/root/.aspnet/https:ro

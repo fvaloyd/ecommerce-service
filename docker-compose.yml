@@ -16,4 +16,4 @@ services:
       - 5200:80
     depends_on:
       - sqlServer
-    image: ecommerce:v7
+    image: ecommerce:v1
