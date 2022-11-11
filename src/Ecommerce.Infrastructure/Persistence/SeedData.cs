@@ -33,7 +33,14 @@ public class SeedData
             }
             if (!await _context.Products.AnyAsync())
             {
-                await _context.Products.AddRangeAsync(GetProducts());
+                int brandId = _context.Brands.Select(b => b.Id).FirstOrDefault();
+                int categoryId = _context.Categories.Select(c => c.Id).FirstOrDefault();
+                List<Product> products = GetProducts().ToList();
+                products.ForEach(p => {
+                    p.BrandId = brandId;
+                    p.CategoryId = categoryId;
+                });
+                await _context.Products.AddRangeAsync(products);
                 await _context.SaveChangesAsync();
             }
         }
@@ -95,24 +102,18 @@ public class SeedData
             {
                 Name = "Xiaomi 11t Pro",
                 Price = 400,
-                BrandId = 3,
-                CategoryId = 2,
                 ImageUrl = "https://res.cloudinary.com/drxp8iwrd/image/upload/v1665071963/Ecommerce/Xiaomi-11t-Pro.jpg"
             },
             new Product
             {
                 Name = "Hp Pavilion 15",
                 Price = 600,
-                BrandId = 1,
-                CategoryId = 1,
                 ImageUrl = "https://res.cloudinary.com/drxp8iwrd/image/upload/v1665072046/Ecommerce/Hp-Pavilion-15.jpg"
             },
             new Product
             {
                 Name = "Dell Inspiron 15",
                 Price = 800,
-                BrandId = 2,
-                CategoryId = 1,
                 ImageUrl = "https://res.cloudinary.com/drxp8iwrd/image/upload/v1665072015/Ecommerce/Dell-Inspiron-15.jpg"
             }
         };
