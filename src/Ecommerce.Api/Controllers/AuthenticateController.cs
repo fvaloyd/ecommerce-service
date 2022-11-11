@@ -37,7 +37,7 @@ public class AuthenticateController : ApiControllerBase
     {
         ApplicationUser userExist = await _userManager.FindByEmailAsync(model.Email);
 
-        if (userExist != null) return StatusCode(StatusCodes.Status500InternalServerError, new Response(Status:HttpStatusCode.InternalServerError, Message: "User already exist"));
+        if (userExist != null) return StatusCode(StatusCodes.Status400BadRequest, new Response(Status:HttpStatusCode.InternalServerError, Message: "User already exist"));
 
         ApplicationUser user = new()
         {
