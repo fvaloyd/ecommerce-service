@@ -11,7 +11,6 @@ public class RegisterTests
     {
         _baseIntegrationTest = baseIntegrationTest;
     }
-    ApplicationUser userCreated = null!;
     string endPointPath = "/api/authenticate/register";
     RegisterUser ValidUser = new() {
         Email = "test@gmail.com",
