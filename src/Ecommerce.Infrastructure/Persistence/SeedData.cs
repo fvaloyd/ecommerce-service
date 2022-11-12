@@ -50,7 +50,7 @@ public class SeedData
                 var products = _context.Products.ToArray();
                 int count = 0;
 
-                while(count == productStores.Count())
+                while(count != productStores.Count())
                 {
                     productStores[count].ProductId = products[count].Id;
                     productStores[count].StoreId = storeId;
