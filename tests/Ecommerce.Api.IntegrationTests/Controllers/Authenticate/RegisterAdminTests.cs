@@ -13,9 +13,9 @@ public class ResgisterAdminTest
 
     string endPointPath = "/api/authenticate/register-admin";
     RegisterUser ValidUser = new() {
-        Email = "test@gmail.com",
-        Password = "test.123324234",
-        UserName = "test",
+        Email = "registeradmintest@gmail.com",
+        Password = "test.324234",
+        UserName = "registeradmintest",
         PhoneNumber = "8888888888"
     };
     RegisterUser ExistingUser = new() {
