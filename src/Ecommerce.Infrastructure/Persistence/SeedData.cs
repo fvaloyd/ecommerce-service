@@ -43,6 +43,22 @@ public class SeedData
                 await _context.Products.AddRangeAsync(products);
                 await _context.SaveChangesAsync();
             }
+            if (!await _context.ProductStores.AnyAsync())
+            {
+                var storeId = _context.Stores.Select(s => s.Id).FirstOrDefault();
+                var productStores = GetProductStores().ToList();
+                var products = _context.Products.ToArray();
+                int count = 0;
+
+                while(count == productStores.Count())
+                {
+                    productStores[count].ProductId = products[count].Id;
+                    productStores[count].StoreId = storeId;
+                    count++;
+                }
+                await _context.ProductStores.AddRangeAsync(productStores);
+                await _context.SaveChangesAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -55,6 +71,24 @@ public class SeedData
         {
             Name = "Default",
             State = true
+        };
+    }
+    static IEnumerable<ProductStore> GetProductStores()
+    {
+        return new List<ProductStore> 
+        {
+            new ProductStore
+            {
+                Quantity = 10
+            },
+            new ProductStore
+            {
+                Quantity = 10
+            },
+            new ProductStore
+            {
+                Quantity = 10
+            }
         };
     }
     static IEnumerable<Brand> GetBrands()
