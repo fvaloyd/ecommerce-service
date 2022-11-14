@@ -8,17 +8,23 @@ using Microsoft.Extensions.Hosting;
 
 namespace Ecommerce.Api.IntegrationTests.Startup;
 
-internal class CustomProgram : WebApplicationFactory<Program>
+internal class EcommerceProgram : WebApplicationFactory<Program>
 {
+    public ApplicationDbContext CreateApplicationDbContext()
+    {
+        var db = Services.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext();
+        db.Database.EnsureCreated();
+        return db;
+    }
     protected override IHost CreateHost(IHostBuilder builder)
     {
         builder.ConfigureServices((builder, services) => {
 
             services.Remove<DbContextOptions<ApplicationDbContext>>()
-                    .AddDbContext<ApplicationDbContext>((sp, options) => {
+                    .AddDbContextFactory<ApplicationDbContext>((sp, options) => {
                         options.UseSqlServer(builder.Configuration.GetConnectionString("TestConnection"),
-                            builder => builder.MigrationsAssembly(typeof(Ecommerce.Infrastructure.AssemblyReference).Assembly.FullName));
-            });
+                        builder => builder.MigrationsAssembly(typeof(Ecommerce.Infrastructure.AssemblyReference).Assembly.FullName));
+                    });
 
             services.Remove<IStripeService>()
                     .AddScoped<IStripeService, StripeServiceMock>();
