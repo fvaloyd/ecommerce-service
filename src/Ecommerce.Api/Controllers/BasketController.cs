@@ -1,12 +1,9 @@
-using System.Security.Claims;
 using AutoMapper;
 using Ecommerce.Api.Dtos.Basket;
 using Ecommerce.Api.Dtos.Product;
 using Ecommerce.Core.Entities;
 using Ecommerce.Core.Interfaces;
-using Ecommerce.Infrastructure.Identity;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.Api.Controllers;
@@ -18,19 +15,16 @@ public class BasketController : ApiControllerBase
     private readonly ICurrentUserService _currentUserService;
     private readonly IBasketService _basketService;
     private readonly IMapper _mapper;
-    private readonly UserManager<ApplicationUser> _userManager;
 
     public BasketController(
         IEfRepository<Basket> basketRepo,
         IBasketService basketService,
         IMapper mapper,
-        UserManager<ApplicationUser> userManager,
         ICurrentUserService currentUserService)
     {
         _basketRepo = basketRepo;
         _basketService = basketService;
         _mapper = mapper;
-        _userManager = userManager;
         _currentUserService = currentUserService;
     }
 
