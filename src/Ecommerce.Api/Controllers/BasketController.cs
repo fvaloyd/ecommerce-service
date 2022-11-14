@@ -80,7 +80,7 @@ public class BasketController : ApiControllerBase
 
         Basket productToDelete = _basketRepo.GetFirst(b => b.ProductId == productId && b.ApplicationUserId == userId, IncludeProperty: "Product");
 
-        if (productToDelete is null) return NotFound("Could not found the product in your basket");
+        if (productToDelete is null) return BadRequest("Could not found the product in your basket");
 
         bool RestoreProductQuantityIntoStoreResult = await _basketService.RestoreTheQuantityIntoStore(productToDelete);
 
@@ -103,9 +103,9 @@ public class BasketController : ApiControllerBase
     {
         var userId = _currentUserService.UserId;
 
-        IEnumerable<Basket> userBasket = _basketRepo.GetAll(b => b.ApplicationUserId == userId, IncludeProperty: "Product");
+        IEnumerable<Basket> userBasket = _basketRepo.GetAll(b => b.ApplicationUserId == userId, IncludeProperty: "Product"); // TODO: Modify repository to be able to include depth prop.
 
-        if (userBasket.Count() == 0) return NotFound("No basket associated");
+        if (userBasket.Count() == 0) return BadRequest("No basket associated");
 
         IEnumerable<Product> userBasketProducts = userBasket.Select(ub => ub.Product).ToList();
 
