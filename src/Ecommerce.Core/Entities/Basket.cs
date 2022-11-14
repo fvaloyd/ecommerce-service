@@ -41,4 +41,12 @@ public class Basket : BaseEntity
         ApplicationUserId = applicationUserId;
         Quantity = quantity;
     }
+
+    public Basket(Product product, string applicationUserId, int quantity = 1)
+    {
+        ProductId = product.Id;
+        ApplicationUserId = applicationUserId;
+        Quantity = quantity;
+        Total = product.Price * quantity;
+    }
 }
