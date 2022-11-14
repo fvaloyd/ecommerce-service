@@ -22,32 +22,29 @@ public class BaseIntegrationTest : IAsyncLifetime
     public HttpClient HttpClient = null!;
     public HttpClient AdminUserHttpClient = null!;
     public HttpClient DefaultUserHttpClient = null!;
-    internal CustomProgram _factory = null!;
+    internal EcommerceProgram EcommerceProgram = null!;
     private IConfiguration _configuration = null!;
     private Respawner _respawner = null!;
-
     public async Task InitializeAsync()
     {
-        _factory = new CustomProgram();
-        _configuration = _factory.Services.GetRequiredService<IConfiguration>();
-        HttpClient = _factory.CreateDefaultClient();
-        AdminUserHttpClient = await GetCustomHttpClient(_factory, HttpClient, adminUser);
-        DefaultUserHttpClient = await GetCustomHttpClient(_factory, HttpClient, defaultUser);
+        EcommerceProgram = new EcommerceProgram();
+        _configuration = EcommerceProgram.Services.GetRequiredService<IConfiguration>();
+        HttpClient = EcommerceProgram.CreateDefaultClient();
+        AdminUserHttpClient = await GetCustomHttpClient(EcommerceProgram, HttpClient, adminUser);
+        DefaultUserHttpClient = await GetCustomHttpClient(EcommerceProgram, HttpClient, defaultUser);
         _respawner = await Respawner.CreateAsync(_configuration.GetConnectionString("TestConnection"), new RespawnerOptions{
             TablesToIgnore = new Table[]
             {
                 "AspNetRoleClaims",
-                "AspNetRoles",
                 "AspNetUserClaims",
                 "AspNetUserLogins",
-                "AspNetUserRoles",
                 "AspNetUserTokens",
                 "__EFMigrationsHistory"
             }
         });
     }
 
-    private async Task<HttpClient> GetCustomHttpClient(CustomProgram program, HttpClient httpClient, LoginUser user)
+    private async Task<HttpClient> GetCustomHttpClient(EcommerceProgram program, HttpClient httpClient, LoginUser user)
     {
         var httpResponse = await httpClient.PostAsJsonAsync<LoginUser>("api/authenticate/login", user);
         var httpResponseReadedAsString = await httpResponse.Content.ReadAsStringAsync();
