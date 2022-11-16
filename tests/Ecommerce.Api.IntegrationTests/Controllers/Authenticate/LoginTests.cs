@@ -6,21 +6,22 @@ namespace Ecommerce.Api.IntegrationTests.Controllers.Authenticate;
 public sealed class LoginTests
 {
     BaseIntegrationTest _baseIntegrationTest;
+    string endPointPath = "/api/authenticate/login";
+
     public LoginTests(BaseIntegrationTest baseIntegrationTest)
     {
         _baseIntegrationTest = baseIntegrationTest;
     }
 
-    string endPointPath = "/api/authenticate/login";
-    Object authenticatedUser = new {
+    LoginUser authenticatedUser = new() {
         Email = "admin@gmail.com",
         Password = "password.123"
     };
-    Object authenticatedUserWithIncorrectPassword = new {
+    LoginUser authenticatedUserWithIncorrectPassword = new() {
         Email = "admin@gmail.com",
         Password = "password"
     };
-    Object unAuthenticatedUser = new {
+    LoginUser unAuthenticatedUser = new() {
         Email = "invalid@gmail.com",
         Password = "invalid.123"
     };
