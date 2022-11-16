@@ -25,7 +25,8 @@ public class AddProductTests
     {
         using var Db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
         int validProductId = Db.Products.Select(p => p.Id).First();
-
+        _ = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync($"api/basket/removeproduct?productId={validProductId.ToString()}");
+    
         var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + validProductId.ToString(), null);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
