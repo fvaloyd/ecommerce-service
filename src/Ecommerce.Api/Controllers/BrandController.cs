@@ -23,8 +23,8 @@ public class BrandController : ApiControllerBase
     [HttpGet("GetAll")]
     public ActionResult<IEnumerable<Brand>> GetAllBrands()
     {
-        IEnumerable<Brand> brands = _brandRepo.GetAll(); 
-        return brands.ToList();
+        IEnumerable<Brand> brands = _brandRepo.GetAll();
+        return Ok(brands);
     }
 
     [HttpGet("GetById/{id}", Name = "GetBrandById")]
@@ -38,16 +38,13 @@ public class BrandController : ApiControllerBase
         if (brand is null)
             return NotFound($"Brand with the id::{id} not found");
 
-        return brand;
+        return Ok(brand);
     }
 
     [HttpPost("Create")]
     [Authorize(Roles = UserRoles.Admin)]
     public async Task<IActionResult> CreateBrand([FromBody] PostBrandDto brandDto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest("Invalid brand");
-
         Brand brand = _mapper.Map<Brand>(brandDto);
         Brand brandCreated = await _brandRepo.AddAsync(brand);
 
