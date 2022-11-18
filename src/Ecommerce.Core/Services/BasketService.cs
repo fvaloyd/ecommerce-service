@@ -2,7 +2,7 @@ using Ecommerce.Core.Entities;
 using Ecommerce.Core.Interfaces;
 
 namespace Ecommerce.Core.Services;
-
+// TODO: Add methods for remove product and modify GetAllProduct to return a basketProductDto
 public class BasketService : IBasketService
 {
     private readonly IEfRepository<Basket> _basketRepo;
@@ -49,13 +49,7 @@ public class BasketService : IBasketService
         Basket userBasketExist = _basketRepo.GetFirst(b => b.ProductId == productId && b.ApplicationUserId == userId);
         if (userBasketExist is not null) return false;
 
-        Basket userBasket = new Basket()
-        {
-            ProductId = productId,
-            ApplicationUserId = userId,
-            Quantity = 1,
-            Total = 1 * productInStock.Product.Price
-        };
+        Basket userBasket = new Basket(productInStock.Product, userId);
 
         Basket basketCreated = await _basketRepo.AddAsync(userBasket);
 
