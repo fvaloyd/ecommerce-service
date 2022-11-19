@@ -22,6 +22,6 @@ public class Store : BaseEntity
 
     public Store(string name)
     {
-        Name = name;
+        SetName(name);
     }
 }
