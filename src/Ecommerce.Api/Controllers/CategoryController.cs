@@ -45,9 +45,6 @@ public class CategoryController : ApiControllerBase
     [Authorize(Roles = UserRoles.Admin)]
     public async Task<IActionResult> CreateCategory([FromBody] PostCategoryDto categoryDto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest("Invalid category");
-
         Category category = _mapper.Map<Category>(categoryDto);
 
         Category categoryAdded = await _categoryRepo.AddAsync(category);
@@ -64,9 +61,6 @@ public class CategoryController : ApiControllerBase
     {
         if (id < 1)
             return BadRequest("Invalid id");
-
-        if (!ModelState.IsValid)
-            return BadRequest("Invalid category");
 
         Category categoryToEdit = _categoryRepo.GetFirst(x => x.Id == id);
 
