@@ -13,7 +13,7 @@ public class OrderDetailConfiguration : IEntityTypeConfiguration<OrderDetail>
         builder.Property(od => od.ProductId).IsRequired();
         builder.Property(od => od.Quantity).IsRequired();
         builder.Property(od => od.OrderId).IsRequired();
-        builder.Property(od => od.UserName).IsRequired();
+        builder.Property(od => od.ApplicationUserId).IsRequired();
         builder.Property(od => od.UnitPrice).IsRequired();
     }
 }
