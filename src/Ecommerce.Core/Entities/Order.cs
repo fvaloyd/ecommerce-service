@@ -12,10 +12,12 @@ public class Order : BaseEntity
     public Order(){}
     public Order(
         string applicationUserId,
-        string paymentTransactionId)
+        string paymentTransactionId,
+        decimal total)
     {
         OrderDate = DateTime.Now;
         ApplicationUserId = applicationUserId;
-        OrderDetails = new();
+        PaymentTransactionId = paymentTransactionId;
+        Total = total;
     }
 }
