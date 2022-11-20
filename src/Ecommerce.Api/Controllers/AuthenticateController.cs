@@ -8,6 +8,7 @@ using Ecommerce.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -15,18 +16,21 @@ public class AuthenticateController : ApiControllerBase
 {
     private readonly IStripeService _stripeService;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ITokenService _tokenService;
     private readonly IEmailSender _emailService;
     public AuthenticateController(
         UserManager<ApplicationUser> userManager,
         ITokenService tokenService,
         IStripeService stripeService,
-        IEmailSender emailService)
+        IEmailSender emailService,
+        SignInManager<ApplicationUser> signInManager)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _stripeService = stripeService;
         _emailService = emailService;
+        _signInManager = signInManager;
     }
 
     [HttpPost("register")]
@@ -147,6 +151,15 @@ public class AuthenticateController : ApiControllerBase
 
         return Ok(new AuthenticateResponse(AccessToken: accessToken, RefreshToken: RefreshToken));
     }
+
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> LogOut()
+    {
+        await _signInManager.SignOutAsync();
+        return Ok("Closed session");
+    }
+
     private async Task SendMailToConfirmEmail(ApplicationUser user)
     {
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user); 
