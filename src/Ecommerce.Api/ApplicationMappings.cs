@@ -17,8 +17,10 @@ public class ApplicationMappings : Profile
 
         CreateMap<PostStoreDto, Store>();
         CreateMap<PutStoreDto, Store>();
-        CreateMap<IEnumerable<ProductStore>, StoreWithProductDto>()
-            .ForMember(dest => dest.ProductsName, opt => opt.MapFrom(src => src.Select(ps => ps.Product.Name)));
+        CreateMap<(IEnumerable<ProductStore>, Store), StoreWithProductDto>()
+            .ForMember(dest => dest.ProductsName, opt => opt.MapFrom(src => src.Item1.Select(ps => ps.Product.Name)))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Item2.Name))
+            .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.Item2.State));
 
         CreateMap<PostBrandDto, Brand>();
         CreateMap<PutBrandDto, Brand>();

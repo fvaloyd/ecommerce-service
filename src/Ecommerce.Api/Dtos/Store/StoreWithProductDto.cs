@@ -1,11 +1,5 @@
 namespace Ecommerce.Api.Dtos.Store;
 
-// public record StoreWithProductDto
-// (
-//     string Name,
-//     bool state,
-//     List<string> productsName
-// );
 public class StoreWithProductDto
 {
     public string Name { get; set; } = null!;

@@ -4,7 +4,6 @@ using Ecommerce.Core.Consts;
 using Ecommerce.Core.Entities;
 using Ecommerce.Core.Interfaces;
 using Ecommerce.Infrastructure.Persistence;
-using Ecommerce.Infrastructure.Persistence.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -55,15 +54,18 @@ public class StoreController : ApiControllerBase
     [HttpPost("Create")]
     public async Task<IActionResult> CreateStore([FromBody] PostStoreDto storeDto)
     {
-        if (!ModelState.IsValid) return BadRequest("Invalid store");
+        try
+        {
+            Store store = _mapper.Map<Store>(storeDto);
+            Store storeCreated = await _storeRepo.AddAsync(store);
+            if (storeCreated is null) return BadRequest("Could not create the store");
 
-        Store store = _mapper.Map<Store>(storeDto);
-
-        Store storeCreated = await _storeRepo.AddAsync(store);
-
-        if (storeCreated is null) return BadRequest("Could not create the store");
-
-        return RedirectToRoute(nameof(GetStoreById), new { id = storeCreated.Id });
+            return RedirectToRoute(nameof(GetStoreById), new { id = storeCreated.Id });
+        }
+        catch(Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPut("Edit/{id}")]
@@ -75,14 +77,13 @@ public class StoreController : ApiControllerBase
 
         if (storeToUpdate is null) return NotFound($"Could not found the store with the Id::{id}");
 
-        storeToUpdate.Name = storeDto.Name;
-        storeToUpdate.State = storeDto.State;
+        _mapper.Map(storeDto, storeToUpdate);
 
         _storeRepo.Update(storeToUpdate);
 
-        int result = await _storeRepo.SaveChangeAsync();
+        int rowsAffect = await _storeRepo.SaveChangeAsync();
 
-        if (result < 1) return BadRequest("Could not update the store");
+        if (rowsAffect < 1) return BadRequest("Could not update the store");
 
         return NoContent();
     }
@@ -100,9 +101,9 @@ public class StoreController : ApiControllerBase
 
         _storeService.DeleteProductStoreRelation(id);
 
-        int operationResult = await _db.SaveChangesAsync();
+        int rowsAffect = await _db.SaveChangesAsync();
 
-        if (operationResult < 1) return BadRequest("Could not remove the store");
+        if (rowsAffect < 1) return BadRequest("Could not remove the store");
 
         return NoContent();
     }
@@ -131,21 +132,11 @@ public class StoreController : ApiControllerBase
         return Ok("Product decrease successfully");
     }
 
-    [HttpPost("AddProduct")]
-    public async Task<IActionResult> AddProduct(int productId, int storeId)
-    {
-        if (storeId < 1 || productId < 1) return BadRequest("Invalid id");
-
-        bool operationResult = await _storeService.AddProductAsync(productId: productId, storeId: storeId);
-
-        if (operationResult is false) return BadRequest("Could not add the product to the store");
-
-        return Ok("Product Added successfully");
-    }
-
     [HttpGet("GetStoreWithProducts/{id}")]
     public ActionResult<StoreWithProductDto> GetStoreWithProducts(int id)
     {
+        if (id < 1) return BadRequest("Invalid id");
+
         var store = _storeRepo.GetFirst(s => s.Id == id);
 
         if (store is null) return NotFound("Could not found the store");
@@ -154,10 +145,7 @@ public class StoreController : ApiControllerBase
 
         if (productStore is null) return NotFound("Could not found the store");
 
-        var storeWithProductDto = _mapper.Map<StoreWithProductDto>(productStore);
-
-        storeWithProductDto.State = store.State;
-        storeWithProductDto.Name = store.Name;
+        var storeWithProductDto = _mapper.Map<StoreWithProductDto>((productStore, store));
 
         return storeWithProductDto;
     }
