@@ -8,7 +8,6 @@ using Ecommerce.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -138,6 +137,10 @@ public class AuthenticateController : ApiControllerBase
         }
 
         if (!await _userManager.CheckPasswordAsync(user, model.Password)) return BadRequest(new Response(HttpStatusCode.BadRequest, "Incorrect password"));
+
+        var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
+
+        if (!signInResult.Succeeded) return BadRequest();
 
         string accessToken = await _tokenService.CreateToken(model);
 
