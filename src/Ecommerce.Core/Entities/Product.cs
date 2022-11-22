@@ -9,7 +9,7 @@ public class Product : BaseEntity
     public Brand Brand { get; set; } = null!;
     public int CategoryId { get; set; }
     public Category Category { get; set; } = null!;
-    public string ImageUrl { get; set; } = null!;
+    public string ImageUrl { get; private set; } = null!;
 
     public void ChangePrice(float newPrice)
     {

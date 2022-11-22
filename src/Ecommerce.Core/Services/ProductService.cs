@@ -22,7 +22,7 @@ public class ProductService : IProductService
         _storeProductRepo.RemoveRange(storeProduct);
     }
 
-    public async Task<int> RelatedToStoreAsync(int productId, int storeId)
+    public async Task<bool> RelatedToStoreAsync(int productId, int storeId)
     {
         var storeProduct = _storeProductRepo.GetFirst(sp => sp.StoreId == storeId && sp.ProductId == productId);
 
@@ -36,8 +36,8 @@ public class ProductService : IProductService
 
         var storeProductCreated = await _storeProductRepo.AddAsync(storeProduct);
 
-        if (storeProductCreated is null) return 0;
+        if (storeProductCreated is null) return false;
 
-        return 1;
+        return true;
     }
 }

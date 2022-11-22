@@ -81,6 +81,6 @@ public class ProductServiceTest
 
         var result = await productServiceMock.RelatedToStoreAsync(productMock.Id, storeMock.Id);
 
-        result.Should().Be(1);
+        result.Should().Be(true);
     }
 }

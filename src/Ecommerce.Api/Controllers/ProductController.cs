@@ -6,7 +6,6 @@ using Ecommerce.Core.Entities;
 using Ecommerce.Core.Interfaces;
 using Ecommerce.Core.Models;
 using Ecommerce.Infrastructure.Persistence;
-using Ecommerce.Infrastructure.Persistence.Identity;
 using Ecommerce.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -62,23 +61,28 @@ public class ProductController : ApiControllerBase
     [Authorize(Roles = UserRoles.Admin)]
     public async Task<IActionResult> CreateProduct([FromForm] PostProductDto productDto)
     {
-        if (!ModelState.IsValid) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Invalid product"));
-
-        if (productDto.StoreId == 0) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Need to provide the Id of the store to which this product belongs"));
+        if (productDto.StoreId < 1) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Need to provide the Id of the store to which this product belongs"));
 
         Product product = _mapper.Map<Product>(productDto);
 
         var (productImg, publicId) = await _cloudinaryService.UploadImage(file: productDto.File, imageName: product.Name.Replace(' ', '-'));
 
-        product.ImageUrl = productImg;
+        try
+        {
+            product.SetImage(productImg);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
 
         Product productInserted = await _productRepo.AddAsync(product);
 
         if (productInserted is null) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Could not create the product"));
 
-        int relatedToStoreResult = await _productService.RelatedToStoreAsync(productInserted.Id, productDto.StoreId);
+        bool relatedToStoreResult = await _productService.RelatedToStoreAsync(productInserted.Id, productDto.StoreId);
 
-        if (relatedToStoreResult < 1) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Product was created but could not related with a store"));
+        if (!relatedToStoreResult) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Product was created but could not related with a store"));
 
         return RedirectToRoute(nameof(GetProductById), new { id = productInserted.Id });
     }
@@ -97,9 +101,9 @@ public class ProductController : ApiControllerBase
 
         _productRepo.Update(productToEdit);
 
-        int result = await _productRepo.SaveChangeAsync();
+        int rowsAffected = await _productRepo.SaveChangeAsync();
 
-        if (result < 1) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Could not edit the product"));
+        if (rowsAffected < 1) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Could not edit the product"));
 
         return Ok(new Response(Status: HttpStatusCode.OK, Message: "Product edited successfully"));
     }
@@ -120,9 +124,9 @@ public class ProductController : ApiControllerBase
 
         await _cloudinaryService.DeleteImage(productToDelete.Name.Replace(' ', '-'));
 
-        int operationResult = await _db.SaveChangesAsync();
+        int rowsAffected = await _db.SaveChangesAsync();
 
-        if (operationResult < 1) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: $"Could not delete the product with Id::{id}"));
+        if (rowsAffected < 1) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: $"Could not delete the product with Id::{id}"));
 
         return Ok(new Response(Status: HttpStatusCode.OK, Message: "Product deleted successfully"));
     }

@@ -67,89 +67,41 @@ public class SeedData
     }
     static Store GetStore()
     {
-        return new Store
-        {
-            Name = "Default",
-            State = true
-        };
+        return new Store("Default");
     }
     static IEnumerable<ProductStore> GetProductStores()
     {
         return new List<ProductStore> 
         {
-            new ProductStore
-            {
-                Quantity = 10
-            },
-            new ProductStore
-            {
-                Quantity = 10
-            },
-            new ProductStore
-            {
-                Quantity = 10
-            }
+            new ProductStore(default, default, 10),
+            new ProductStore(default, default, 10),
+            new ProductStore(default, default, 10),
         };
     }
     static IEnumerable<Brand> GetBrands()
     {
         return new List<Brand>
         {
-            new Brand
-            {
-                Name = "Hp",
-                State = true
-            },
-            new Brand
-            {
-                Name = "Dell",
-                State = true
-            },
-            new Brand
-            {
-                Name = "Xiaomi",
-                State = true
-            }
+            new Brand("Hp", true),
+            new Brand("Dell", true),
+            new Brand("Xiaomi", true)
         };
     }
     static IEnumerable<Category> GetCategories()
     {
         return new List<Category>
         {
-            new Category
-            {
-                Name = "Computer",
-                State = true
-            },
-            new Category
-            {
-                Name = "Cell Phone",
-                State = true
-            }
+            new Category("Computer", true),
+            new Category("Cell Phone", true)
         };
     }
     static IEnumerable<Product> GetProducts()
     {
         return new List<Product>
         {
-            new Product
-            {
-                Name = "Xiaomi 11t Pro",
-                Price = 400,
-                ImageUrl = "https://res.cloudinary.com/drxp8iwrd/image/upload/v1665071963/Ecommerce/Xiaomi-11t-Pro.jpg"
-            },
-            new Product
-            {
-                Name = "Hp Pavilion 15",
-                Price = 600,
-                ImageUrl = "https://res.cloudinary.com/drxp8iwrd/image/upload/v1665072046/Ecommerce/Hp-Pavilion-15.jpg"
-            },
-            new Product
-            {
-                Name = "Dell Inspiron 15",
-                Price = 800,
-                ImageUrl = "https://res.cloudinary.com/drxp8iwrd/image/upload/v1665072015/Ecommerce/Dell-Inspiron-15.jpg"
-            }
+            new Product("Xiaomi 11t Pro", 400f, default, default, "https://res.cloudinary.com/drxp8iwrd/image/upload/v1665071963/Ecommerce/Xiaomi-11t-Pro.jpg"),
+            new Product("Hp Pavilion 15", 600f, default,default, "https://res.cloudinary.com/drxp8iwrd/image/upload/v1665072046/Ecommerce/Hp-Pavilion-15.jpg"),
+            new Product("Dell Inspiron 15", 800f, default, default, "https://res.cloudinary.com/drxp8iwrd/image/upload/v1665072015/Ecommerce/Dell-Inspiron-15.jpg")
         };
     }
 }
