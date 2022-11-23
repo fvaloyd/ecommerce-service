@@ -6,7 +6,6 @@ namespace Ecommerce.Api.IntegrationTests.Controllers.Authenticate;
 public class LogoutTests
 {
     BaseIntegrationTest _baseIntegrationTest;
-    string loginPath = "api/authenticate/login";
     string logoutPath = "api/authenticate/logout";
 
     public LogoutTests(BaseIntegrationTest baseIntegrationTest)
