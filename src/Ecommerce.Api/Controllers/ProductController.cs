@@ -67,14 +67,7 @@ public class ProductController : ApiControllerBase
 
         var (productImg, publicId) = await _cloudinaryService.UploadImage(file: productDto.File, imageName: product.Name.Replace(' ', '-'));
 
-        try
-        {
-            product.SetImage(productImg);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        product.SetImage("wrong");
 
         Product productInserted = await _productRepo.AddAsync(product);
 

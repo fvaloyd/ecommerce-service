@@ -54,18 +54,11 @@ public class StoreController : ApiControllerBase
     [HttpPost("Create")]
     public async Task<IActionResult> CreateStore([FromBody] PostStoreDto storeDto)
     {
-        try
-        {
-            Store store = _mapper.Map<Store>(storeDto);
-            Store storeCreated = await _storeRepo.AddAsync(store);
-            if (storeCreated is null) return BadRequest("Could not create the store");
+        Store store = _mapper.Map<Store>(storeDto);
+        Store storeCreated = await _storeRepo.AddAsync(store);
+        if (storeCreated is null) return BadRequest("Could not create the store");
 
-            return RedirectToRoute(nameof(GetStoreById), new { id = storeCreated.Id });
-        }
-        catch(Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return RedirectToRoute(nameof(GetStoreById), new { id = storeCreated.Id });
     }
 
     [HttpPut("Edit/{id}")]

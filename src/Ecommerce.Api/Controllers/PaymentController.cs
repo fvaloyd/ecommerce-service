@@ -1,4 +1,3 @@
-using System.Net;
 using Ecommerce.Core.Entities;
 using Ecommerce.Core.Interfaces;
 using Ecommerce.Core.Models;
@@ -8,10 +7,12 @@ using Ecommerce.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Ecommerce.Api.Filters;
 
 namespace Ecommerce.Api.Controllers;
 
 [Authorize]
+[ServiceFilter(typeof(StripeExceptionFilter))]
 public class PaymentController : ApiControllerBase
 {
     private readonly IEfRepository<Basket> _basketRepo;
@@ -43,87 +44,55 @@ public class PaymentController : ApiControllerBase
     [HttpPost("pay")]
     public async Task<IActionResult> CreateOrder(CardOptions card)
     {
-        try
-        {
-            #region GET USER BASKET
-            ApplicationUser user = await GetUser(HttpContext);
+        #region GET USER BASKET
+        ApplicationUser user = await GetUser(HttpContext);
+        IEnumerable<Basket> userBasket = _basketRepo.GetAll(b => b.ApplicationUserId == user.Id, IncludeProperty: "Product");
+        if (userBasket is null || userBasket.Count() == 0) return BadRequest("The user not have items in basket");
+        #endregion
 
-            IEnumerable<Basket> userBasket = _basketRepo.GetAll(b => b.ApplicationUserId == user.Id, IncludeProperty: "Product");
+        #region MAKE CHARGE
+        decimal totalToPay = Convert.ToDecimal(userBasket.Select(sb => sb.Total).Aggregate((acc, next) => acc + next));
+        Stripe.Token validatedCardToken = _stripeService.CreateCardToken(card);
+        if (validatedCardToken.Id is null || validatedCardToken.Id.Count() <= 0) return BadRequest("Invalid card");
+        Stripe.Card validCard = await _stripeService.CreateCard(validatedCardToken.Id, user.CustomerId!);
+        Stripe.Charge chargeToken = _stripeService.CreateChargeToken(cardToken: validCard.Id, totalToPay, user: user);
+        if (chargeToken.Status.ToLower() != "succeeded") return BadRequest("Payment could not be made");
+        #endregion
 
-            if (userBasket is null || userBasket.Count() == 0) return BadRequest("The user not have items in basket");
-            #endregion
+        #region CREATE ORDER & ORDER DETAIL
+        Order order = new(applicationUserId: user.Id, paymentTransactionId: chargeToken.BalanceTransactionId, totalToPay);
+        Order orderCreated = await _orderRepo.AddAsync(order);
+        if (orderCreated is null) return BadRequest("Could not create the order");
+        IEnumerable<OrderDetail> orderDetail = CreateOrderDetail(userBaskets: userBasket, userId: user.Id , orderId: orderCreated.Id);
+        await _orderDetailRepo.AddRangeAsync(orderDetail);
+        #endregion
 
-            #region MAKE CHARGE
-            decimal totalToPay = Convert.ToDecimal(userBasket.Select(sb => sb.Total).Aggregate((acc, next) => acc + next));
+        #region REMOVE BASKET
+        _basketRepo.RemoveRange(userBasket);
+        await _basketRepo.SaveChangeAsync();
+        #endregion
 
-            Stripe.Token validatedCardToken = _stripeService.CreateCardToken(card);
+        #region SEND MAIL
+        IEnumerable<OrderDetail> OrderDetailWithProduct = _orderDetailRepo.GetAll(od => od.OrderId == orderCreated.Id, IncludeProperty: "Product");
+        var mailRequest = await CreateMailRequest(user, OrderDetailWithProduct);
+        await _emailService.SendAsync(mailRequest);
+        #endregion
 
-            if (validatedCardToken.Id is null || validatedCardToken.Id.Count() <= 0) return BadRequest("Invalid card");
-
-            Stripe.Card validCard = await _stripeService.CreateCard(validatedCardToken.Id, user.CustomerId!);
-
-            Stripe.Charge chargeToken = _stripeService.CreateChargeToken(cardToken: validCard.Id, totalToPay, user: user);
-
-            if (chargeToken.Status.ToLower() != "succeeded") return BadRequest("Payment could not be made");
-            #endregion
-
-            #region CREATE ORDER & ORDER DETAIL
-            Order order = new(applicationUserId: user.Id, paymentTransactionId: chargeToken.BalanceTransactionId, totalToPay);
-
-            Order orderCreated = await _orderRepo.AddAsync(order);
-
-            if (orderCreated is null) return BadRequest("Could not create the order");
-
-            IEnumerable<OrderDetail> orderDetail = CreateOrderDetail(userBaskets: userBasket, userId: user.Id , orderId: orderCreated.Id);
-
-            await _orderDetailRepo.AddRangeAsync(orderDetail);
-            #endregion
-
-            #region REMOVE BASKET
-            _basketRepo.RemoveRange(userBasket);
-
-            await _basketRepo.SaveChangeAsync();
-            #endregion
-
-            #region SEND MAIL
-            IEnumerable<OrderDetail> OrderDetailWithProduct = _orderDetailRepo.GetAll(od => od.OrderId == orderCreated.Id, IncludeProperty: "Product");
-
-            var mailRequest = await CreateMailRequest(user, OrderDetailWithProduct);
-
-            await _emailService.SendAsync(mailRequest);
-            #endregion
-
-            return Ok(new { Order = orderCreated, Charge = chargeToken.Id });
-        }
-        catch (Stripe.StripeException ex)
-        {
-            return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: ex.Message));
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: ex.Message));
-        }
+        return Ok(new { Order = orderCreated, Charge = chargeToken.Id });
     }
-
+    
     [HttpPost("refund")]
     public async Task<IActionResult> RefundCharge(string chargeToken)
     {
-        try
-        {
-            Stripe.Refund refundToken = await _stripeService.CreateRefundToken(chargeToken);
+        Stripe.Refund refundToken = await _stripeService.CreateRefundToken(chargeToken);
             
-            if (refundToken.Status != "succeeded") return BadRequest("Could not refund");
+        if (refundToken.Status != "succeeded") return BadRequest("Could not refund");
 
-            return Ok(new {
-                RefundStatus = refundToken.Status,
-                RefundId = refundToken.Id,
-                RefundAt = refundToken.StripeResponse.Date
-            });
-        }
-        catch (Stripe.StripeException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(new {
+            RefundStatus = refundToken.Status,
+            RefundId = refundToken.Id,
+            RefundAt = refundToken.StripeResponse.Date
+        });
     }
 
     private async Task<MailRequest> CreateMailRequest(ApplicationUser user, IEnumerable<OrderDetail> orderDetail)

@@ -1,12 +1,19 @@
+using Ecommerce.Api.Filters;
+
 namespace Ecommerce.Api.Startup;
 
 public static class DependencyInjectionSetup
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services)
     {
+        services.AddSingleton<StripeExceptionFilter>();
+        services.AddSingleton<GlobalFilters>();
+
         services.AddSwaggerConfiguration(); 
 
-        services.AddControllers();
+        services.AddControllers(config => {
+            config.Filters.Add(typeof(GlobalFilters));
+        });
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
