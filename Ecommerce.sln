@@ -21,6 +21,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.Infrastructure.Un
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.Api.IntegrationTests", "tests\Ecommerce.Api.IntegrationTests\Ecommerce.Api.IntegrationTests.csproj", "{87BBA044-C9DC-45D5-BF6E-DFA63EE87D92}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.Application", "src\Ecommerce.Application\Ecommerce.Application.csproj", "{2E4DA387-5BD8-408F-BB1B-ED5E8E602130}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.Application.UnitTests", "tests\Ecommerce.Application.UnitTests\Ecommerce.Application.UnitTests.csproj", "{0E664633-91C6-4DBB-B9D6-CFF7FCD0460F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,6 +62,14 @@ Global
 		{87BBA044-C9DC-45D5-BF6E-DFA63EE87D92}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87BBA044-C9DC-45D5-BF6E-DFA63EE87D92}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87BBA044-C9DC-45D5-BF6E-DFA63EE87D92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E4DA387-5BD8-408F-BB1B-ED5E8E602130}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E4DA387-5BD8-408F-BB1B-ED5E8E602130}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E4DA387-5BD8-408F-BB1B-ED5E8E602130}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E4DA387-5BD8-408F-BB1B-ED5E8E602130}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E664633-91C6-4DBB-B9D6-CFF7FCD0460F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E664633-91C6-4DBB-B9D6-CFF7FCD0460F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E664633-91C6-4DBB-B9D6-CFF7FCD0460F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E664633-91C6-4DBB-B9D6-CFF7FCD0460F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{08E27142-95A1-474D-9888-B370D1589103} = {A9ACDB54-F578-4069-BA6D-1288C824861E}
@@ -67,5 +79,7 @@ Global
 		{0A3A8DDB-AC34-4BC8-BFD0-0A101D7DFB63} = {232D28D5-4302-44D1-A6AC-044061E903B8}
 		{57464F3F-8ED3-460A-9264-212EAA43B18A} = {232D28D5-4302-44D1-A6AC-044061E903B8}
 		{87BBA044-C9DC-45D5-BF6E-DFA63EE87D92} = {232D28D5-4302-44D1-A6AC-044061E903B8}
+		{2E4DA387-5BD8-408F-BB1B-ED5E8E602130} = {A9ACDB54-F578-4069-BA6D-1288C824861E}
+		{0E664633-91C6-4DBB-B9D6-CFF7FCD0460F} = {232D28D5-4302-44D1-A6AC-044061E903B8}
 	EndGlobalSection
 EndGlobal
