@@ -1,9 +1,10 @@
 using System.Net;
 using AutoMapper;
 using Ecommerce.Api.Dtos.Product;
-using Ecommerce.Core.Consts;
+using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
-using Ecommerce.Core.Interfaces;
+using Ecommerce.Core.Enums;
 using Ecommerce.Core.Models;
 using Ecommerce.Infrastructure.Persistence;
 using Ecommerce.Infrastructure.Services;

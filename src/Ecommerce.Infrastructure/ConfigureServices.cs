@@ -8,17 +8,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Ecommerce.Infrastructure.Services;
-using Ecommerce.Core.Interfaces;
 using Ecommerce.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using Ecommerce.Infrastructure.Repository;
-using Ecommerce.Core.Services;
 using Ecommerce.Infrastructure.EmailSender;
 using Ecommerce.Infrastructure.Persistence;
+using Ecommerce.Application.Common.Interfaces;
 
 namespace Ecommerce.Infrastructure;
 
-public static class DependencyInjection
+public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
@@ -72,9 +71,6 @@ public static class DependencyInjection
         services.AddScoped<IDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped(typeof(IEfRepository<>), typeof(EfRepository<>));
-        services.AddScoped<IProductService, ProductService>();
-        services.AddScoped<IStoreService, StoreService>();
-        services.AddScoped<IBasketService, BasketService>();
         services.AddScoped<IStripeService, StripeService>();
         services.AddScoped<ICloudinaryService, CloudinaryService>();
         services.AddScoped<IEmailSender, SendiblueService>();

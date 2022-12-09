@@ -1,6 +1,6 @@
 using Ecommerce.Core.Entities;
 
-namespace Ecommerce.Core.Interfaces;
+namespace Ecommerce.Application.Baskets;
 
 public interface IBasketService
 {

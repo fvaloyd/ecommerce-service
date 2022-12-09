@@ -1,4 +1,4 @@
-namespace Ecommerce.Core.Consts;
+namespace Ecommerce.Core.Enums;
 public static class UserRoles
 {
     public const string Admin = "admin";

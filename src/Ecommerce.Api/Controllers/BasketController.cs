@@ -1,8 +1,9 @@
 using AutoMapper;
 using Ecommerce.Api.Dtos.Basket;
 using Ecommerce.Api.Dtos.Product;
+using Ecommerce.Application.Baskets;
+using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Core.Entities;
-using Ecommerce.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

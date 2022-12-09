@@ -56,6 +56,7 @@ public class StoreServiceTest
         result.Should().Be(false);
     }
 
+    [Fact]
     public async Task DecreaseProductAsync_WhenProductQuantityAreEqualToOne_ShouldRemoveTheProductFromTheStore()
     {
         productStoreMock.Quantity = 1;

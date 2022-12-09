@@ -1,8 +1,8 @@
 using AutoMapper;
 using Ecommerce.Api.Dtos.Category;
-using Ecommerce.Core.Consts;
+using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Core.Entities;
-using Ecommerce.Core.Interfaces;
+using Ecommerce.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

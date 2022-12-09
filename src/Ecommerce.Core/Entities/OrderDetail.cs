@@ -1,3 +1,5 @@
+using Ecommerce.Core.Common;
+
 namespace Ecommerce.Core.Entities;
 
 public class OrderDetail : BaseEntity

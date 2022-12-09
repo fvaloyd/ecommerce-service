@@ -1,4 +1,4 @@
-using Ecommerce.Core.Interfaces;
+using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Infrastructure.Services;
 
 namespace Ecommerce.Infrastructure.UnitTests.Services;

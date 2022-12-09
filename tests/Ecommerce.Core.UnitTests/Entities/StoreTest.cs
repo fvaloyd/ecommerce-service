@@ -1,3 +1,4 @@
+using Ecommerce.Core.Common;
 using Ecommerce.Core.Entities;
 
 namespace Ecommerce.Core.UnitTests.Entities;

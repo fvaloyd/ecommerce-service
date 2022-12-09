@@ -139,7 +139,7 @@ public class ProductControllerTests
     [Fact]
     public async Task Delete_WithUnExistingId_ShouldReturnNotFound()
     {
-        var unExistingId = 100_000_000;
+        var unExistingId = 100_000;
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endpointPath + $"delete/{unExistingId}");
 
