@@ -104,7 +104,7 @@ public class BasketController : ApiControllerBase
     {
         var userId = _currentUserService.UserId;
 
-        IEnumerable<Basket> userBasket = _basketRepo.GetAll(b => b.ApplicationUserId == userId, IncludeProperty: "Product"); // TODO: Modify repository to be able to include depth prop.
+        IEnumerable<Basket> userBasket = _basketRepo.GetAll(b => b.ApplicationUserId == userId, IncludeProperty: "Product");
 
         if (userBasket.Count() == 0) return BadRequest("No basket associated");
 
@@ -112,8 +112,7 @@ public class BasketController : ApiControllerBase
 
         if (userBasketProducts.Count() == 0) return BadRequest("No product in the basket");
 
-        BasketProductDto basketProductDto = new BasketProductDto
-        (
+        BasketProductDto basketProductDto = new(
             Products: userBasketProducts.Select(ub => _mapper.Map<GetProductDto>(ub)).ToList(),
             Total: userBasket.Select(ub => ub.Total).ToList().Aggregate((acc, next) => acc + next)
         );

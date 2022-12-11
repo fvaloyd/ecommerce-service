@@ -1,77 +1,76 @@
-using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Application.Data;
 using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Application.Baskets;
 
 public class BasketService : IBasketService
 {
-    private readonly IEfRepository<Basket> _basketRepo;
-    private readonly IEfRepository<Store> _storeRepo;
-    private readonly IEfRepository<ProductStore> _productStoreRepo;
     private readonly IStoreService _storeService;
+    private readonly IEcommerceDbContext _db;
 
     public BasketService(
-        IEfRepository<Store> storeRepo,
-        IEfRepository<Basket> basketRepo,
-        IEfRepository<ProductStore> productStoreRepo,
-        IStoreService storeService)
+        IStoreService storeService,
+        IEcommerceDbContext db)
     {
-        _storeRepo = storeRepo;
-        _basketRepo = basketRepo;
-        _productStoreRepo = productStoreRepo;
         _storeService = storeService;
+        _db = db;
     }
 
     public async Task<bool> RestoreTheQuantityIntoStore(Basket basket)
     {
-        Store store = _storeRepo.GetFirst();
+        Store store = await _db.Stores.FirstAsync();
 
-        ProductStore productStore = _productStoreRepo.GetFirst(s => s.ProductId == basket.Product.Id && s.StoreId == store.Id);
+        ProductStore? productStore = await _db.ProductStores.FirstOrDefaultAsync(s => s.ProductId == basket.ProductId && s.StoreId == store.Id);
 
         if (productStore is null) return false;
 
         productStore.IncreaseQuantity(basket.Quantity);
 
-        int rowsAffectInThePersistence = await _productStoreRepo.SaveChangeAsync();
-
-        if (rowsAffectInThePersistence < 1) return false;
+        if (await _db.SaveChangesAsync() < 1) return false;
 
         return true;
     }
 
     public async Task<bool> AddProductAsync(int productId, string userId)
     {
-        Store store = _storeRepo.GetFirst();
+        Store store = await _db.Stores.FirstAsync();
 
-        ProductStore productInStock = _productStoreRepo.GetFirst(s => s.ProductId == productId && s.StoreId == store.Id, IncludeProperty: "Product");
-        if (productInStock is null) return false;
+        ProductStore? productStore = await _db.ProductStores
+                                            .Include(ps => ps.Product)
+                                            .FirstOrDefaultAsync(ps => ps.ProductId == productId && ps.StoreId == store.Id);
+   
+        if (productStore is null || productStore.Quantity == 0) return false;
 
-        Basket userBasketExist = _basketRepo.GetFirst(b => b.ProductId == productId && b.ApplicationUserId == userId);
+        Basket? userBasketExist = await _db.Baskets
+                                            .FirstOrDefaultAsync(b => b.ProductId == productId && b.ApplicationUserId == userId);
+        
         if (userBasketExist is not null) return false;
 
-        Basket userBasket = new Basket(productInStock.Product, userId);
+        Basket userBasket = new(productId, productStore.Product, userId);
 
-        Basket basketCreated = await _basketRepo.AddAsync(userBasket);
-
-        if (basketCreated is null) return false;
+        await _db.Baskets.AddAsync(userBasket);
 
         bool decreaseProductFromStoreResult = await _storeService.DecreaseProductAsync(productId, store.Id);
 
         if (decreaseProductFromStoreResult is false)
         {
-            _basketRepo.Remove(basketCreated);
+            _db.Baskets.Remove(userBasket);
+
             return false;
         }
+
+        await _db.SaveChangesAsync();
 
         return true;
     }
 
     public async Task<bool> IncreaseProduct(int productId, string userId)
     {
-        Store store = _storeRepo.GetFirst();
+        Store store = await _db.Stores.FirstAsync();
 
-        Basket userBasket = _basketRepo.GetFirst(b => b.ProductId == productId && b.ApplicationUserId == userId, IncludeProperty: "Product");
+        Basket? userBasket = await _db.Baskets.Include(b => b.Product).FirstOrDefaultAsync(b => b.ProductId == productId && b.ApplicationUserId == userId);
 
         if (userBasket is null) return false;
 
@@ -80,20 +79,19 @@ public class BasketService : IBasketService
         if (decreaseProductFromStoreResult is false) return false;
 
         userBasket.IncreaseProductQuantity();
-        userBasket.IncreaseTotal(userBasket.Product.Price);
 
-        int rowsAffectInThePersistence = await _basketRepo.SaveChangeAsync();
-
-        if (rowsAffectInThePersistence < 1) return false;
+        if (await _db.SaveChangesAsync() < 1) return false;
 
         return true;
     }
 
     public async Task<bool> DecreaseProduct(int productId, string userId)
     {
-        Store store = _storeRepo.GetFirst();
+        Store store = await _db.Stores.FirstAsync();
 
-        Basket userBasket = _basketRepo.GetFirst(b => b.ProductId == productId && b.ApplicationUserId == userId, IncludeProperty: "Product");
+        Basket? userBasket = await _db.Baskets
+                                    .Include(b => b.Product)                            
+                                    .FirstOrDefaultAsync(b => b.ProductId == productId && b.ApplicationUserId == userId);
 
         if (userBasket is null) return false;
 
@@ -101,25 +99,27 @@ public class BasketService : IBasketService
 
         if (increaseProductFromStoreResult is false) return false;
 
-        userBasket.DecreaseProductQuantity(1);
-        userBasket.DecreaseTotal(userBasket.Product.Price);
+        userBasket.DecreaseProductQuantity();
 
-        int rowsAffectInThePersistence = await _basketRepo.SaveChangeAsync();
-
-        if (rowsAffectInThePersistence < 1) return false;
+        if (await _db.SaveChangesAsync() < 1) return false;
 
         return true;
     }
 
-    public IEnumerable<Product> GetAllProducts(string userId)
+    public async Task<IEnumerable<Product>> GetAllProducts(string userId)
     {
-        Store store = _storeRepo.GetFirst();
+        Store store = await _db.Stores.FirstAsync();
 
-        IEnumerable<Basket> userBaskets = _basketRepo.GetAll(b => b.ApplicationUserId == userId, IncludeProperty: "Product");
+        IEnumerable<Basket> userBasket = _db.Baskets
+                                                .Include(b => b.Product)
+                                                .ThenInclude(p => p.Brand)
+                                                .Include(b => b.Product)
+                                                .ThenInclude(p => p.Category)
+                                                .Where(b => b.ApplicationUserId == userId);
 
-        if (userBaskets is null) throw new InvalidOperationException("The user did not have a basket associated");
+        if (userBasket is null) throw new InvalidOperationException("The user did not have a basket associated");
 
-        IEnumerable<Product> userBasketProducts = userBaskets.Select(sb => sb.Product).ToList();
+        IEnumerable<Product> userBasketProducts = userBasket.Select(sb => sb.Product).ToList();
 
         return userBasketProducts;
     }

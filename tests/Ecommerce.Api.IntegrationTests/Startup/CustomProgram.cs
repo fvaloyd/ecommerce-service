@@ -10,9 +10,9 @@ namespace Ecommerce.Api.IntegrationTests.Startup;
 
 internal class EcommerceProgram : WebApplicationFactory<Program>
 {
-    public ApplicationDbContext CreateApplicationDbContext()
+    public EcommerceDbContext CreateApplicationDbContext()
     {
-        var db = Services.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext();
+        var db = Services.GetRequiredService<IDbContextFactory<EcommerceDbContext>>().CreateDbContext();
         db.Database.EnsureCreated();
         return db;
     }
@@ -20,8 +20,8 @@ internal class EcommerceProgram : WebApplicationFactory<Program>
     {
         builder.ConfigureServices((builder, services) => {
 
-            services.Remove<DbContextOptions<ApplicationDbContext>>()
-                    .AddDbContextFactory<ApplicationDbContext>((sp, options) => {
+            services.Remove<DbContextOptions<EcommerceDbContext>>()
+                    .AddDbContextFactory<EcommerceDbContext>((sp, options) => {
                         options.UseSqlServer(builder.Configuration.GetConnectionString("TestConnection"),
                         builder => builder.MigrationsAssembly(typeof(Ecommerce.Infrastructure.AssemblyReference).Assembly.FullName));
                     });
