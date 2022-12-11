@@ -10,7 +10,7 @@ public static class SeedIdentityData
 {
     const string defaultPassword = "password.123";
     public static async Task Handle(
-        ApplicationDbContext context,
+        EcommerceDbContext context,
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager)
     {

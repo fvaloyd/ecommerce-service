@@ -1,4 +1,5 @@
 using System.Reflection;
+using Ecommerce.Application.Data;
 using Ecommerce.Core.Entities;
 using Ecommerce.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -6,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Infrastructure.Persistence.Identity;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IDbContext
+public class EcommerceDbContext : IdentityDbContext<ApplicationUser>, IDbContext, IEcommerceDbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options){}
+    public EcommerceDbContext(DbContextOptions<EcommerceDbContext> options) : base(options){}
 
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Store> Stores => Set<Store>();

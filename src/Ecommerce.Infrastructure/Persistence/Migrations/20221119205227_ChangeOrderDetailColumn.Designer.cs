@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Ecommerce.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(EcommerceDbContext))]
     [Migration("20221119205227_ChangeOrderDetailColumn")]
     partial class ChangeOrderDetailColumn
     {

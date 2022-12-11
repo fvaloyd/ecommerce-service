@@ -14,6 +14,7 @@ using Ecommerce.Infrastructure.Repository;
 using Ecommerce.Infrastructure.EmailSender;
 using Ecommerce.Infrastructure.Persistence;
 using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Application.Data;
 
 namespace Ecommerce.Infrastructure;
 
@@ -28,7 +29,7 @@ public static class ConfigureServices
         services.ConfigureOptions<SmtpSetup>();
 
         // Context
-        services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlServer(configuration.GetConnectionString("ApplicationConnection")));
+        services.AddDbContext<EcommerceDbContext>(opt => opt.UseSqlServer(configuration.GetConnectionString("ApplicationConnection")));
 
         // Identity
         services.AddIdentity<ApplicationUser, IdentityRole>(opt => {
@@ -40,7 +41,7 @@ public static class ConfigureServices
 
             opt.SignIn.RequireConfirmedEmail = true;
         })
-                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddEntityFrameworkStores<EcommerceDbContext>()
                 .AddDefaultTokenProviders();
 
         services.AddAuthentication(options =>
@@ -68,7 +69,8 @@ public static class ConfigureServices
         });
 
         // Services
-        services.AddScoped<IDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+        services.AddScoped<IDbContext>(provider => provider.GetRequiredService<EcommerceDbContext>());
+        services.AddScoped<IEcommerceDbContext>(provider => provider.GetRequiredService<EcommerceDbContext>());
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped(typeof(IEfRepository<>), typeof(EfRepository<>));
         services.AddScoped<IStripeService, StripeService>();
