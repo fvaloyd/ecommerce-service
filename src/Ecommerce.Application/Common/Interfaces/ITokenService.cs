@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Ecommerce.Core.Entities;
 
-namespace Ecommerce.Core.Interfaces;
+namespace Ecommerce.Application.Common.Interfaces;
 
 public interface ITokenService
 {

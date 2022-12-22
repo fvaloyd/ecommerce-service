@@ -7,7 +7,7 @@ namespace Ecommerce.Infrastructure.Persistence;
 
 public class SeedData
 {
-    public static async Task Handle(ApplicationDbContext _context, ILogger _logger)
+    public static async Task Handle(EcommerceDbContext _context, ILogger _logger)
     {
         try
         {

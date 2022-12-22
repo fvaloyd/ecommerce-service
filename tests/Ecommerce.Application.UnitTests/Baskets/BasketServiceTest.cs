@@ -1,287 +1,309 @@
-using System.Linq.Expressions;
 using Ecommerce.Application.Baskets;
-using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Application.Data;
 using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
 
+
 namespace Ecommerce.Application.UnitTests.Baskets;
+
 public class BasketServiceTest
 {
-    private readonly Store storeMock = new Store
-    {
-        Id = 1,
-        Name = "moq store",
-        State = true
-    };
-    private readonly ProductStore productStoreMock = new ProductStore();
-    private readonly Basket basketMock = new();
-    private readonly Product productMock = new();
-    private readonly Mock<IEfRepository<Store>> storeRepoMoq = new Mock<IEfRepository<Store>>();
-    private readonly Mock<IEfRepository<Product>> productRepoMoq = new Mock<IEfRepository<Product>>();
-    private readonly Mock<IEfRepository<Basket>> basketRepoMoq = new Mock<IEfRepository<Basket>>();
-    private readonly Mock<IEfRepository<ProductStore>> productStoreRepoMoq = new Mock<IEfRepository<ProductStore>>();
-    private readonly Mock<IStoreService> storeServiceMoq = new Mock<IStoreService>();
+    readonly Mock<IStoreService> storeServiceMock = new();
 
-    private BasketService CreateBasketServiceMock()
+    static Mock<IEcommerceDbContext> GetDbContextMock()
     {
-        return new BasketService(
-            storeRepoMoq.Object,
-            basketRepoMoq.Object,
-            productStoreRepoMoq.Object,
-            storeServiceMoq.Object
-        );
+        Mock<IEcommerceDbContext> dbContextMock = new();
+
+        dbContextMock.Setup(x => x.SaveChangesAsync(default)).ReturnsAsync(1);
+
+        SetUpDbSets(dbContextMock);
+
+        return dbContextMock;
+    }
+
+    static void SetUpDbSets(Mock<IEcommerceDbContext> mockDbContext)
+    {
+        var storeDbSet = TestData.Stores.AsQueryable().BuildMockDbSet();
+        var productStoreDbSet = TestData.ProductStores.AsQueryable().BuildMockDbSet();
+        var productDbSet = TestData.Products.AsQueryable().BuildMockDbSet();
+        var brandDbSet = TestData.Brands.AsQueryable().BuildMockDbSet();
+        var categoryDbSet = TestData.Categories.AsQueryable().BuildMockDbSet();
+        var basketDbSet = TestData.Baskets.AsQueryable().BuildMockDbSet();
+
+
+        mockDbContext.Setup(db => db.Baskets).Returns(basketDbSet.Object);
+        mockDbContext.Setup(db => db.Stores).Returns(storeDbSet.Object);
+        mockDbContext.Setup(db => db.ProductStores).Returns(productStoreDbSet.Object);
+        mockDbContext.Setup(db => db.Products).Returns(productDbSet.Object);
+        mockDbContext.Setup(db => db.Brands).Returns(brandDbSet.Object);
+        mockDbContext.Setup(db => db.Categories).Returns(categoryDbSet.Object);
     }
 
     [Fact]
-    public void Should_Implement_IBasketService()
+    public void BasketService_ShouldImplementIBasketService()
     {
         typeof(BasketService).Should().BeAssignableTo<IBasketService>();
     }
 
     [Fact]
-    public async Task RestoreTheQuantityIntoStore_WithBasketWithNoProductStoreAssociate_ShouldReturnFalse()
+    public async Task RestoreTheQuantityIntoStore_ShouldReturnFalse_WhenTheStoreDoesntHaveABasketproductAssociated()
     {
-        storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
-        productStoreRepoMoq.Setup(ps => ps.GetFirst(null!, null!)).Returns<ProductStore>(null);
+        // Arrange
+        var basket = new Basket(100_100, "", 10);
 
-        var basketServiceMock =  CreateBasketServiceMock();
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
 
-        var result = await basketServiceMock.RestoreTheQuantityIntoStore(basketMock);
+        // Act
+        var result = await service.RestoreTheQuantityIntoStore(basket);
 
-        result.Should().Be(false);
-    }
-
-    [Theory]
-    [InlineData(1)]
-    [InlineData(5)]
-    [InlineData(10)]
-    public async Task RestoreTheQuantityIntoStore_WithBasketWithProductStoreAssociate_ShouldIncreaseTheProductStoreQuantityWithTheBasketQuantity(int basketQuantity)
-    {
-        basketMock.Quantity = basketQuantity;
-
-        storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
-
-        productStoreRepoMoq.Setup(ps => ps.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns(productStoreMock);
-
-        var basketServiceMock =  CreateBasketServiceMock();
-
-        await basketServiceMock.RestoreTheQuantityIntoStore(basketMock);
-
-        productStoreMock.Quantity.Should().Be(basketQuantity);
+        // Assert
+        result.Should().BeFalse();
     }
 
     [Fact]
-    public async Task RestoreTheQuantityIntoStore_WhenSaveChangeDoesNotAffectAnyRow_ShouldReturnFalse()
+    public async Task RestoreTheQuantityIntoStore_ShouldReturnTrue_WhenTheStoreHaveTheBasketproductAssociated()
     {
-        basketMock.Quantity = 1;
-        storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
-
-        productStoreRepoMoq.Setup(ps => ps.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns(productStoreMock);
-        productStoreRepoMoq.Setup(ps => ps.SaveChangeAsync().Result).Returns(0);
-
-        var basketServiceMock =  CreateBasketServiceMock();
-
-        var result = await basketServiceMock.RestoreTheQuantityIntoStore(basketMock);
-
-        result.Should().Be(false);
-    }
-
-    [Fact]
-    public async Task RestoreTheQuantityIntoStore_WhenSaveChangeAffectAnyRow_ShouldReturnFalse()
-    {
-        basketMock.Quantity = 1;
-        storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
-
-        productStoreRepoMoq.Setup(ps => ps.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns(productStoreMock);
-        productStoreRepoMoq.Setup(ps => ps.SaveChangeAsync().Result).Returns(1);
-
-        var basketServiceMock =  CreateBasketServiceMock();
-
-        var result = await basketServiceMock.RestoreTheQuantityIntoStore(basketMock);
-
-        result.Should().Be(true);
-    }
-
-    [Fact]
-    public async Task AddProductAsync_WithNoProductInStock_ShouldReturnFalse()
-    {
-        storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
-        productStoreRepoMoq.Setup(ps => ps.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns<ProductStore>(null);
-
-        var basketServiceMock =  CreateBasketServiceMock();
-
-        var result = await basketServiceMock.RestoreTheQuantityIntoStore(basketMock);
-
-        result.Should().Be(false);
-    }
-
-    [Fact]
-    public async Task AddProductAsync_WithSpecificProductInBasket_ShouldReturnFalse()
-    {
-        storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
-        productStoreRepoMoq.Setup(ps => ps.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), It.IsAny<string>())).Returns(productStoreMock);
-        basketRepoMoq.Setup(b => b.GetFirst(It.IsAny<Expression<Func<Basket, bool>>>(), null!)).Returns(basketMock);
-
-        var basketServiceMock =  CreateBasketServiceMock();
-
-        var result = await basketServiceMock.AddProductAsync(It.IsAny<int>(), It.IsAny<string>());
-
-        result.Should().Be(false);
-    }
-
-    [Fact]
-    public async Task AddProductAsync_FailWhenCreatingTheBasket_ShouldReturnFalse()
-    {
-        productStoreMock.Product = productMock;
-        storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
-        productStoreRepoMoq.Setup(ps => ps.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), It.IsAny<string>())).Returns(productStoreMock);
-        basketRepoMoq.Setup(b => b.GetFirst(It.IsAny<Expression<Func<Basket, bool>>>(), null!)).Returns<Basket>(null);
-        basketRepoMoq.Setup(b => b.AddAsync(It.IsAny<Basket>()).Result).Returns<Basket>(null);
-
-        var basketServiceMock =  CreateBasketServiceMock();
-
-        var result = await basketServiceMock.AddProductAsync(It.IsAny<int>(), "");
-
-        result.Should().Be(false);
-    }
-
-    [Fact]
-    public async Task AddProductAsync_FailWhenDecreaseTheProductFromTheStore_ShouldReturnFalseAndRemoveTheBasket()
-    {
-        productStoreMock.Product = productMock;
-        storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
-        productStoreRepoMoq.Setup(ps => ps.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), It.IsAny<string>())).Returns(productStoreMock);
-        basketRepoMoq.Setup(b => b.GetFirst(It.IsAny<Expression<Func<Basket, bool>>>(), null!)).Returns<Basket>(null);
-        basketRepoMoq.Setup(b => b.AddAsync(It.IsAny<Basket>()).Result).Returns(basketMock);
-        storeServiceMoq.Setup(s => s.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(false);
-
-        var basketServiceMock =  CreateBasketServiceMock();
-
-        var result = await basketServiceMock.AddProductAsync(It.IsAny<int>(), "");
-
-        result.Should().Be(false);
-        basketRepoMoq.Verify(br => br.Remove(It.Is<Basket>(b => b.ProductId == basketMock.ProductId)), Times.Once);
-    }
-
-    [Fact]
-    public async Task AddProductAsync_SuccessWhenDecreaseTheProductFromTheStore_ShouldReturnTrue()
-    {
-        productStoreMock.Product = productMock;
-        storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
-        productStoreRepoMoq.Setup(ps => ps.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), It.IsAny<string>())).Returns(productStoreMock);
-        basketRepoMoq.Setup(b => b.GetFirst(It.IsAny<Expression<Func<Basket, bool>>>(), null!)).Returns<Basket>(null);
-        basketRepoMoq.Setup(b => b.AddAsync(It.IsAny<Basket>()).Result).Returns(basketMock);
-        storeServiceMoq.Setup(s => s.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(true);
-
-        var basketServiceMock =  CreateBasketServiceMock();
-
-        var result = await basketServiceMock.AddProductAsync(It.IsAny<int>(), "");
-
-        result.Should().Be(true);
-    }
-
-    [Fact]
-    public async Task DecreaseProduct_WithNoProductAssociateInUserBasket_ShouldReturnFalse()
-    {
-        storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
-        basketRepoMoq.Setup(b => b.GetFirst(It.IsAny<Expression<Func<Basket, bool>>>(), It.IsAny<string>())).Returns<Basket>(null);
-
-        var basketServiceMock =  CreateBasketServiceMock();
-
-        var result = await basketServiceMock.DecreaseProduct(It.IsAny<int>(), It.IsAny<string>());
-
-        result.Should().Be(false);
-    }
-
-    [Fact]
-    public async Task DecreaseProduct_FailToIncreaseProductInStore_ShouldReturnFalse()
-    {
-        storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
-        basketRepoMoq.Setup(b => b.GetFirst(It.IsAny<Expression<Func<Basket, bool>>>(), It.IsAny<string>())).Returns(basketMock);
-        storeServiceMoq.Setup(ss => ss.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(false);
-
-        var basketServiceMock =  CreateBasketServiceMock();
-
-        var result = await basketServiceMock.DecreaseProduct(It.IsAny<int>(), It.IsAny<string>());
-
-        result.Should().Be(false);
-    }
-
-    [Fact]
-    public async Task DecreaseProduct_SuccessIncreaseProductInStore_ShouldDecreaseProductQuantityFromBasketDecreaseTheTotal()
-    {
-        int basketQuantity = 2;
-        int basketTotal = 200;
-        float productPrice = 100;
-        productMock.Price = productPrice;
-        basketMock.Quantity = basketQuantity;
-        basketMock.Total = basketTotal;
-        basketMock.Product = productMock;
-        Mock<Basket> userBasketMock = new();
-        storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
-        basketRepoMoq.Setup(b => b.GetFirst(It.IsAny<Expression<Func<Basket, bool>>>(), It.IsAny<string>())).Returns(basketMock);
-        storeServiceMoq.Setup(ss => ss.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(true);
-
-
-        var basketServiceMock =  CreateBasketServiceMock();
-
-        var result = await basketServiceMock.DecreaseProduct(It.IsAny<int>(), It.IsAny<string>());
-
-        basketMock.Quantity.Should().Be(basketQuantity - 1);
-        basketMock.Total.Should().Be(basketTotal - productPrice);
-    }
-
-    [Fact]
-    public async Task DecreaseProduct_SuccessToPersisTheChanges_ShouldReturnTrue()
-    {
-        basketMock.Quantity = 2;
-        basketMock.Total = 200;
-        productMock.Price = 100;
-        basketMock.Product = productMock;
-        storeRepoMoq.Setup(s => s.GetFirst(null!, null!)).Returns(storeMock);
-        basketRepoMoq.Setup(b => b.GetFirst(It.IsAny<Expression<Func<Basket, bool>>>(), It.IsAny<string>())).Returns(basketMock);
-        storeServiceMoq.Setup(ss => ss.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(true);
-        basketRepoMoq.Setup(b => b.SaveChangeAsync().Result).Returns(1);
-
-
-        var basketServiceMock =  CreateBasketServiceMock();
-
-        var result = await basketServiceMock.DecreaseProduct(It.IsAny<int>(), It.IsAny<string>());
-
-        result.Should().Be(true);
-    }
-
-    [Fact]
-    public void GetAllProducts_WithNoUserBasket_ShouldThrowInvalidOperationException()
-    {
-        storeRepoMoq.Setup(sr => sr.GetFirst(null!, null!)).Returns(storeMock);
-        basketRepoMoq.Setup(br => br.GetAll(It.IsAny<Expression<Func<Basket, bool>>>(), It.IsAny<string>())).Returns<IEnumerable<Basket>>(null);
+        // Arrange
+        var basket = new Basket(1, "", 1);
         
-        var basketServiceMock =  CreateBasketServiceMock();
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
 
-        var act = () => basketServiceMock.GetAllProducts("");
+        // Act
+        var result = await service.RestoreTheQuantityIntoStore(basket);
 
-        act.Should().Throw<InvalidOperationException>().WithMessage("The user did not have a basket associated");
+        // Arrange
+        result.Should().BeTrue();
     }
 
     [Fact]
-    public void GetAllProducts_WithBasketAssociateAndProductOnBasket_Should_ReturnAListOfProducts()
+    public async Task AddProductAsync_ShouldReturnFalse_WhenNoProductsInStock()
     {
-        basketMock.Product = productMock;
+        // Arrange
+        int productWithNoStockId = TestData.ProductStores.First(ps => ps.Quantity == 0).ProductId;
 
-        IEnumerable<Basket> userBasketsMock = new List<Basket>()
-        {
-            basketMock,
-        };
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
 
-        storeRepoMoq.Setup(sr => sr.GetFirst(null!, null!)).Returns(storeMock);
-        basketRepoMoq.Setup(br => br.GetAll(It.IsAny<Expression<Func<Basket, bool>>>(), It.IsAny<string>())).Returns(userBasketsMock);
+        // Act
+        var result = await service.AddProductAsync(productWithNoStockId, "1");
 
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task AddProductAsync_ShouldReturnFalse_WhenTheBasketAlreadyHaveTheProduct()
+    {
+        // Arrange
+        var basket = TestData.Baskets.First(b => b.ApplicationUserId == "1");
+
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        // Act
+        var result = await service.AddProductAsync(basket.ProductId, basket.ApplicationUserId);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task AddProductAsync_ShouldReturnFalse_WhenErrorOcurrsWhileDecrementingTheStoreProduct()
+    {
+        // Arrange
+        var productId = TestData.ProductStores.First(ps => ps.Quantity > 0).ProductId;
+        var userId = "test";
+
+        storeServiceMock.Setup(ss => ss.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(false);
+
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        // Act
+        var result = await service.AddProductAsync(productId, userId);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task AddProductAsync_ShouldReturnTrue_WhenDecreaseTheProductFromTheStoreIsSuccessful()
+    {
+        // Arrange
+        var productId = TestData.ProductStores.First(ps => ps.Quantity > 0).ProductId;
+        var userId = "test";
+
+        storeServiceMock.Setup(ss => ss.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(true);
+
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        // Act
+        var result = await service.AddProductAsync(productId, userId);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task IncreaseProduct_ShouldReturnFalse_WhenTheUserBasketDoesNotContainTheProduct()
+    {
+        // Arrange
+        var productId = 1;
+        var userId = "test";
+
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        // Act
+        var result = await service.IncreaseProduct(productId, userId);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task IncreaseProduct_ShouldReturnFalse_WhenErrorOccursWhileDrecreaseTheProductFromStore()
+    {
+        // Arrange
+        var basket = TestData.Baskets.Last();
+
+        storeServiceMock.Setup(ss => ss.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(false);
+
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        // Act
+        var result = await service.IncreaseProduct(basket.ProductId, basket.ApplicationUserId);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task IncreaseProduct_ShouldReturnTrue_WhenSuccess()
+    {
+        // Arrange
+        var basket = TestData.Baskets.FirstOrDefault(b => b.ApplicationUserId == "1");
+
+        storeServiceMock.Setup(ss => ss.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(true);
+
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        // Act
+        var result = await service.IncreaseProduct(basket.ProductId, basket.ApplicationUserId);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task DecreaseProduct_ShouldReturnFalse_WhenTheBasketDoesnHaveTheCurrentProduct()
+    {
+        // Arrange
+        var userId = TestData.Baskets.First().ApplicationUserId;
+        var productId = 100_000;
+
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        //Act
+        var result = await service.DecreaseProduct(productId, userId);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task DecreaseProduct_ShouldReturnFalse_WhenIncreaseProductInStoreFail()
+    {
+        // Arrange
+        var basket = TestData.Baskets.First(b => b.ProductId == 1);
+
+        storeServiceMock.Setup(ss => ss.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(false);
+
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        // Act
+        var result = await service.DecreaseProduct(basket.ProductId, basket.ApplicationUserId);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task DecreaseProduct_ShouldReturnTrue_WhenDecreaseProductIsSuccessful()
+    {
+        // Arrange
+        var basket = TestData.Baskets.First(b => b.ProductId == 1);
+
+        storeServiceMock.Setup(ss => ss.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(true);
+
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        // Act
+        var result = await service.DecreaseProduct(basket.ProductId, basket.ApplicationUserId);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void GetAllProducts_ShouldThrowInvalidOperationException_WhenTheUserHasNoProductsInBasket()
+    {
+        // Arrange
+        var userId = "test";
+
+        storeServiceMock.Setup(ss => ss.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(true);
         
-        var basketServiceMock =  CreateBasketServiceMock();      
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
 
-        var result = basketServiceMock.GetAllProducts("");
+        // Act
+        var act = async () => await service.GetAllProducts(userId);
 
-        result.Should().BeOfType<List<Product>>();
-   }
+        // Assert
+        act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task GetAllProducts_ShouldReturnAListOfProducts_WhenTheUserBasketContainsProducts()
+    {
+        // Arrange
+        List<Basket> userBasket = TestData.Baskets.Where(b => b.ApplicationUserId == "1").ToList();
+
+        storeServiceMock.Setup(ss => ss.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(true);
+        
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        // Act
+        (IEnumerable<Product> result, float total) = await service.GetAllProducts(userBasket.First().ApplicationUserId);
+
+        // Assert
+        result.Count().Should().Be(userBasket.Count);
+    }
+
+    [Fact]
+    public async Task RemoveProduct_ShouldReturnFalse_WhenUserDoesNotHaveSpecificProductsInBasket()
+    {
+        // Arrange
+        string userId = "1";
+        int productId = 100_100_000;
+        List<Basket> userBasket = TestData.Baskets.Where(b => b.Product == null).ToList();
+
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        // Act
+        var result = await service.RemoveProduct(productId, userId);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RemoveProduct_ShouldReturnTrue_WhenUserHasSpecificProductInBasket()
+    {
+        // Arrange
+        Basket basket = TestData.Baskets.FirstOrDefault(b => b.ApplicationUserId == "1")!;
+
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        // Act
+        var result = await service.RemoveProduct(basket.ProductId, basket.ApplicationUserId);
+
+        // Assert
+        result.Should().BeTrue();
+    }
 }

@@ -2,8 +2,6 @@ using Ecommerce.Api.Dtos.Product;
 
 namespace Ecommerce.Api.Dtos.Basket;
 
-public record BasketProductDto
-(
+public record BasketResponse(
     float Total,
-    IEnumerable<GetProductDto> Products
-);
+    IEnumerable<GetProductDto> Products);

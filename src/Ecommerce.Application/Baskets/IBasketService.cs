@@ -1,6 +1,6 @@
 using Ecommerce.Core.Entities;
 
-namespace Ecommerce.Core.Interfaces;
+namespace Ecommerce.Application.Baskets;
 
 public interface IBasketService
 {
@@ -8,5 +8,6 @@ public interface IBasketService
     Task<bool> IncreaseProduct(int productId, string userId);
     Task<bool> DecreaseProduct(int productId, string userId);
     Task<bool> RestoreTheQuantityIntoStore(Basket basket);
-    IEnumerable<Product> GetAllProducts(string userId);
+    Task<(IEnumerable<Product>, float)> GetAllProducts(string userId);
+    Task<bool> RemoveProduct(int productId, string UserId);
 }

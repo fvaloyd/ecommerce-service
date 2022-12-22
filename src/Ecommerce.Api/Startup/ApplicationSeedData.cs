@@ -14,7 +14,7 @@ public static class ApplicationSeedData
             var serviceProvider = scope.ServiceProvider;
             try
             {
-                var db = serviceProvider.GetRequiredService<ApplicationDbContext>();
+                var db = serviceProvider.GetRequiredService<EcommerceDbContext>();
                 var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 

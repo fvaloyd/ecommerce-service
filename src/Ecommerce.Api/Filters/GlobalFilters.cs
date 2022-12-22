@@ -66,7 +66,7 @@ public class GlobalFilters : IExceptionFilter
 
     private void HandleInvalidOperationException(ExceptionContext context)
     {
-        var exception = (ArgumentNullException)context.Exception;
+        var exception = (InvalidOperationException)context.Exception;
 
         var details = new ProblemDetails()
         {

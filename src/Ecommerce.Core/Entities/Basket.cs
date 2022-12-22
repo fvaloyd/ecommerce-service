@@ -1,3 +1,5 @@
+using Ecommerce.Core.Common;
+
 namespace Ecommerce.Core.Entities;
 
 public class Basket : BaseEntity
@@ -11,17 +13,17 @@ public class Basket : BaseEntity
     public void IncreaseProductQuantity(int quantity = 1)
     {
         if (quantity < 1) throw new ArgumentException("Amount to increase could not be less than 1");
+
         Quantity += quantity;
+
+        ReloadTotal();
     }
 
-    public void IncreaseTotal(float productPrice)
+    private void ReloadTotal()
     {
-        Total = productPrice * Quantity;
-    }
+        if (Product is null) throw new InvalidOperationException("Product could not be null when reload the total");
 
-    public void DecreaseTotal(float productPrice)
-    {
-        Total -= productPrice;
+        Total = Product.Price * Quantity;
     }
 
     public void DecreaseProductQuantity(int amountToDecrease = 1)
@@ -31,22 +33,30 @@ public class Basket : BaseEntity
         if (amountToDecrease < 1) throw new ArgumentException("Amount to decrease could not be less than 1");
 
         Quantity -= amountToDecrease;
+
+        ReloadTotal();
     }
 
     public Basket(){}
 
-    public Basket(int productId, string applicationUserId, int quantity)
+    public Basket(int productId, string applicationUserId, int quantity = 1)
+    {
+        ProductId = productId;
+
+        ApplicationUserId = applicationUserId;
+
+        Quantity = quantity;
+    }
+
+    public Basket(int productId, Product product, string applicationUserId, int quantity = 1)
     {
         ProductId = productId;
         ApplicationUserId = applicationUserId;
         Quantity = quantity;
-    }
-
-    public Basket(Product product, string applicationUserId, int quantity = 1)
-    {
-        ProductId = product.Id;
-        ApplicationUserId = applicationUserId;
-        Quantity = quantity;
-        Total = product.Price * quantity;
+        if (product is not null)
+        {
+            Product = product;
+            ReloadTotal();
+        }
     }
 }

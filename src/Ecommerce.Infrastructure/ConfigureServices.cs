@@ -8,17 +8,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Ecommerce.Infrastructure.Services;
-using Ecommerce.Core.Interfaces;
 using Ecommerce.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using Ecommerce.Infrastructure.Repository;
-using Ecommerce.Core.Services;
 using Ecommerce.Infrastructure.EmailSender;
 using Ecommerce.Infrastructure.Persistence;
+using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Application.Data;
 
 namespace Ecommerce.Infrastructure;
 
-public static class DependencyInjection
+public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
@@ -29,7 +29,7 @@ public static class DependencyInjection
         services.ConfigureOptions<SmtpSetup>();
 
         // Context
-        services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlServer(configuration.GetConnectionString("ApplicationConnection")));
+        services.AddDbContext<EcommerceDbContext>(opt => opt.UseSqlServer(configuration.GetConnectionString("ApplicationConnection")));
 
         // Identity
         services.AddIdentity<ApplicationUser, IdentityRole>(opt => {
@@ -41,7 +41,7 @@ public static class DependencyInjection
 
             opt.SignIn.RequireConfirmedEmail = true;
         })
-                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddEntityFrameworkStores<EcommerceDbContext>()
                 .AddDefaultTokenProviders();
 
         services.AddAuthentication(options =>
@@ -69,12 +69,10 @@ public static class DependencyInjection
         });
 
         // Services
-        services.AddScoped<IDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+        services.AddScoped<IDbContext>(provider => provider.GetRequiredService<EcommerceDbContext>());
+        services.AddScoped<IEcommerceDbContext>(provider => provider.GetRequiredService<EcommerceDbContext>());
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped(typeof(IEfRepository<>), typeof(EfRepository<>));
-        services.AddScoped<IProductService, ProductService>();
-        services.AddScoped<IStoreService, StoreService>();
-        services.AddScoped<IBasketService, BasketService>();
         services.AddScoped<IStripeService, StripeService>();
         services.AddScoped<ICloudinaryService, CloudinaryService>();
         services.AddScoped<IEmailSender, SendiblueService>();

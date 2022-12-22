@@ -3,9 +3,9 @@ namespace Ecommerce.Api.IntegrationTests.Controllers.Basket;
 [Collection("BaseIntegrationTestCollection")]
 public class RemoveProductTests
 {
-    BaseIntegrationTest _baseIntegrationTest;
-    string endPointPath = "api/basket/removeproduct?productId=";
-    string addProductPath = "api/basket/addproduct?productId="; 
+    readonly BaseIntegrationTest _baseIntegrationTest;
+    readonly string endPointPath = "api/basket/removeproduct?productId=";
+    readonly string addProductPath = "api/basket/addproduct?productId="; 
 
     public RemoveProductTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -13,15 +13,16 @@ public class RemoveProductTests
     }
 
     [Fact]
-    public async Task RemoveProductWithoutHavingItInBasket_ShouldReturnBadRequest()
+    public async Task RemoveProduct_ShouldReturnBadRequest_WhenTheUserDoesNotHaveTheSpecificProductInBasket()
     {
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(endPointPath + "0");
+        int unExistingProductId = 100_000_000;
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(endPointPath + unExistingProductId.ToString());
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task RemoveProductWithProductInBasket_ShouldReturnNoContent()
+    public async Task RemoveProduct_ShouldReturnNoContent_WhenTheUserHaveTheSpecificProductInBasket()
     {
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
         var product = db.Products.First();

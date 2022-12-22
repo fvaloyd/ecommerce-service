@@ -1,3 +1,4 @@
+using Ecommerce.Core.Common;
 using Ecommerce.Core.Entities;
 
 namespace Ecommerce.Core.UnitTests.Entities;
@@ -23,7 +24,9 @@ public class BasketTest
     public void IncreaseProductQuantity_With_Valid_Value_Should_Increase_The_Quantity()
     {
         int amountToIncrease = 1;
+        Product product = new("test", 100f, 1, 1, "https://test.com");
         Basket basketMock = new();
+        basketMock.Product = product;
 
         basketMock.IncreaseProductQuantity(amountToIncrease);
 
@@ -33,9 +36,11 @@ public class BasketTest
     [Fact]
     public void DecreaseProductQuantity_With_Invalid_Value_Should_Throw_ArgumentException()
     {
+        Product product = new("test", 100f, 1, 1, "https://test.com");
         Basket basketMock = new();
+        basketMock.Product = product;
 
-        basketMock.IncreaseProductQuantity(1);
+        basketMock.IncreaseProductQuantity();
 
         Action act = () => basketMock.DecreaseProductQuantity(0);
 

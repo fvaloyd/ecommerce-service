@@ -1,8 +1,9 @@
 using AutoMapper;
 using Ecommerce.Api.Dtos.Store;
-using Ecommerce.Core.Consts;
+using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
-using Ecommerce.Core.Interfaces;
+using Ecommerce.Core.Enums;
 using Ecommerce.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

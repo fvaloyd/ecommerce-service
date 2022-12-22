@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
+using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Core.Entities;
-using Ecommerce.Core.Interfaces;
 using Ecommerce.Infrastructure.Persistence;
 using Ecommerce.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;

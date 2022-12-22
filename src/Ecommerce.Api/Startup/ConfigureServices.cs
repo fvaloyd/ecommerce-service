@@ -2,7 +2,7 @@ using Ecommerce.Api.Filters;
 
 namespace Ecommerce.Api.Startup;
 
-public static class DependencyInjectionSetup
+public static class ConfigureServices
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services)
     {

@@ -1,6 +1,4 @@
 using System.Net;
-using Ecommerce.Core.Consts;
-using Ecommerce.Core.Interfaces;
 using Ecommerce.Core.Models;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.EmailSender;
@@ -8,6 +6,8 @@ using Ecommerce.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Core.Enums;
 
 namespace Ecommerce.Api.Controllers;
 
