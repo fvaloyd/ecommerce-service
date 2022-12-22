@@ -178,7 +178,7 @@ public class BasketServiceTest
     public async Task IncreaseProduct_ShouldReturnTrue_WhenSuccess()
     {
         // Arrange
-        var basket = TestData.Baskets.Last();
+        var basket = TestData.Baskets.FirstOrDefault(b => b.ApplicationUserId == "1");
 
         storeServiceMock.Setup(ss => ss.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(true);
 
@@ -269,9 +269,41 @@ public class BasketServiceTest
         var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
 
         // Act
-        var result = await service.GetAllProducts(userBasket.First().ApplicationUserId);
+        (IEnumerable<Product> result, float total) = await service.GetAllProducts(userBasket.First().ApplicationUserId);
 
         // Assert
         result.Count().Should().Be(userBasket.Count);
+    }
+
+    [Fact]
+    public async Task RemoveProduct_ShouldReturnFalse_WhenUserDoesNotHaveSpecificProductsInBasket()
+    {
+        // Arrange
+        string userId = "1";
+        int productId = 100_100_000;
+        List<Basket> userBasket = TestData.Baskets.Where(b => b.Product == null).ToList();
+
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        // Act
+        var result = await service.RemoveProduct(productId, userId);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RemoveProduct_ShouldReturnTrue_WhenUserHasSpecificProductInBasket()
+    {
+        // Arrange
+        Basket basket = TestData.Baskets.FirstOrDefault(b => b.ApplicationUserId == "1")!;
+
+        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+
+        // Act
+        var result = await service.RemoveProduct(basket.ProductId, basket.ApplicationUserId);
+
+        // Assert
+        result.Should().BeTrue();
     }
 }

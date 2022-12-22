@@ -127,5 +127,13 @@ static class TestData
             Quantity = 1,
             Total = 200f,
         },
+        new Basket()
+        {
+            ApplicationUserId = "3",
+            Product = null!,
+            ProductId = 0,
+            Quantity = 0,
+            Total = 0f,
+        },
     };
 }
