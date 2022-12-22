@@ -29,7 +29,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe")["ApiKey"];
-sib_api_v3_sdk.Client.Configuration.Default.ApiKey.Add("api-key", builder.Configuration.GetSection("Smtp")["ApiKey"]);
+//StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe")["ApiKey"];
+//sib_api_v3_sdk.Client.Configuration.Default.ApiKey.Add("api-key", builder.Configuration.GetSection("Smtp")["ApiKey"]);
+
+ConfigureKeys.SetupApiKeys(builder);
 
 app.Run();
