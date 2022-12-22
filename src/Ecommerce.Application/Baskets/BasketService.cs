@@ -106,10 +106,8 @@ public class BasketService : IBasketService
         return true;
     }
 
-    public async Task<IEnumerable<Product>> GetAllProducts(string userId)
+    public async Task<(IEnumerable<Product>, float)> GetAllProducts(string userId)
     {
-        Store store = await _db.Stores.FirstAsync();
-
         IEnumerable<Basket> userBasket = _db.Baskets
                                                 .Include(b => b.Product)
                                                 .ThenInclude(p => p.Brand)
@@ -121,6 +119,25 @@ public class BasketService : IBasketService
 
         IEnumerable<Product> userBasketProducts = userBasket.Select(sb => sb.Product).ToList();
 
-        return userBasketProducts;
+        float total = userBasket.Select(ub => ub.Total).Sum();
+
+        return (userBasketProducts, total);
+    }
+
+    public async Task<bool> RemoveProduct(int productId, string UserId)
+    {
+        Basket? userBasket = await _db.Baskets
+                                        .Include(b => b.Product)
+                                        .FirstOrDefaultAsync(b => b.ApplicationUserId == UserId && b.ProductId == productId);
+
+        if (userBasket is null) return false;
+
+        if (await RestoreTheQuantityIntoStore(userBasket) is false) return false;
+
+        _db.Baskets.Remove(userBasket);
+
+        if (await _db.SaveChangesAsync() < 1) return false;
+
+        return true;
     }
 }
