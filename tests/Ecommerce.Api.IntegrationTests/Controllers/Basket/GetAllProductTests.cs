@@ -5,29 +5,29 @@ namespace Ecommerce.Api.IntegrationTests.Controllers.Basket;
 [Collection("BaseIntegrationTestCollection")]
 public class GetAllProductTests
 {
-    BaseIntegrationTest _baseIntegrationTest;
-    string endPointPath = "api/basket/getallproduct";
+    readonly BaseIntegrationTest _baseIntegrationTest;
+    readonly string endPointPath = "api/basket/getallproduct";
     public GetAllProductTests(BaseIntegrationTest baseIntegrationTest)
     {
         _baseIntegrationTest = baseIntegrationTest;
     }
 
+    //[Fact]
+    //public async Task GetAllProductWithOutProductInBasket_ShouldReturnBadRequest()
+    //{
+    //    using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
+    //    var user = db.Users.FirstOrDefault(u => u.Email == "default@gmail.com");
+    //    var userBasket = db.Baskets.Where(b => b.ApplicationUserId == user!.Id).ToList();
+    //    db.Baskets.RemoveRange(userBasket);
+    //    await db.SaveChangesAsync();
+
+    //    var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath);
+
+    //    response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    //}
+
     [Fact]
-    public async Task GetAllProductWithOutProductInBasket_ShouldReturnBadRequest()
-    {
-        using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
-        var user = db.Users.FirstOrDefault(u => u.Email == "default@gmail.com");
-        var userBasket = db.Baskets.Where(b => b.ApplicationUserId == user!.Id).ToList();
-        db.Baskets.RemoveRange(userBasket);
-        await db.SaveChangesAsync();
-
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath);
-
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    }
-
-    [Fact]
-    public async Task GetAllProductWithProductInBasket_ShouldReturnOkWithAListOfProducts()
+    public async Task GetAllProductWithProductInBasket_ShouldReturnOkWithAListOfProducts_WhenUserHasProductsInBasket()
     {
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
         var product = db.Products.First();
@@ -37,7 +37,7 @@ public class GetAllProductTests
 
         var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath);
         string responseReadedAsString = await response.Content.ReadAsStringAsync();
-        BasketProductDto basketProducts = JsonConvert.DeserializeObject<BasketProductDto>(responseReadedAsString);
+        BasketResponse basketProducts = JsonConvert.DeserializeObject<BasketResponse>(responseReadedAsString);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         basketProducts.Should().NotBeNull();
