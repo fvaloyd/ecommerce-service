@@ -1,9 +1,10 @@
-using AutoMapper;
 using Ecommerce.Api.Dtos.Category;
 using Ecommerce.Api.Dtos.Product;
 using Ecommerce.Api.Dtos.Store;
 using Ecommerce.APi.Dtos.Brand;
 using Ecommerce.Core.Entities;
+
+using AutoMapper;
 
 namespace Ecommerce.Api;
 
@@ -25,7 +26,7 @@ public class ApplicationMappings : Profile
         CreateMap<CreateBrandRequest, Brand>();
         CreateMap<EditBrandRequest, Brand>();
 
-        CreateMap<PostCategoryDto, Category>();
-        CreateMap<PutCategoryDto, Category>();
+        CreateMap<CreateCategoryRequest, Category>();
+        CreateMap<EditCategoryRequest, Category>();
     }
 }
