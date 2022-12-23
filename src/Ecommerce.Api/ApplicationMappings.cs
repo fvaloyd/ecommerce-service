@@ -22,8 +22,8 @@ public class ApplicationMappings : Profile
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Item2.Name))
             .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.Item2.State));
 
-        CreateMap<PostBrandDto, Brand>();
-        CreateMap<PutBrandDto, Brand>();
+        CreateMap<CreateBrandRequest, Brand>();
+        CreateMap<EditBrandRequest, Brand>();
 
         CreateMap<PostCategoryDto, Category>();
         CreateMap<PutCategoryDto, Category>();

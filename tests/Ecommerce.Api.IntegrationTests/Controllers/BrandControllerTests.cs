@@ -6,9 +6,8 @@ namespace Ecommerce.Api.IntegrationTests.Controllers;
 [Collection("BaseIntegrationTestCollection")]
 public class BrandController
 {
-    BaseIntegrationTest _baseIntegrationTest;
-
-    string endPointPath = "api/brand/";
+    readonly BaseIntegrationTest _baseIntegrationTest;
+    readonly string endPointPath = "api/brand/";
     public BrandController(BaseIntegrationTest baseIntegrationTest)
     {
         _baseIntegrationTest = baseIntegrationTest;
@@ -19,7 +18,7 @@ public class BrandController
     {
         var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath + "getall");
         var responseReaded = await response.Content.ReadAsStringAsync();
-        IEnumerable<Ecommerce.Core.Entities.Brand> listOfBrands = JsonConvert.DeserializeObject<IEnumerable<Ecommerce.Core.Entities.Brand>>(responseReaded);
+        List<Brand> listOfBrands = JsonConvert.DeserializeObject<List<Brand>>(responseReaded);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         listOfBrands.Should().NotBeNull();
@@ -62,7 +61,7 @@ public class BrandController
     [Fact]
     public async Task CreateBrand_WithValidBrand_ShouldRedirectToRoute()
     {
-        PostBrandDto validDto = new("test", true);
+        CreateBrandRequest validDto = new("test", true);
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endPointPath + "create", validDto);
 
@@ -73,7 +72,7 @@ public class BrandController
     public async Task EditBrand_InvalidId_ShouldReturnBadRequest()
     {
         int invalidId = 0;
-        PutBrandDto dto = new(default!, default);
+        EditBrandRequest dto = new(default!, default);
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endPointPath + $"edit/{invalidId}", dto);
 
@@ -84,7 +83,7 @@ public class BrandController
     public async Task EditBrand_WithNoBrandWithSpecificId_ShouldReturnNotFound()
     {
         int randomId = 100_000_000;
-        PutBrandDto dto = new("", true);
+        EditBrandRequest dto = new("", true);
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endPointPath + $"edit/{randomId}", dto);
 
@@ -96,7 +95,7 @@ public class BrandController
     {
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
         Brand dbBrand = db.Brands.First();
-        PutBrandDto brandDto = new("test", true);
+        EditBrandRequest brandDto = new("test", true);
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endPointPath + $"edit/{dbBrand.Id}", brandDto);
 
