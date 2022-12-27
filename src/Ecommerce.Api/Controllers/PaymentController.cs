@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Ecommerce.Api.Filters;
 using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Application.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -15,30 +17,24 @@ namespace Ecommerce.Api.Controllers;
 [ServiceFilter(typeof(StripeExceptionFilter))]
 public class PaymentController : ApiControllerBase
 {
-    private readonly IEfRepository<Basket> _basketRepo;
-    private readonly IEfRepository<Order> _orderRepo;
-    private readonly IEfRepository<OrderDetail> _orderDetailRepo;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IStripeService _stripeService;
     private readonly IEmailSender _emailService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IEcommerceDbContext _db;
 
     public PaymentController(
-        IEfRepository<Basket> basketRepo,
         UserManager<ApplicationUser> userManager,
         IStripeService stripeService,
-        IEfRepository<Order> orderRepo,
-        IEfRepository<OrderDetail> orderDetailRepo,
         IEmailSender emailService,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IEcommerceDbContext db)
     {
-        _basketRepo = basketRepo;
         _userManager = userManager;
         _stripeService = stripeService;
-        _orderRepo = orderRepo;
-        _orderDetailRepo = orderDetailRepo;
         _emailService = emailService;
         _currentUserService = currentUserService;
+        _db = db;
     }
 
     [HttpPost("pay")]
@@ -46,39 +42,55 @@ public class PaymentController : ApiControllerBase
     {
         #region GET USER BASKET
         ApplicationUser user = await GetUser(HttpContext);
-        IEnumerable<Basket> userBasket = _basketRepo.GetAll(b => b.ApplicationUserId == user.Id, IncludeProperty: "Product");
-        if (userBasket is null || userBasket.Count() == 0) return BadRequest("The user not have items in basket");
+        
+        List<Basket> userBasket = await _db.Baskets.Include(b => b.Product).Where(b => b.ApplicationUserId == user.Id).ToListAsync();
+
+        if (userBasket is null || userBasket.Count < 1) return BadRequest("The user not have items in basket");
         #endregion
 
         #region MAKE CHARGE
         decimal totalToPay = Convert.ToDecimal(userBasket.Select(sb => sb.Total).Aggregate((acc, next) => acc + next));
+        
         Stripe.Token validatedCardToken = _stripeService.CreateCardToken(card);
-        if (validatedCardToken.Id is null || validatedCardToken.Id.Count() <= 0) return BadRequest("Invalid card");
+        
+        if (validatedCardToken.Id is null || validatedCardToken.Id.Length <= 0) return BadRequest("Invalid card");
+        
         Stripe.Card validCard = await _stripeService.CreateCard(validatedCardToken.Id, user.CustomerId!);
+        
         Stripe.Charge chargeToken = _stripeService.CreateChargeToken(cardToken: validCard.Id, totalToPay, user: user);
+        
         if (chargeToken.Status.ToLower() != "succeeded") return BadRequest("Payment could not be made");
         #endregion
 
         #region CREATE ORDER & ORDER DETAIL
         Order order = new(applicationUserId: user.Id, paymentTransactionId: chargeToken.BalanceTransactionId, totalToPay);
-        Order orderCreated = await _orderRepo.AddAsync(order);
-        if (orderCreated is null) return BadRequest("Could not create the order");
-        IEnumerable<OrderDetail> orderDetail = CreateOrderDetail(userBaskets: userBasket, userId: user.Id , orderId: orderCreated.Id);
-        await _orderDetailRepo.AddRangeAsync(orderDetail);
+        
+        await _db.Orders.AddAsync(order);
+        
+        await _db.SaveChangesAsync();
+        
+        IEnumerable<OrderDetail> orderDetail = CreateOrderDetail(userBaskets: userBasket, userId: user.Id , orderId: order.Id);
+        
+        await _db.OrderDetails.AddRangeAsync(orderDetail);
+
+        await _db.SaveChangesAsync();
         #endregion
 
         #region REMOVE BASKET
-        _basketRepo.RemoveRange(userBasket);
-        await _basketRepo.SaveChangeAsync();
+        _db.Baskets.RemoveRange(userBasket);
+
+        await _db.SaveChangesAsync();
         #endregion
 
         #region SEND MAIL
-        IEnumerable<OrderDetail> OrderDetailWithProduct = _orderDetailRepo.GetAll(od => od.OrderId == orderCreated.Id, IncludeProperty: "Product");
+        List<OrderDetail> OrderDetailWithProduct = await _db.OrderDetails.Include(od => od.Product).Where(od => od.OrderId == order.Id).ToListAsync();
+
         var mailRequest = await CreateMailRequest(user, OrderDetailWithProduct);
+        
         await _emailService.SendAsync(mailRequest);
         #endregion
 
-        return Ok(new { Order = orderCreated, Charge = chargeToken.Id });
+        return Ok(new { Order = order, Charge = chargeToken.Id });
     }
     
     [HttpPost("refund")]

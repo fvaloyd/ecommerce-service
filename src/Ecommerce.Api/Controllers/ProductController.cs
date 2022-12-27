@@ -1,15 +1,14 @@
-using System.Net;
-using AutoMapper;
 using Ecommerce.Api.Dtos.Product;
-using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
 using Ecommerce.Core.Enums;
-using Ecommerce.Core.Models;
-using Ecommerce.Infrastructure.Persistence;
 using Ecommerce.Infrastructure.Services;
+
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Ecommerce.Application.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -17,52 +16,47 @@ namespace Ecommerce.Api.Controllers;
 public class ProductController : ApiControllerBase
 {
     private readonly IProductService _productService;
-    private readonly IEfRepository<Product> _productRepo;
     private readonly IMapper _mapper;
-    private readonly IDbContext _db;
     private readonly ICloudinaryService _cloudinaryService;
+    private readonly IEcommerceDbContext _db;
 
     public ProductController(
         IProductService productService,
         IMapper mapper,
-        IEfRepository<Product> productRepo,
-        IDbContext db,
-        ICloudinaryService cloudinaryService)
+        ICloudinaryService cloudinaryService,
+        IEcommerceDbContext db)
     {
         _productService = productService;
         _mapper = mapper;
-        _productRepo = productRepo;
-        _db = db;
         _cloudinaryService = cloudinaryService;
+        _db = db;
     }
 
     [HttpGet("GetAll")]
-    public ActionResult<IEnumerable<GetProductDto>> GetAllProducts()
+    public async Task<ActionResult<IEnumerable<GetProductDto>>> GetAllProducts()
     {
-        IEnumerable<Product> products = _productRepo.GetAll(IncludeProperty: "Brand,Category");
-        IEnumerable<GetProductDto> productsDto = products.Select(p => _mapper.Map<GetProductDto>(p));
-        return productsDto.ToList();
+        var productsDto = await _db.Products.Include(p => p.Category).Include(p => p.Brand).Select(p => _mapper.Map<GetProductDto>(p)).ToListAsync();
+        
+        return productsDto;
     }
 
     [HttpGet("GetById/{id}", Name = "GetProductById")]
-    public ActionResult<GetProductDto> GetProductById(int id)
+    public async Task<ActionResult<GetProductDto>> GetProductById(int id)
     {
-        if (id < 1) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Invalid id"));
+        if (id < 1) return BadRequest("Invalid id");
 
-        Product product = _productRepo.GetFirst(x => x.Id == id, IncludeProperty: "Brand,Category");
+        Product? product = await _db.Products.Include(p => p.Brand).Include(p => p.Category).FirstOrDefaultAsync(x => x.Id == id);
 
-        if (product is null) return NotFound(new Response(Status: HttpStatusCode.NotFound, Message: $"Product with the id::{id} not found"));
+        if (product is null) return NotFound($"Product with the id::{id} not found");
 
-        GetProductDto productDto = _mapper.Map<GetProductDto>(product);
-
-        return productDto;
+        return _mapper.Map<GetProductDto>(product);
     }
 
     [HttpPost("Create")]
     [Authorize(Roles = UserRoles.Admin)]
     public async Task<IActionResult> CreateProduct([FromForm] PostProductDto productDto)
     {
-        if (productDto.StoreId < 1) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Need to provide the Id of the store to which this product belongs"));
+        if (productDto.StoreId < 1) return BadRequest("Need to provide the Id of the store to which this product belongs");
 
         Product product = _mapper.Map<Product>(productDto);
 
@@ -70,58 +64,54 @@ public class ProductController : ApiControllerBase
 
         product.SetImage("wrong");
 
-        Product productInserted = await _productRepo.AddAsync(product);
+        await _db.Products.AddAsync(product);
 
-        if (productInserted is null) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Could not create the product"));
+        if (await _db.SaveChangesAsync() < 1) return BadRequest("Could not create the product");
 
-        bool relatedToStoreResult = await _productService.RelatedToStoreAsync(productInserted.Id, productDto.StoreId);
+        bool relatedToStoreResult = await _productService.RelatedToStoreAsync(product.Id, productDto.StoreId);
 
-        if (!relatedToStoreResult) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Product was created but could not related with a store"));
+        if (!relatedToStoreResult) return BadRequest("Product was created but could not related with a store");
 
-        return RedirectToRoute(nameof(GetProductById), new { id = productInserted.Id });
+        return RedirectToRoute(nameof(GetProductById), new { id = product.Id });
     }
 
     [HttpPut("Edit/{id}")]
     [Authorize(Roles = UserRoles.Admin)]
     public async Task<IActionResult> EditProduct(int id, [FromBody] PutProductDto productDto)
     {
-        if (id < 1) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Invalid id"));
+        if (id < 1) return BadRequest("Invalid id");
 
-        Product productToEdit = _productRepo.GetFirst(x => x.Id == id);
+        Product? productToEdit = await _db.Products.FirstOrDefaultAsync(x => x.Id == id);
 
-        if (productToEdit is null) return NotFound(new Response(Status: HttpStatusCode.NotFound, Message: $"Product with Id::{id} not found"));
+        if (productToEdit is null) return NotFound($"Product with Id::{id} not found");
 
         _mapper.Map(productDto, productToEdit);
 
-        _productRepo.Update(productToEdit);
+        _db.Products.Update(productToEdit);
 
-        int rowsAffected = await _productRepo.SaveChangeAsync();
+        if (await _db.SaveChangesAsync() < 1) return BadRequest("Could not edit the product");
 
-        if (rowsAffected < 1) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Could not edit the product"));
-
-        return Ok(new Response(Status: HttpStatusCode.OK, Message: "Product edited successfully"));
+        return Ok("Product edited successfully");
     }
 
     [HttpDelete("Delete/{id}")]
     [Authorize(Roles = UserRoles.Admin)]
     public async Task<IActionResult> DeleteProduct(int id)
     {
-        if (id < 1) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: "Invalid id"));
+        if (id < 1) return BadRequest("Invalid id");
 
-        Product productToDelete = _productRepo.GetFirst(p => p.Id == id);
+        Product? productToDelete = await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
 
-        if (productToDelete is null) return NotFound(new Response(Status: HttpStatusCode.NotFound, Message: $"Could not found the product with the id::{id}"));
+        if (productToDelete is null) return NotFound($"Could not found the product with the id::{id}");
 
-        _productRepo.Remove(productToDelete);
+        _db.Products.Remove(productToDelete);
 
-        _productService.DeleteProductStoreRelation(id);
+        await _productService.DeleteProductStoreRelation(id);
 
         await _cloudinaryService.DeleteImage(productToDelete.Name.Replace(' ', '-'));
 
-        int rowsAffected = await _db.SaveChangesAsync();
+        if (await _db.SaveChangesAsync() < 1) return BadRequest($"Could not delete the product with Id::{id}");
 
-        if (rowsAffected < 1) return BadRequest(new Response(Status: HttpStatusCode.BadRequest, Message: $"Could not delete the product with Id::{id}"));
-
-        return Ok(new Response(Status: HttpStatusCode.OK, Message: "Product deleted successfully"));
+        return Ok("Product deleted successfully");
     }
 }

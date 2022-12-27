@@ -1,95 +1,82 @@
-using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Data;
 using Ecommerce.Application.Stores;
-using Ecommerce.Core.Entities;
-
-using System.Linq.Expressions;
 
 namespace Ecommerce.Application.UnitTests.Stores;
 
 public class ProductServiceTest : IClassFixture<DbContextFixture>
 {
-    private IEcommerceDbContext _db;
+    private readonly IEcommerceDbContext _db;
 
     public ProductServiceTest(DbContextFixture dbContextMockFixture)
     {
         _db = dbContextMockFixture.GetDbContext();
     }
 
-    private readonly Product productMock = new("product", 200.00f, 1, 1, "https://url.com"){Id = 1};
-    private readonly Store storeMock = new("store"){Id = 1};
-    private readonly ProductStore productStoreMock = new(1, 1, 1);
-    private readonly Mock<IEfRepository<Product>> productRepoMock = new();
-    private readonly Mock<IEfRepository<Store>> storeRepoMock = new();
-    private readonly Mock<IEfRepository<ProductStore>> productStoreRepoMock = new();
-
-    private ProductService CreateProductService()
-    {
-        return new ProductService(
-            productStoreRepoMock.Object
-        );
-    }
-
     [Fact]
-    public void Should_Implement_IProductService()
+    public void ShouldImplementIProductService()
     {
         typeof(ProductService).Should().BeAssignableTo<IProductService>();
     }
 
     [Fact]
-    public void DeleteProductStoreRelation_WithNoSpecificProductInStore_ShouldThrowInvalidOperationException()
+    public async void DeleteProductStoreRelation_ShouldReturnFalse_WhenTheStoreDoesnHaveSpecificProduct()
     {
-        productStoreRepoMock.Setup(psr => psr.GetAll(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns<ProductStore>(null);
+        // Arrange
+        var service = new ProductService(_db);
 
-        var productServiceMock = CreateProductService();
+        int productId = 100_000;
 
-        Action act = () => productServiceMock.DeleteProductStoreRelation(productMock.Id);
+        // Act
+        var result = await service.DeleteProductStoreRelation(productId);
 
-        act.Should().Throw<InvalidOperationException>().WithMessage($"Store doesnt have a product with Id: ${productMock.Id}");
+        // Assert
+        result.Should().BeFalse();
     }
 
     [Fact]
-    public void DeleteProductStoreRelation_WithSpecificProductInStore_ShouldRemoveTheStoreProductRelatedWithSpecificProduct()
+    public async void DeleteProductStoreRelation_ShouldReturnTrue_WhenTheStoreHaveTheSpecificProduct()
     {
-        IEnumerable<ProductStore> productStores = new List<ProductStore>()
-        {
-            productStoreMock
-        };
+        // Arrange
+        var service = new ProductService(_db);
 
-        int removeStoreCall = 0;
+        var productStore = TestData.ProductStores.FirstOrDefault(ps => ps.StoreId == 1);
 
-        productStoreRepoMock.Setup(psr => psr.GetAll(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns(productStores);
-        productStoreRepoMock.Setup(psr => psr.RemoveRange(It.IsAny<IEnumerable<ProductStore>>())).Callback(() => ++removeStoreCall);
+        // Act
+        var result = await service.DeleteProductStoreRelation(productStore!.ProductId);
 
-        var productServiceMock = CreateProductService();
-
-        productServiceMock.DeleteProductStoreRelation(productMock.Id);
-
-        removeStoreCall.Should().Be(1);
+        // Assert
+        result.Should().BeTrue();
     }
 
     [Fact]
-    public async Task RelatedToStoreAsync_WithProductAlreadyRelatedToTheStore_ShouldThrowInvalidOperationException()
+    public async Task RelatedToStoreAsync_ShoulReturnFalse_whenProductAlreadyRelatedToTheStore()
     {
-        productStoreRepoMock.Setup(psr => psr.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns(productStoreMock);
+        // Arrange
+        var service = new ProductService(_db);
 
-        var productServiceMock = CreateProductService();
+        var productStore = TestData.ProductStores.FirstOrDefault(ps => ps.StoreId == 1);
 
-        Func<Task> act = () => productServiceMock.RelatedToStoreAsync(It.IsAny<int>(), It.IsAny<int>());
+        // Act
+        var result = await service.RelatedToStoreAsync(productStore!.ProductId, productStore.StoreId);
 
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("The product is already related to the store.");
+        // Assert
+        result.Should().BeFalse();
     }
 
     [Fact]
-    public async Task RelateToStoreAsync_WithProductNoRelatedAlready_ShouldCreateTheRelation()
+    public async Task RelateToStoreAsync_ShouldReturnTrue_WhenProductNoRelatedAlready()
     {
-        productStoreRepoMock.Setup(psr => psr.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns<ProductStore>(null);       
-        productStoreRepoMock.Setup(psr => psr.AddAsync(It.IsAny<ProductStore>()).Result).Returns(productStoreMock);
+        // Arrange
+        var service = new ProductService(_db);
+        
+        var storeId = TestData.Stores.First().Id;
 
-        var productServiceMock = CreateProductService();
+        int productId = 100_000;
 
-        var result = await productServiceMock.RelatedToStoreAsync(productMock.Id, storeMock.Id);
+        // Act
+        var result = await service.RelatedToStoreAsync(productId, storeId);
 
-        result.Should().Be(true);
+        // Assert
+        result.Should().BeTrue();
     }
 }

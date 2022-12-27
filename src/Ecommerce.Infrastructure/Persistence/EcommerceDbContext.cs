@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Infrastructure.Persistence.Identity;
 
-public class EcommerceDbContext : IdentityDbContext<ApplicationUser>, IDbContext, IEcommerceDbContext
+public class EcommerceDbContext : IdentityDbContext<ApplicationUser>, IEcommerceDbContext
 {
     public EcommerceDbContext(DbContextOptions<EcommerceDbContext> options) : base(options){}
 

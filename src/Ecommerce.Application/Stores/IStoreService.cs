@@ -6,4 +6,5 @@ public interface IStoreService
     Task<bool> IncreaseProductAsync(int productId, int storeId);
     Task<bool> DecreaseProductAsync(int productId, int storeId);
     Task<bool> DeleteProductStoreRelation(int storeId);
+    Task<bool> Deletestore(int storeId);
 }

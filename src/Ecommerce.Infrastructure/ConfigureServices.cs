@@ -10,9 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Ecommerce.Infrastructure.Services;
 using Ecommerce.Infrastructure.Options;
 using Microsoft.Extensions.Options;
-using Ecommerce.Infrastructure.Repository;
 using Ecommerce.Infrastructure.EmailSender;
-using Ecommerce.Infrastructure.Persistence;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Data;
 
@@ -69,13 +67,16 @@ public static class ConfigureServices
         });
 
         // Services
-        services.AddScoped<IDbContext>(provider => provider.GetRequiredService<EcommerceDbContext>());
         services.AddScoped<IEcommerceDbContext>(provider => provider.GetRequiredService<EcommerceDbContext>());
+
         services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped(typeof(IEfRepository<>), typeof(EfRepository<>));
+
         services.AddScoped<IStripeService, StripeService>();
+
         services.AddScoped<ICloudinaryService, CloudinaryService>();
+
         services.AddScoped<IEmailSender, SendiblueService>();
+
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         return services;

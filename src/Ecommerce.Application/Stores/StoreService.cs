@@ -42,6 +42,8 @@ public class StoreService : IStoreService
             return true;
         }
 
+        productStore.DecreaseQuantity();
+
         if (await _db.SaveChangesAsync() < 1) return false;
 
         return true;
@@ -58,6 +60,11 @@ public class StoreService : IStoreService
         if (await _db.SaveChangesAsync() < 1) return false;
 
         return true;
+    }
+
+    public Task<bool> Deletestore(int storeId)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<bool> IncreaseProductAsync(int productId, int storeId)

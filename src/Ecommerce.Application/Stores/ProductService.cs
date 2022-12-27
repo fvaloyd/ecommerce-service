@@ -1,42 +1,44 @@
 using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Application.Data;
 using Ecommerce.Core.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Application.Stores;
 
 public class ProductService : IProductService
 {
-    private readonly IEfRepository<ProductStore> _storeProductRepo;
+    private readonly IEcommerceDbContext _db;
 
     public ProductService(
-        IEfRepository<ProductStore> storeProductRepo)
+        IEcommerceDbContext db)
     {
-        _storeProductRepo = storeProductRepo;
+        _db = db;
     }
 
-    public void DeleteProductStoreRelation(int productId)
+    public async Task<bool> DeleteProductStoreRelation(int productId)
     {
-        var storeProduct = _storeProductRepo.GetAll(sp => sp.ProductId == productId);
+        List<ProductStore>? storeProducts = await _db.ProductStores.Where(sp => sp.ProductId == productId).ToListAsync();
 
-        if (storeProduct is null) throw new InvalidOperationException($"Store doesnt have a product with Id: ${productId}");
+        if (storeProducts is null || storeProducts.Count < 1) return false;
 
-        _storeProductRepo.RemoveRange(storeProduct);
+        _db.ProductStores.RemoveRange(storeProducts);
+
+        if (await _db.SaveChangesAsync() < 1) return false;
+
+        return true;
     }
 
     public async Task<bool> RelatedToStoreAsync(int productId, int storeId)
     {
-        var storeProduct = _storeProductRepo.GetFirst(sp => sp.StoreId == storeId && sp.ProductId == productId);
+        var storeProduct = await _db.ProductStores.FirstOrDefaultAsync(sp => sp.StoreId == storeId && sp.ProductId == productId);
 
-        if (storeProduct is not null) throw new InvalidOperationException("The product is already related to the store.");
+        if (storeProduct is not null) return false;
 
-        storeProduct = new ProductStore()
-        {
-            ProductId = productId,
-            StoreId = storeId,
-        };
+        storeProduct = new ProductStore(productId, storeId);
 
-        var storeProductCreated = await _storeProductRepo.AddAsync(storeProduct);
+        await _db.ProductStores.AddAsync(storeProduct);
 
-        if (storeProductCreated is null) return false;
+        if (await _db.SaveChangesAsync() < 1) return false;
 
         return true;
     }
