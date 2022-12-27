@@ -12,18 +12,25 @@ builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
             .AddUserSecrets(Assembly.GetExecutingAssembly(), true);
     
 builder.Services.AddApplicationServices();
+
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
 builder.Services.AddApiServices();
 
 var app = builder.Build();
 
-app.ConfigureSwagger(); 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 await app.SeedDataHandle();
 
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
