@@ -1,6 +1,6 @@
 namespace Ecommerce.Api.Dtos.Product;
 
-public record GetProductDto
+public record ProductResponse
 (
     int Id,
     string Name,

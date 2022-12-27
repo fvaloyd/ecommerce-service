@@ -1,6 +1,6 @@
 namespace Ecommerce.Api.Dtos.Store;
 
-public record PutStoreDto
+public record CreateStoreRequest
 (
     string Name,
     bool State

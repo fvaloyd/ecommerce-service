@@ -94,7 +94,7 @@ public class BasketController : ApiControllerBase
         
         (IEnumerable<Product> basketProducts, float total) = await _basketService.GetAllProducts(userId!);
         
-        BasketResponse basketResponse = new(Total: total, Products: basketProducts.Select(p => _mapper.Map<GetProductDto>(p)));
+        BasketResponse basketResponse = new(Total: total, Products: basketProducts.Select(p => _mapper.Map<ProductResponse>(p)));
         
         return Ok(basketResponse);
     }

@@ -54,7 +54,7 @@ public class StoreController : ApiControllerBase
     [HttpPost("Create")]
     [ProducesResponseType(typeof(Store), StatusCodes.Status302Found)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateStore([FromBody] PostStoreDto storeDto)
+    public async Task<IActionResult> CreateStore([FromBody] CreateStoreRequest storeDto)
     {
         Store store = _mapper.Map<Store>(storeDto);
 
@@ -69,7 +69,7 @@ public class StoreController : ApiControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> EditStore(int id, PutStoreDto storeDto)
+    public async Task<IActionResult> EditStore(int id, EditStoreRequest storeDto)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -139,7 +139,7 @@ public class StoreController : ApiControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    public async Task<ActionResult<StoreWithProductDto>> GetStoreWithProductsAsync(int id)
+    public async Task<ActionResult<StoreResponse>> GetStoreWithProductsAsync(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -151,7 +151,7 @@ public class StoreController : ApiControllerBase
 
         if (productStore is null) return NotFound("Could not found the store");
 
-        var storeWithProductDto = _mapper.Map<StoreWithProductDto>((productStore, store));
+        var storeWithProductDto = _mapper.Map<StoreResponse>((productStore, store));
 
         return storeWithProductDto;
     }

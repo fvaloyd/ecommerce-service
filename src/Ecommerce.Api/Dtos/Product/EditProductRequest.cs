@@ -1,11 +1,9 @@
 namespace Ecommerce.Api.Dtos.Product;
 
-public record PostProductDto
+public record EditProductRequest
 (
     string Name,
     float Price,
     int BrandId,
-    int CategoryId,
-    int StoreId,
-    IFormFile File
+    int CategoryId
 );

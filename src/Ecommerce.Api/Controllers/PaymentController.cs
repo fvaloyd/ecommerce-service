@@ -2,7 +2,6 @@ using Ecommerce.Core.Entities;
 using Ecommerce.Core.Models;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.EmailSender;
-using Ecommerce.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,11 +9,13 @@ using Ecommerce.Api.Filters;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Data;
 using Microsoft.EntityFrameworkCore;
+using Ecommerce.Infrastructure.EmailSender.Models;
+using Ecommerce.Infrastructure.EmailSender.Common;
+using Ecommerce.Infrastructure.Payment;
 
 namespace Ecommerce.Api.Controllers;
 
 [Authorize]
-[ServiceFilter(typeof(StripeExceptionFilter))]
 public class PaymentController : ApiControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;

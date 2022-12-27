@@ -2,13 +2,13 @@ using Ecommerce.Api.Dtos.Product;
 using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
 using Ecommerce.Core.Enums;
-using Ecommerce.Infrastructure.Services;
 
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ecommerce.Application.Data;
 using Microsoft.EntityFrameworkCore;
+using Ecommerce.Infrastructure.Cloudinary;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -33,15 +33,15 @@ public class ProductController : ApiControllerBase
     }
 
     [HttpGet("GetAll")]
-    public async Task<ActionResult<IEnumerable<GetProductDto>>> GetAllProducts()
+    public async Task<ActionResult<IEnumerable<ProductResponse>>> GetAllProducts()
     {
-        var productsDto = await _db.Products.Include(p => p.Category).Include(p => p.Brand).Select(p => _mapper.Map<GetProductDto>(p)).ToListAsync();
+        var productsDto = await _db.Products.Include(p => p.Category).Include(p => p.Brand).Select(p => _mapper.Map<ProductResponse>(p)).ToListAsync();
         
         return productsDto;
     }
 
     [HttpGet("GetById/{id}", Name = "GetProductById")]
-    public async Task<ActionResult<GetProductDto>> GetProductById(int id)
+    public async Task<ActionResult<ProductResponse>> GetProductById(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -49,12 +49,12 @@ public class ProductController : ApiControllerBase
 
         if (product is null) return NotFound($"Product with the id::{id} not found");
 
-        return _mapper.Map<GetProductDto>(product);
+        return _mapper.Map<ProductResponse>(product);
     }
 
     [HttpPost("Create")]
     [Authorize(Roles = UserRoles.Admin)]
-    public async Task<IActionResult> CreateProduct([FromForm] PostProductDto productDto)
+    public async Task<IActionResult> CreateProduct([FromForm] CreateProductRequest productDto)
     {
         if (productDto.StoreId < 1) return BadRequest("Need to provide the Id of the store to which this product belongs");
 
@@ -77,7 +77,7 @@ public class ProductController : ApiControllerBase
 
     [HttpPut("Edit/{id}")]
     [Authorize(Roles = UserRoles.Admin)]
-    public async Task<IActionResult> EditProduct(int id, [FromBody] PutProductDto productDto)
+    public async Task<IActionResult> EditProduct(int id, [FromBody] EditProductRequest productDto)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -106,11 +106,9 @@ public class ProductController : ApiControllerBase
 
         _db.Products.Remove(productToDelete);
 
-        await _productService.DeleteProductStoreRelation(id);
+        if (await _productService.DeleteProductStoreRelation(id) is false) return BadRequest($"Could not delete the product with Id::{id}");
 
         await _cloudinaryService.DeleteImage(productToDelete.Name.Replace(' ', '-'));
-
-        if (await _db.SaveChangesAsync() < 1) return BadRequest($"Could not delete the product with Id::{id}");
 
         return Ok("Product deleted successfully");
     }
