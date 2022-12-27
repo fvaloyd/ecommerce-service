@@ -1,9 +1,10 @@
-using AutoMapper;
 using Ecommerce.Api.Dtos.Basket;
 using Ecommerce.Api.Dtos.Product;
 using Ecommerce.Application.Baskets;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Core.Entities;
+
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -90,18 +91,11 @@ public class BasketController : ApiControllerBase
     public async Task<ActionResult<BasketResponse>> GetAllProduct()
     {
         var userId = _currentUserService.UserId;
-
-        try
-        {
-            (IEnumerable<Product> basketProducts, float total) = await _basketService.GetAllProducts(userId!);
-            
-            BasketResponse basketResponse = new(Total: total, Products: basketProducts.Select(p => _mapper.Map<GetProductDto>(p)));
-            
-            return Ok(basketResponse);
-        }
-        catch (Exception)
-        {
-            throw;
-        }
+        
+        (IEnumerable<Product> basketProducts, float total) = await _basketService.GetAllProducts(userId!);
+        
+        BasketResponse basketResponse = new(Total: total, Products: basketProducts.Select(p => _mapper.Map<GetProductDto>(p)));
+        
+        return Ok(basketResponse);
     }
 }
