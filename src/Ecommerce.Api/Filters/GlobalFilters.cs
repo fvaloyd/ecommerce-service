@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Stripe;
 
 namespace Ecommerce.Api.Filters;
 
@@ -13,6 +14,7 @@ public class GlobalFilters : IExceptionFilter
             {typeof(ArgumentException), HandleArgumentException},
             {typeof(ArgumentNullException), HandleArgumentNullException},
             {typeof(InvalidOperationException), HandleInvalidOperationException},
+            {typeof(StripeException), HandleStripeException},
         };
     }
     public void OnException(ExceptionContext context)
@@ -28,6 +30,23 @@ public class GlobalFilters : IExceptionFilter
             _exceptionsHandlers[type].Invoke(context);
             return;
         }
+    }
+
+    private void HandleStripeException(ExceptionContext context)
+    {
+        var exception = (StripeException)context.Exception;
+
+        var details = new ProblemDetails()
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Title = "Stripe Exception",
+            Type = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1",
+            Detail = exception.Message,
+        };
+
+        context.Result = new BadRequestObjectResult(details);
+
+        context.ExceptionHandled = true;
     }
 
     private void HandleArgumentException(ExceptionContext context)
@@ -80,5 +99,4 @@ public class GlobalFilters : IExceptionFilter
 
         context.ExceptionHandled = true;
     }
-
 }
