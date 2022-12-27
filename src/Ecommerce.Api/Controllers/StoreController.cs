@@ -1,10 +1,11 @@
-using AutoMapper;
 using Ecommerce.Api.Dtos.Store;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
 using Ecommerce.Core.Enums;
 using Ecommerce.Infrastructure.Persistence;
+
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -93,7 +94,7 @@ public class StoreController : ApiControllerBase
 
         _storeRepo.Remove(storeToDelete);
 
-        _storeService.DeleteProductStoreRelation(id);
+        await _storeService.DeleteProductStoreRelation(id);
 
         int rowsAffect = await _db.SaveChangesAsync();
 

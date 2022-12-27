@@ -1,12 +1,21 @@
-using System.Linq.Expressions;
 using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Application.Data;
 using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
 
+using System.Linq.Expressions;
+
 namespace Ecommerce.Application.UnitTests.Stores;
 
-public class ProductServiceTest
+public class ProductServiceTest : IClassFixture<DbContextFixture>
 {
+    private IEcommerceDbContext _db;
+
+    public ProductServiceTest(DbContextFixture dbContextMockFixture)
+    {
+        _db = dbContextMockFixture.GetDbContext();
+    }
+
     private readonly Product productMock = new("product", 200.00f, 1, 1, "https://url.com"){Id = 1};
     private readonly Store storeMock = new("store"){Id = 1};
     private readonly ProductStore productStoreMock = new(1, 1, 1);

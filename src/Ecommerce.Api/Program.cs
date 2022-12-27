@@ -2,7 +2,6 @@ using System.Reflection;
 using Ecommerce.Api.Startup;
 using Ecommerce.Application;
 using Ecommerce.Infrastructure;
-using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,9 +27,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-//StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe")["ApiKey"];
-//sib_api_v3_sdk.Client.Configuration.Default.ApiKey.Add("api-key", builder.Configuration.GetSection("Smtp")["ApiKey"]);
 
 ConfigureKeys.SetupApiKeys(builder);
 

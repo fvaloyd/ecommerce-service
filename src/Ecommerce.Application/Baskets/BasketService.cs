@@ -108,16 +108,17 @@ public class BasketService : IBasketService
 
     public async Task<(IEnumerable<Product>, float)> GetAllProducts(string userId)
     {
-        IEnumerable<Basket> userBasket = _db.Baskets
+        List<Basket> userBasket = await _db.Baskets
                                                 .Include(b => b.Product)
                                                 .ThenInclude(p => p.Brand)
                                                 .Include(b => b.Product)
                                                 .ThenInclude(p => p.Category)
-                                                .Where(b => b.ApplicationUserId == userId);
+                                                .Where(b => b.ApplicationUserId == userId)
+                                                .ToListAsync();
 
         if (userBasket is null) throw new InvalidOperationException("The user did not have a basket associated");
 
-        IEnumerable<Product> userBasketProducts = userBasket.Select(sb => sb.Product).ToList();
+        List<Product> userBasketProducts = userBasket.Select(sb => sb.Product).ToList();
 
         float total = userBasket.Select(ub => ub.Total).Sum();
 
