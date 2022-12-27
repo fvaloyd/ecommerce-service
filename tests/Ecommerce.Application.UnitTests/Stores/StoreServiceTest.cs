@@ -1,154 +1,161 @@
-using System.Linq.Expressions;
-using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Application.Data;
 using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
 
 namespace Ecommerce.Application.UnitTests.Stores;
 
-public class StoreServiceTest
+public class StoreServiceTest : IClassFixture<DbContextFixture>
 {
-    private readonly ProductStore productStoreMock = new(1, 1, 2);
-    private readonly Mock<IEfRepository<ProductStore>> productStoreRepoMock = new();
+    private readonly IEcommerceDbContext _db;
 
-    private StoreService CreateStoreService()
+    public StoreServiceTest(DbContextFixture dbContextFixture)
     {
-        return new StoreService(productStoreRepoMock.Object);
+        _db = dbContextFixture.GetDbContext();
     }
 
     [Fact]
-    public void Should_Implement_IStoreService()
+    public void StoreService_ShouldImplementIStoreService()
     {
         typeof(StoreService).Should().BeAssignableTo<IStoreService>();
     }
 
     [Fact]
-    public async Task AddProductAsync_WhenTheStoreAlreadyHaveTheProduct_ShouldReturnFalse()
+    public async Task AddProductAsync_ShouldReturnFalse_WhenTheStoreAlreadyHaveTheProduct()
     {
-        productStoreRepoMock.Setup(psr => psr.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns(productStoreMock);
-        var storeServiceMock = CreateStoreService();            
+        // Arrange
+        ProductStore productAlreadyInStore = TestData.ProductStores.FirstOrDefault(ps => ps.StoreId == 1)!;
 
-        var result = await storeServiceMock.AddProductAsync(It.IsAny<int>(), It.IsAny<int>());
+        var service = new StoreService(_db);
 
+        // Act
+        var result = await service.AddProductAsync(productId: productAlreadyInStore.ProductId, storeId: productAlreadyInStore.StoreId);
+
+        // Assert
         result.Should().Be(false);
     }
 
     [Fact]
-    public async Task AddProductAsync_WhenTheStoreDoesntHaveTheProduct_AddTheProduct()
+    public async Task AddProductAsync_ShouldReturnTrue_WhenTheStoreDoesntHaveTheProduct()
     {
-        productStoreRepoMock.Setup(psr => psr.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns<ProductStore>(null);
-        productStoreRepoMock.Setup(psr => psr.AddAsync(It.IsAny<ProductStore>()).Result).Returns(productStoreMock);
-        var storeServiceMock = CreateStoreService();
+        // Arrange
+        int productId = 100_000;
 
-        var result = await storeServiceMock.AddProductAsync(It.IsAny<int>(), It.IsAny<int>());
+        int storeId = TestData.Stores.First().Id;
 
+        var service = new StoreService(_db);
+
+        // Act
+        var result = await service.AddProductAsync(productId, storeId);
+        
+        // Assert
         result.Should().Be(true);
-        productStoreRepoMock.Verify(ps => ps.AddAsync(It.IsAny<ProductStore>()), Times.Once);
     }
 
     [Fact]
-    public async Task DecreaseProductAsync_WhenStoreDoesntHaveSpecificProduct_ShouldReturnFalse()
+    public async Task DecreaseProductAsync_ShouldReturnFalse_WhenTheStoreDoesntHaveTheSpecificProduct()
     {
-        productStoreRepoMock.Setup(psr => psr.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns<ProductStore>(null);
-        var storeServiceMock = CreateStoreService();            
+        // Arrange
+        int productId = 100_000;
 
-        var result = await storeServiceMock.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>());
+        int storeId = TestData.Stores.First().Id;
 
+        var service = new StoreService(_db);
+
+        // Act
+        var result = await service.DecreaseProductAsync(productId, storeId);
+
+        // Assert
         result.Should().Be(false);
     }
 
     [Fact]
-    public async Task DecreaseProductAsync_WhenProductQuantityAreEqualToOne_ShouldRemoveTheProductFromTheStore()
+    public async Task DecreaseProductAsync_ShouldRemoveTheProduct_WhenProductQuantityAreLessOrEqualThanOne()
     {
-        productStoreMock.Quantity = 1;
-        int removeProductCall = 0;
-        productStoreRepoMock.Setup(psr => psr.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns(productStoreMock);
-        productStoreRepoMock.Setup(psr => psr.Remove(It.IsAny<ProductStore>())).Callback(() => ++removeProductCall);
-        productStoreRepoMock.Setup(psr => psr.SaveChangeAsync().Result).Returns(1);
-        var storeServiceMock = CreateStoreService();
+        // Arrange
+        var productStoreWithZeroQuantity = TestData.ProductStores.FirstOrDefault(ps => ps.Quantity == 0);
+        
+        var service = new StoreService(_db);
 
-        var result = await storeServiceMock.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>());
-
+        // Act
+        var result = await service.DecreaseProductAsync(productStoreWithZeroQuantity!.ProductId, productStoreWithZeroQuantity.StoreId);
+        
+        // Assert
         result.Should().Be(true);
-        removeProductCall.Should().Be(1);
-    }
-
-    [Theory]
-    [InlineData(10)]
-    [InlineData(100)]
-    [InlineData(2)]
-    public async Task DecreaseProductAsync_WhenProductQuantityAreGreaterToOne_ShouldDecreaseQuantityPersistChangeAndReturnTrue(int quantity)
-    {
-        productStoreMock.Quantity = quantity;
-        int defaultAmountToDecrease = 1;
-        int saveChangeCall = 0;
-        productStoreRepoMock.Setup(psr => psr.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns(productStoreMock);
-        productStoreRepoMock.Setup(psr => psr.SaveChangeAsync().Result).Returns(1).Callback(() => ++saveChangeCall);
-        var storeServiceMock = CreateStoreService();
-
-        var result = await storeServiceMock.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>());
-
-        result.Should().Be(true);
-        saveChangeCall.Should().Be(1);
-        productStoreMock.Quantity.Should().Be(quantity - defaultAmountToDecrease);
     }
 
     [Fact]
-    public void DeleteRelationProduct_WithUnExistProductStoreRelation_ShouldThrowInvalidOperationException()
+    public async Task DecreaseProductAsync_ShouldReturnTrue_WhenProductQuantityAreGreaterThanOne()
     {
-        productStoreRepoMock.Setup(psr => psr.GetAll(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns<IEnumerable<ProductStore>>(null);
+        // Arrange
+        var productStore = TestData.ProductStores.FirstOrDefault(ps => ps.Quantity > 1);
 
-        var storeServiceMock = CreateStoreService();
+        var service = new StoreService(_db);
 
-        Action act = () => storeServiceMock.DeleteProductStoreRelation(It.IsAny<int>());
+        // Act
+        var result = await service.DecreaseProductAsync(productStore!.ProductId, productStore.StoreId);
 
-        act.Should().Throw<InvalidOperationException>().WithMessage("Store doesn't exist.");
+        // Assert
+        result.Should().Be(true);
     }
 
     [Fact]
-    public void DeleteRelationProduct_WhenExistAListOfProductStore_ShouldRemoveTheListOfProductStores()
+    public async void DeleteProductStoreRelation_ShouldFalse_WhenNotFoundProductStoreRelation()
     {
-        IEnumerable<ProductStore> productStoresMock = new List<ProductStore>
-        {
-            productStoreMock
-        };
-        int removeRangeProductStoresCall = 0;
-        productStoreRepoMock.Setup(psr => psr.GetAll(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns(productStoresMock);
-        productStoreRepoMock.Setup(psr => psr.RemoveRange(It.IsAny<IEnumerable<ProductStore>>())).Callback(() => ++removeRangeProductStoresCall);
+        // Arrange
+        int storeIdWithNoProductRelated = 100_000;
+        var service = new StoreService(_db);
 
-        var storeServiceMock = CreateStoreService();
+        // Act
+        var result = await service.DeleteProductStoreRelation(storeIdWithNoProductRelated);
 
-        storeServiceMock.DeleteProductStoreRelation(It.IsAny<int>());
+        // Assert
+        result.Should().BeFalse();
+    }
 
-        removeRangeProductStoresCall.Should().Be(1);
+    [Fact]
+    public async void DeleteProductStoreRelation_ShouldReturnTrue_WhenExistAProductStoreRelation()
+    {
+        // Arrange
+        var storeWithRelatedProducts = TestData.Stores.FirstOrDefault(s => s.Id == 1);
+        
+        var service = new StoreService(_db);
+
+        // Act
+        var result = await service.DeleteProductStoreRelation(storeWithRelatedProducts!.Id);
+
+        // Assert
+        result.Should().BeTrue();
     } 
 
     [Fact]
-    public async Task IncreaseProductAsync_WhenStoreDoesntHaveSpecificProduct_ShouldReturnFalse()
+    public async Task IncreaseProductAsync_ShouldReturnFalse_WhenStoreDoesntHaveSpecificProduct()
     {
-        productStoreRepoMock.Setup(psr => psr.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns<ProductStore>(null);
-        var storeServiceMock = CreateStoreService();            
+        // Arrange
+        int productId = 100_000;
 
-        var result = await storeServiceMock.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>());
+        int storeId = 100_000;
 
-        result.Should().Be(false);
+        var service = new StoreService(_db);
+
+        // Act
+        var result = await service.IncreaseProductAsync(productId, storeId);
+
+        // Assert
+        result.Should().BeFalse();
     }
 
-    [Theory]
-    [InlineData(10)]
-    [InlineData(22)]
-    public async Task IncreaseProductAsync_WhenStoreHaveTheSpecificProduct_ShouldIncreaseQuantityPersistChangeAndReturnTrue(int productStoreQuantity)
+    [Fact]
+    public async Task IncreaseProductAsync_ShouldIncreaseQuantityPersistChangeAndReturnTrue_WhenStoreHaveTheSpecificProduct()
     {
-        productStoreMock.Quantity = productStoreQuantity;
-        int saveChangeCall = 0;
-        int defaultAmountToIncrease = 1;
-        productStoreRepoMock.Setup(psr => psr.GetFirst(It.IsAny<Expression<Func<ProductStore, bool>>>(), null!)).Returns(productStoreMock);
-        productStoreRepoMock.Setup(psr => psr.SaveChangeAsync().Result).Returns(1).Callback(() => ++saveChangeCall);
-        var storeServiceMock = CreateStoreService();
+        // Arrange
+        var productStore = TestData.ProductStores.FirstOrDefault(ps => ps.StoreId== 1);
+        
+        var service = new StoreService(_db);
 
-        var result = await storeServiceMock.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>());
-
-        result.Should().Be(true);
-        saveChangeCall.Should().Be(1);
-        productStoreMock.Quantity.Should().Be(productStoreQuantity + defaultAmountToIncrease);
+        // Act
+        var result = await service.IncreaseProductAsync(productStore!.ProductId, productStore.StoreId); 
+        
+        // Assert
+        result.Should().BeTrue();
     }
 }

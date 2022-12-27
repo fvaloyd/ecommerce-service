@@ -1,9 +1,10 @@
 ﻿using Ecommerce.Core.Entities;
+using System.Runtime.CompilerServices;
 
 namespace Ecommerce.Application.UnitTests;
 static class TestData
 {
-    public static Store[] Stores => new Store[]
+    public static List<Store> Stores => new List<Store>
     {
         new Store
         {
@@ -19,42 +20,51 @@ static class TestData
         },
     };
 
-    public static ProductStore[] ProductStores => new ProductStore[]
+    public static List<ProductStore> ProductStores => new List<ProductStore>
     {
         new ProductStore
         {
             ProductId = 1,
             StoreId = 1,
+            Store = Stores.FirstOrDefault(s => s.Id == 1)!,
+            Product = Products.FirstOrDefault(p => p.Id == 1)!,
             Quantity = 100,
         },
         new ProductStore
         {
             ProductId = 2,
             StoreId = 1,
+            Store = Stores.FirstOrDefault(s => s.Id == 1)!,
+            Product = Products.FirstOrDefault(p => p.Id == 2)!,
             Quantity = 100,
         },
         new ProductStore
         {
             ProductId = 3,
             StoreId = 1,
+            Store = Stores.FirstOrDefault(s => s.Id == 1)!,
+            Product = Products.FirstOrDefault(p => p.Id == 3)!,
             Quantity = 100,
         },
         new ProductStore
         {
             ProductId = 4,
             StoreId = 2,
+            Store = Stores.FirstOrDefault(s => s.Id == 2)!,
+            Product = Products.FirstOrDefault(p => p.Id == 4)!,
             Quantity = 100,
         },
         new ProductStore
         {
             ProductId = 5,
             StoreId = 1,
+            Store = Stores.FirstOrDefault(s => s.Id == 1)!,
+            Product = Products.FirstOrDefault(p => p.Id == 5)!,
             Quantity = 0,
         },
-
     };
 
-    public static Product[] Products => new Product[]
+    public static List<Product> Products => new List<Product>
     {
         new Product(){
             Id = 1,
@@ -86,10 +96,18 @@ static class TestData
             BrandId = 1,
             CategoryId = 1,
             Price = 400f
+        },
+        new Product()
+        {
+            Id = 5,
+            Name = "test5",
+            BrandId = 1,
+            CategoryId = 1,
+            Price = 400f
         }
     };
 
-    public static Category[] Categories => new Category[]
+    public static List<Category> Categories => new List<Category>
     {
         new Category()
         {
@@ -99,9 +117,9 @@ static class TestData
         }
     };
 
-    public static Brand[] Brands => new Brand[] { new Brand() { Id = 1, Name = "test", State = true } };
+    public static List<Brand> Brands => new List<Brand> { new Brand() { Id = 1, Name = "test", State = true } };
 
-    public static Basket[] Baskets => new Basket[]
+    public static List<Basket> Baskets => new List<Basket>
     {
         new Basket()
         {

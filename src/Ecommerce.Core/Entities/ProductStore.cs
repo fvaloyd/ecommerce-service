@@ -14,7 +14,7 @@ public class ProductStore : BaseEntity
     public ProductStore(
         int productId,
         int storeId,
-        int quantity)
+        int quantity = 1)
     {
         ProductId = productId;
         StoreId = storeId;
