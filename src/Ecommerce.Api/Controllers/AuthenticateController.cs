@@ -1,15 +1,14 @@
-using System.Net;
 using Ecommerce.Core.Models;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.EmailSender;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Core.Enums;
 using Ecommerce.Infrastructure.EmailSender.Models;
 using Ecommerce.Infrastructure.EmailSender.Common;
 using Ecommerce.Infrastructure.Payment;
+using Ecommerce.Infrastructure.Jwt;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -39,7 +38,7 @@ public class AuthenticateController : ApiControllerBase
     {
         ApplicationUser userExist = await _userManager.FindByEmailAsync(model.Email);
 
-        if (userExist != null) return BadRequest(new Response(HttpStatusCode.BadRequest, "User already exist"));
+        if (userExist != null) return BadRequest("User already exist");
 
         ApplicationUser user = new()
         {
@@ -54,13 +53,13 @@ public class AuthenticateController : ApiControllerBase
 
         IdentityResult result = await _userManager.CreateAsync(user, model.Password);
 
-        if (!result.Succeeded) return BadRequest(new Response(HttpStatusCode.InternalServerError, "User creation failed! Please try again"));
+        if (!result.Succeeded) return BadRequest("User creation failed! Please try again");
 
         await _userManager.AddToRoleAsync(user, UserRoles.User);
 
         await SendMailToConfirmEmail(user);
 
-        return Ok(new Response(HttpStatusCode.OK, "Check you mail message and confirm your email"));
+        return Ok("Check you mail message and confirm your email");
     }
 
     [HttpGet("confirm-email", Name = "ConfirmEmail")]
@@ -68,13 +67,13 @@ public class AuthenticateController : ApiControllerBase
     {
         var user = await _userManager.FindByEmailAsync(email);
 
-        if (user is null) return NotFound(new Response(HttpStatusCode.NotFound, "User not found"));
+        if (user is null) return NotFound("User not found");
 
         var result = await _userManager.ConfirmEmailAsync(user, token);
 
-        if (!result.Succeeded) return BadRequest(new Response(HttpStatusCode.BadRequest, "Could not confirm the email"));
+        if (!result.Succeeded) return BadRequest("Could not confirm the email");
 
-        return Ok(new Response(HttpStatusCode.OK, "Email confirm successfully"));
+        return Ok("Email confirm successfully");
     }
 
     private async Task<MailRequest> CreateMailRequest(ApplicationUser user, string confirmationLink)
@@ -99,7 +98,7 @@ public class AuthenticateController : ApiControllerBase
         ApplicationUser userExist = await _userManager.FindByEmailAsync(model.Email);
 
         if (userExist != null)
-            return BadRequest(new Response(HttpStatusCode.BadRequest, "User already exist"));
+            return BadRequest("User already exist");
 
         ApplicationUser user = new()
         {
@@ -114,13 +113,13 @@ public class AuthenticateController : ApiControllerBase
 
         IdentityResult result = await _userManager.CreateAsync(user, model.Password);
 
-        if (!result.Succeeded) return BadRequest(new Response(HttpStatusCode.BadRequest, "Error occurred creating the user"));
+        if (!result.Succeeded) return BadRequest("Error occurred creating the user");
 
         await _userManager.AddToRoleAsync(user, UserRoles.Admin);
 
         await SendMailToConfirmEmail(user);
 
-        return Ok(new Response(HttpStatusCode.OK, "User created successfully"));
+        return Ok("User created successfully");
     }
 
     [HttpPost("login")]
@@ -135,10 +134,10 @@ public class AuthenticateController : ApiControllerBase
         if (!isEmailConfirmed)
         {
             await SendMailToConfirmEmail(user);
-            return BadRequest(new Response(HttpStatusCode.BadRequest, "You need to confirm your email. Check your mail to confirm"));
+            return BadRequest("You need to confirm your email. Check your mail to confirm");
         }
 
-        if (!await _userManager.CheckPasswordAsync(user, model.Password)) return BadRequest(new Response(HttpStatusCode.BadRequest, "Incorrect password"));
+        if (!await _userManager.CheckPasswordAsync(user, model.Password)) return BadRequest("Incorrect password");
 
         var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
 

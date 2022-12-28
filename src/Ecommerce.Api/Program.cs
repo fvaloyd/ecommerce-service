@@ -10,12 +10,10 @@ builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
             .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
             .AddEnvironmentVariables()
             .AddUserSecrets(Assembly.GetExecutingAssembly(), true);
-    
-builder.Services.AddApplicationServices();
 
-builder.Services.AddInfrastructureServices(builder.Configuration);
-
-builder.Services.AddApiServices();
+builder.Services.AddApplicationServices()
+                .AddInfrastructureServices(builder.Configuration)
+                .AddApiServices();
 
 var app = builder.Build();
 
