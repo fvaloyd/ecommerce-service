@@ -2,7 +2,7 @@ using Ecommerce.Core.Common;
 
 namespace Ecommerce.Core.Entities;
 
-public class Basket : BaseEntity
+public class Basket
 {
     public int ProductId { get; set; }
     public Product Product { get; set; } = null!;
