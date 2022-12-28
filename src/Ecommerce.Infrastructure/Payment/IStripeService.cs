@@ -2,7 +2,7 @@ using Ecommerce.Core.Models;
 using Ecommerce.Infrastructure.Identity;
 using Stripe;
 
-namespace Ecommerce.Infrastructure.Services;
+namespace Ecommerce.Infrastructure.Payment;
 
 public interface IStripeService
 {

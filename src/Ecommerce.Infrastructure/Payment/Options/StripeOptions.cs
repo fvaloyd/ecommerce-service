@@ -1,5 +1,7 @@
 #nullable disable
-namespace Ecommerce.Infrastructure.Options;
+using Ecommerce;
+
+namespace Ecommerce.Infrastructure.Payment.Options;
 
 public class StripeOptions
 {

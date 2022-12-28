@@ -19,7 +19,7 @@ public class ProductControllerTests
     {
         var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endpointPath + "getall");
         var responseRead = await response.Content.ReadAsStringAsync();
-        var productList = JsonConvert.DeserializeObject<IEnumerable<GetProductDto>>(responseRead);
+        var productList = JsonConvert.DeserializeObject<IEnumerable<ProductResponse>>(responseRead);
         
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         productList.Should().NotBeNullOrEmpty();
@@ -53,7 +53,7 @@ public class ProductControllerTests
 
         var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endpointPath + $"getbyid/{productId}");
         var responseRead = await response.Content.ReadAsStringAsync();
-        var product = JsonConvert.DeserializeObject<GetProductDto>(responseRead);
+        var product = JsonConvert.DeserializeObject<ProductResponse>(responseRead);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         product.Id.Should().Be(productId);
@@ -64,7 +64,7 @@ public class ProductControllerTests
     {
         IFormFile file = new FormFile(null!, 1, 1, "test", "test");
         int invalidStoreId = 0;
-        PostProductDto dto = new("test", 100f, 1, 1, invalidStoreId, file);
+        CreateProductRequest dto = new("test", 100f, 1, 1, invalidStoreId, file);
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endpointPath + "create", dto);
 
@@ -79,7 +79,7 @@ public class ProductControllerTests
         var brandId = db.Brands.Select(b => b.Id).First();
         var categoryId = db.Categories.Select(c => c.Id).First();
         IFormFile file = new FormFile(null!, 1, 1, "test", "test");
-        PostProductDto dto = new("test", 100f, brandId, categoryId, storeId, file);
+        CreateProductRequest dto = new("test", 100f, brandId, categoryId, storeId, file);
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endpointPath + "create", dto);
     }
@@ -90,7 +90,7 @@ public class ProductControllerTests
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
         var categoryId = db.Categories.Select(c => c.Id).First();
         var brandId = db.Brands.Select(b => b.Id).First();
-        PutProductDto dto = new("test", 100f, brandId, categoryId);
+        EditProductRequest dto = new("test", 100f, brandId, categoryId);
         int invalidId = 0;
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endpointPath + $"edit/{invalidId}", dto);
@@ -104,7 +104,7 @@ public class ProductControllerTests
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
         var categoryId = db.Categories.Select(c => c.Id).First();
         var brandId = db.Brands.Select(b => b.Id).First();
-        PutProductDto dto = new("test", 100f, brandId, categoryId);
+        EditProductRequest dto = new("test", 100f, brandId, categoryId);
         int unExistingId = 100_000_000;
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endpointPath + $"edit/{unExistingId}", dto);
@@ -119,7 +119,7 @@ public class ProductControllerTests
         var categoryId = db.Categories.Select(c => c.Id).First();
         var brandId = db.Brands.Select(b => b.Id).First();
         var productId = db.Products.Select(p => p.Id).First();
-        PutProductDto dto = new("test", 100f, brandId, categoryId);
+        EditProductRequest dto = new("test", 100f, brandId, categoryId);
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endpointPath + $"edit/{productId}", dto);
 

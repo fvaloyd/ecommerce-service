@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
-namespace Ecommerce.Infrastructure.Options;
+namespace Ecommerce.Infrastructure.Payment.Options;
 
 public class StripeSetup : IConfigureOptions<StripeOptions>
 {

@@ -1,14 +1,14 @@
 using Ecommerce.Api.Dtos.Product;
-using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
 using Ecommerce.Core.Enums;
+using Ecommerce.Infrastructure.CloudImageStorage;
+using Ecommerce.Application.Data;
 
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Ecommerce.Application.Data;
 using Microsoft.EntityFrameworkCore;
-using Ecommerce.Infrastructure.Cloudinary;
+using Ecommerce.Application.Products;
 
 namespace Ecommerce.Api.Controllers;
 

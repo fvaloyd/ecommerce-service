@@ -8,11 +8,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Ecommerce.Infrastructure.Services;
-using Ecommerce.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using Ecommerce.Infrastructure.EmailSender;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Data;
+using Ecommerce.Infrastructure.Jwt;
+using Ecommerce.Infrastructure.Payment;
+using Ecommerce.Infrastructure.Jwt.Options;
+using Ecommerce.Infrastructure.Payment.Options;
+using Ecommerce.Infrastructure.EmailSender.Options;
+using Ecommerce.Infrastructure.CloudImageStorage;
+using Ecommerce.Infrastructure.CloudImageStorage.Options;
 
 namespace Ecommerce.Infrastructure;
 
@@ -42,6 +48,7 @@ public static class ConfigureServices
                 .AddEntityFrameworkStores<EcommerceDbContext>()
                 .AddDefaultTokenProviders();
 
+        // Authentication
         services.AddAuthentication(options =>
         {
 

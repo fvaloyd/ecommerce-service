@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
-namespace Ecommerce.Infrastructure.EmailSender;
+namespace Ecommerce.Infrastructure.EmailSender.Options;
 
 public class SmtpSetup : IConfigureOptions<SmtpOptions>
 {

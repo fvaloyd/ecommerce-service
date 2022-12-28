@@ -1,4 +1,5 @@
-using Ecommerce.Core.Models;
+using Ecommerce.Infrastructure.EmailSender.Models;
+using Ecommerce.Infrastructure.EmailSender.Options;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;

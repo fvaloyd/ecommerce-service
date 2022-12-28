@@ -1,4 +1,4 @@
-namespace Ecommerce.Core.Models;
+namespace Ecommerce.Infrastructure.EmailSender.Models;
 
 public record MailRequest
 (

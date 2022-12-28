@@ -4,7 +4,7 @@ namespace Ecommerce.Api.IntegrationTests.Controllers.Basket;
 public class AddProductTests
 {
     BaseIntegrationTest _baseIntegrationTest;
-    string endPointPath = "api/basket/addproduct?productId=";
+    readonly string endPointPath = "api/basket/addproduct?productId=";
 
     public AddProductTests(BaseIntegrationTest baseIntegrationTest)
     {

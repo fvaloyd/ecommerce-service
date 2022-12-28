@@ -1,5 +1,5 @@
 using Ecommerce.Application.Common.Interfaces;
-using Ecommerce.Infrastructure.Services;
+using Ecommerce.Infrastructure.Jwt;
 
 namespace Ecommerce.Infrastructure.UnitTests.Services;
 

@@ -6,11 +6,6 @@ namespace Ecommerce.Core.UnitTests.Entities;
 public class BasketTest
 {
     [Fact]
-    public void Should_Inherit_BaseEntity()
-    {
-        typeof(Basket).Should().BeAssignableTo<BaseEntity>();
-    }
-    [Fact]
     public void IncreaseProductQuantity_With_Invalid_Value_Should_Throw_ArgumentException()
     {
         Basket basketMock = new();

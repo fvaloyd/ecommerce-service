@@ -1,7 +1,5 @@
-using Ecommerce.Api.Dtos.Product;
 using Ecommerce.Api.Dtos.Store;
 using Ecommerce.Core.Entities;
-using Microsoft.AspNetCore.Http;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers;
 
@@ -9,7 +7,7 @@ namespace Ecommerce.Api.IntegrationTests.Controllers;
 public class StoreControllerTests
 {
     private readonly BaseIntegrationTest _baseIntegrationTest;
-    string endpointPath = "api/store/";
+    readonly string endpointPath = "api/store/";
 
     public StoreControllerTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -65,7 +63,7 @@ public class StoreControllerTests
     public async Task Create_WithInvalidStoreName_ShouldReturnBadRequest()
     {
         string invalidStoreName = "";
-        PostStoreDto dto = new(invalidStoreName, true);
+        CreateStoreRequest dto = new(invalidStoreName, true);
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endpointPath + "create", dto);
 
@@ -75,7 +73,7 @@ public class StoreControllerTests
     [Fact]
     public async Task Create_WithValidRequest_ShouldReturnRedirect()
     {
-        PostStoreDto dto = new("test", true);
+        CreateStoreRequest dto = new("test", true);
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endpointPath + "create", dto);
 
@@ -86,7 +84,7 @@ public class StoreControllerTests
     public async Task Edit_WithInvalidId_ShouldReturnBadRequest()
     {
         int invalidId = 0;
-        PutStoreDto dto = new("test", true);
+        EditStoreRequest dto = new("test", true);
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endpointPath + $"edit/{invalidId}", dto);
 
@@ -97,7 +95,7 @@ public class StoreControllerTests
     public async Task Edit_WithUnExistingId_ShouldReturnNotFound()
     {
         int unExistingId = 100_000_000;
-        PutStoreDto dto = new("test", true);
+        EditStoreRequest dto = new("test", true);
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endpointPath + $"edit/{unExistingId}", dto);
 
@@ -110,7 +108,7 @@ public class StoreControllerTests
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
         var storeId = db.Stores.OrderBy(s => s).Select(s => s.Id).Last();
 
-        PutStoreDto dto = new("test", true);
+        EditStoreRequest dto = new("test", true);
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endpointPath + $"edit/{storeId}", dto);
 
@@ -140,7 +138,7 @@ public class StoreControllerTests
     [Fact]
     public async Task Delete_WithValidId_ShouldReturnNoContent()
     {
-        PostStoreDto dto = new("test", true);
+        CreateStoreRequest dto = new("test", true);
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
         _ = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endpointPath + "create", dto);
 
@@ -247,7 +245,7 @@ public class StoreControllerTests
 
         var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(endpointPath + $"GetStoreWithProducts/{storeId}");
         var readResponse = await response.Content.ReadAsStringAsync();
-        var store = JsonConvert.DeserializeObject<StoreWithProductDto>(readResponse);
+        var store = JsonConvert.DeserializeObject<StoreResponse>(readResponse);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         store.Should().NotBeNull();

@@ -1,9 +1,8 @@
-using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Data;
 using Ecommerce.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Ecommerce.Application.Stores;
+namespace Ecommerce.Application.Products;
 
 public class ProductService : IProductService
 {

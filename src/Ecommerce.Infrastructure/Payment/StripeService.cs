@@ -3,7 +3,7 @@ using Ecommerce.Core.Models;
 using Ecommerce.Infrastructure.Identity;
 using Stripe;
 
-namespace Ecommerce.Infrastructure.Services;
+namespace Ecommerce.Infrastructure.Payment;
 
 public class StripeService : IStripeService
 {
@@ -30,7 +30,7 @@ public class StripeService : IStripeService
             }
         };
 
-        var service = new Stripe.TokenService();
+        var service = new TokenService();
         var token = service.Create(tokenOptions);
 
         return token;

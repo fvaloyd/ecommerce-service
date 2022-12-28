@@ -1,5 +1,5 @@
-using Ecommerce.Infrastructure.Options;
-using Ecommerce.Infrastructure.Services;
+using Ecommerce.Infrastructure.CloudImageStorage;
+using Ecommerce.Infrastructure.CloudImageStorage.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 

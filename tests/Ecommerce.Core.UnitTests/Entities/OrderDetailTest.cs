@@ -6,8 +6,7 @@ namespace Ecommerce.Core.UnitTests.Entities;
 public class OrderDetailTest
 {
     [Fact]
-    public void Should_Inherit_BaseEntity()
+    public void Test()
     {
-        typeof(OrderDetail).Should().BeAssignableTo<BaseEntity>();
     }
 }

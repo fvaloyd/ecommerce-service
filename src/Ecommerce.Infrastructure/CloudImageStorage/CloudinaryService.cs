@@ -1,10 +1,10 @@
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using Ecommerce.Infrastructure.Options;
+using Ecommerce.Infrastructure.CloudImageStorage.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace Ecommerce.Infrastructure.Services;
+namespace Ecommerce.Infrastructure.CloudImageStorage;
 
 public class CloudinaryService : ICloudinaryService
 {
@@ -31,7 +31,7 @@ public class CloudinaryService : ICloudinaryService
 
     public async Task<string> GetImage(string imageName)
     {
-        if (string.IsNullOrEmpty(imageName)) throw new InvalidOperationException("Image name could not be null or empty"); 
+        if (string.IsNullOrEmpty(imageName)) throw new InvalidOperationException("Image name could not be null or empty");
 
         string publicId = $"{FOLDER}/{imageName}";
         var getResourceParams = new GetResourceParams(publicId)
@@ -46,11 +46,11 @@ public class CloudinaryService : ICloudinaryService
 
     public async Task<(string ImageUrl, string PublicId)> UploadImage(IFormFile file, string imageName)
     {
-        if (string.IsNullOrEmpty(imageName)) throw new InvalidOperationException("Image name could not be null or empty"); 
+        if (string.IsNullOrEmpty(imageName)) throw new InvalidOperationException("Image name could not be null or empty");
 
         var filePath = Path.GetTempFileName();
 
-        using (var stream = System.IO.File.Create(filePath))
+        using (var stream = File.Create(filePath))
         {
             await file.CopyToAsync(stream);
         }
@@ -67,6 +67,6 @@ public class CloudinaryService : ICloudinaryService
 
         var imageUploadResult = await cloudinary.UploadAsync(imageUploadParams);
 
-        return (ImageUrl: imageUploadResult.SecureUrl.ToString(), PublicId: imageUploadResult.PublicId);
+        return (ImageUrl: imageUploadResult.SecureUrl.ToString(), imageUploadResult.PublicId);
     }
 }

@@ -1,5 +1,5 @@
 using CloudinaryDotNet.Actions;
-using Ecommerce.Infrastructure.Services;
+using Ecommerce.Infrastructure.CloudImageStorage;
 using Microsoft.AspNetCore.Http;
 
 namespace Ecommerce.Api.IntegrationTests.Startup;

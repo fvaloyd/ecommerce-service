@@ -6,12 +6,6 @@ namespace Ecommerce.Core.UnitTests.Entities;
 public class ProductStoreTest
 {
     [Fact]
-    public void Should_Inherit_BaseEntity()
-    {
-        typeof(ProductStore).Should().BeAssignableTo<BaseEntity>();
-    }
-
-    [Fact]
     public void IncreaseQuantity_With_Valid_Value_Should_Increase_The_Quantity()
     {
         int amountToIncrease = 1;

@@ -1,4 +1,4 @@
-using Ecommerce.Core.Models;
+using Ecommerce.Infrastructure.EmailSender.Models;
 
 namespace Ecommerce.Infrastructure.EmailSender;
 

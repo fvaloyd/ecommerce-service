@@ -10,7 +10,7 @@ namespace Ecommerce.Api.IntegrationTests.Controllers;
 public class PaymentControllerTests
 {
     BaseIntegrationTest _baseIntegrationTest;
-    string endPointPath = "api/payment/";
+    readonly string endPointPath = "api/payment/";
     public PaymentControllerTests(BaseIntegrationTest baseIntegrationTest)
     {
         _baseIntegrationTest = baseIntegrationTest;

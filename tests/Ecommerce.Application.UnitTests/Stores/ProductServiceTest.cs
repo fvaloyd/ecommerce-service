@@ -1,5 +1,5 @@
 using Ecommerce.Application.Data;
-using Ecommerce.Application.Stores;
+using Ecommerce.Application.Products;
 
 namespace Ecommerce.Application.UnitTests.Stores;
 

@@ -1,5 +1,6 @@
+using Ecommerce.Infrastructure.CloudImageStorage;
+using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Persistence.Identity;
-using Ecommerce.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

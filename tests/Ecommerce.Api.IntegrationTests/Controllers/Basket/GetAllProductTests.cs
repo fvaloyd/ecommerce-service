@@ -12,20 +12,6 @@ public class GetAllProductTests
         _baseIntegrationTest = baseIntegrationTest;
     }
 
-    //[Fact]
-    //public async Task GetAllProductWithOutProductInBasket_ShouldReturnBadRequest()
-    //{
-    //    using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
-    //    var user = db.Users.FirstOrDefault(u => u.Email == "default@gmail.com");
-    //    var userBasket = db.Baskets.Where(b => b.ApplicationUserId == user!.Id).ToList();
-    //    db.Baskets.RemoveRange(userBasket);
-    //    await db.SaveChangesAsync();
-
-    //    var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath);
-
-    //    response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    //}
-
     [Fact]
     public async Task GetAllProductWithProductInBasket_ShouldReturnOkWithAListOfProducts_WhenUserHasProductsInBasket()
     {

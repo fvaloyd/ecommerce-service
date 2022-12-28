@@ -1,4 +1,4 @@
-namespace Ecommerce.Infrastructure.Options;
+namespace Ecommerce.Infrastructure.Jwt.Options;
 
 public class JWTOptions
 {

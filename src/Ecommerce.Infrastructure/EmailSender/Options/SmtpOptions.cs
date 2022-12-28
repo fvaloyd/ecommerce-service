@@ -1,4 +1,4 @@
-namespace Ecommerce.Infrastructure.EmailSender;
+namespace Ecommerce.Infrastructure.EmailSender.Options;
 
 public class SmtpOptions
 {

@@ -1,7 +1,7 @@
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 
-namespace Ecommerce.Infrastructure.Services;
+namespace Ecommerce.Infrastructure.CloudImageStorage;
 
 public interface ICloudinaryService
 {

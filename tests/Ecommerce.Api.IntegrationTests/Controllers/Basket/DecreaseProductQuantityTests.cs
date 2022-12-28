@@ -3,9 +3,9 @@ namespace Ecommerce.Api.IntegrationTests.Controllers.Basket;
 [Collection("BaseIntegrationTestCollection")]
 public class DecreaseProductQuantityTests
 {
-    BaseIntegrationTest _baseIntegrationTest;
-    string endPointPath = "api/basket/decreaseproductquantity?productId=";
-    string addProductPath = "api/basket/addproduct?productId="; 
+    readonly BaseIntegrationTest _baseIntegrationTest;
+    readonly string endPointPath = "api/basket/decreaseproductquantity?productId=";
+    readonly string addProductPath = "api/basket/addproduct?productId="; 
 
     public DecreaseProductQuantityTests(BaseIntegrationTest baseIntegrationTest)
     {

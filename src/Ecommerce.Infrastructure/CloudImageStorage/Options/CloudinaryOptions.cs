@@ -1,4 +1,4 @@
-namespace Ecommerce.Infrastructure.Options;
+namespace Ecommerce.Infrastructure.CloudImageStorage.Options;
 
 public class CloudinaryOptions
 {
@@ -7,6 +7,6 @@ public class CloudinaryOptions
     public string ApiSecret { get; set; } = null!;
     public string GetCloudinaryUrl()
     {
-        return $"cloudinary://{this.ApiKey}:{this.ApiSecret}@{this.CloudName}";
+        return $"cloudinary://{ApiKey}:{ApiSecret}@{CloudName}";
     }
 }

@@ -1,7 +1,8 @@
 using System.Security.Claims;
 using Ecommerce.Core.Entities;
+using Ecommerce.Infrastructure.Identity;
 
-namespace Ecommerce.Application.Common.Interfaces;
+namespace Ecommerce.Infrastructure.Jwt;
 
 public interface ITokenService
 {

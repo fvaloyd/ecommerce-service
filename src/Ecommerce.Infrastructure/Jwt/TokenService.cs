@@ -4,14 +4,13 @@ using System.Security.Claims;
 using System.Text;
 using Ecommerce.Core.Entities;
 using Ecommerce.Infrastructure.Identity;
-using Ecommerce.Infrastructure.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Core.Enums;
+using Ecommerce.Infrastructure.Jwt.Options;
 
-namespace Ecommerce.Infrastructure.Services;
+namespace Ecommerce.Infrastructure.Jwt;
 
 public class TokenService : ITokenService
 {
@@ -59,7 +58,6 @@ public class TokenService : ITokenService
             issuer: _jwtOptions.ValidIssuer,
             audience: _jwtOptions.ValidAudience,
             expires: DateTime.Now.AddHours(3),
-            // expires: DateTime.Now.AddSeconds(1),
             claims: authClaims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
         );
@@ -70,14 +68,14 @@ public class TokenService : ITokenService
     public ClaimsPrincipal GetPrincipalsFromExpireToken(string expireToken)
     {
         var tokenValidationParameter = new TokenValidationParameters()
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidAudience = _jwtOptions.ValidAudience,
-                ValidIssuer = _jwtOptions.ValidIssuer,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Secret)),
-                ValidateLifetime = false
-            };
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidAudience = _jwtOptions.ValidAudience,
+            ValidIssuer = _jwtOptions.ValidIssuer,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Secret)),
+            ValidateLifetime = false
+        };
 
         var tokenHandler = new JwtSecurityTokenHandler();
         SecurityToken securityToken;

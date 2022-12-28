@@ -1,8 +1,8 @@
 using System.Security.Claims;
-using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Core.Entities;
 using Ecommerce.Core.Models;
 using Ecommerce.Infrastructure.Identity;
+using Ecommerce.Infrastructure.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

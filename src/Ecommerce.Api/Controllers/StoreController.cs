@@ -147,11 +147,11 @@ public class StoreController : ApiControllerBase
 
         if (store is null) return NotFound("Could not found the store");
 
-        IEnumerable<ProductStore> productStore = await _db.ProductStores.Include(ps => ps.Product).Where(s => s.StoreId == id).ToListAsync();
+        IEnumerable<ProductStore> storeProducts = await _db.ProductStores.Include(ps => ps.Product).Where(s => s.StoreId == id).ToListAsync();
 
-        if (productStore is null) return NotFound("Could not found the store");
+        if (storeProducts is null || !storeProducts.Any()) return NotFound("Could not found products in the store");
 
-        var storeWithProductDto = _mapper.Map<StoreResponse>((productStore, store));
+        var storeWithProductDto = _mapper.Map<StoreResponse>((storeProducts, store));
 
         return storeWithProductDto;
     }
