@@ -94,15 +94,9 @@ public class StoreController : ApiControllerBase
     {
         if (id < 1) return BadRequest("Invalid id");
 
-        Store? storeToDelete = await _db.Stores.FirstOrDefaultAsync(x => x.Id == id);
+        bool operationResult = await _storeService.Deletestore(id);
 
-        if (storeToDelete is null) return NotFound($"Could not found the store with the Id::{id}");
-
-        _db.Stores.Remove(storeToDelete);
-
-        await _storeService.DeleteProductStoreRelation(id);
-
-        if (await _db.SaveChangesAsync() < 1) return BadRequest("Could not remove the store");
+        if (!operationResult) return BadRequest("Could not delete the store"); 
 
         return NoContent();
     }

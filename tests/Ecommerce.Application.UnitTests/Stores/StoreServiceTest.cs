@@ -158,4 +158,34 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         // Assert
         result.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task DeleteStore_ShouldReturnFalse_WhenTheStoreDoesnExist()
+    {
+        // Arrange
+        int unExistingStoreId = 100_000;
+
+        var service = new StoreService(_db);
+
+        // Act
+        var result = await service.Deletestore(unExistingStoreId); 
+        
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task DeleteStore_ShouldReturnTrue_WhenValidStoreIdIsPassed()
+    {
+        // Arrange
+        int storeId = TestData.Stores.FirstOrDefault(s => s.Id == 1)!.Id;
+
+        var service = new StoreService(_db);
+
+        // Act
+        var result = await service.Deletestore(storeId); 
+        
+        // Assert
+        result.Should().BeTrue();
+    }
 }

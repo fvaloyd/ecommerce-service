@@ -168,7 +168,7 @@ public class StoreControllerTests
     }
 
     [Fact]
-    public async Task Delete_ShouldReturnNotFound_WhenUnExistingIdIsSent()
+    public async Task Delete_ShouldReturnBadRequest_WhenUnExistingIdIsSent()
     {
         // Arrange
         int unExistingId = 100_000_000;
@@ -177,7 +177,7 @@ public class StoreControllerTests
         var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endpointPath + $"delete/{unExistingId}");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]

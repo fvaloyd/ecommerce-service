@@ -17,6 +17,13 @@ static class TestData
             Name = "test2",
             State = true
         },
+        new Store
+        {
+            Id = 3,
+            Name = "test3",
+            State = false
+        },
+
     };
 
     public static List<ProductStore> ProductStores => new List<ProductStore>

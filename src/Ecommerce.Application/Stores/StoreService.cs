@@ -61,9 +61,17 @@ public class StoreService : IStoreService
         return true;
     }
 
-    public Task<bool> Deletestore(int storeId)
+    public async Task<bool> Deletestore(int storeId)
     {
-        throw new NotImplementedException();
+        Store? store = await _db.Stores.FirstOrDefaultAsync(s => s.Id == storeId);
+    
+        if (store is null) return false;
+
+        _db.Stores.Remove(store);
+
+        await DeleteProductStoreRelation(storeId);
+
+        return true;
     }
 
     public async Task<bool> IncreaseProductAsync(int productId, int storeId)
