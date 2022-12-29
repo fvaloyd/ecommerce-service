@@ -1,7 +1,7 @@
 using Ecommerce.Application.Data;
 using Ecommerce.Application.Products;
 
-namespace Ecommerce.Application.UnitTests.Stores;
+namespace Ecommerce.Application.UnitTests.Products;
 
 public class ProductServiceTest : IClassFixture<DbContextFixture>
 {
@@ -68,7 +68,7 @@ public class ProductServiceTest : IClassFixture<DbContextFixture>
     {
         // Arrange
         var service = new ProductService(_db);
-        
+
         var storeId = TestData.Stores.First().Id;
 
         int productId = 100_000;

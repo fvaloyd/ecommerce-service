@@ -8,11 +8,11 @@ using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Infrastructure.EmailSender.Models;
 using Ecommerce.Infrastructure.EmailSender.Common;
 
+using Stripe;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using Stripe;
 
 namespace Ecommerce.Api.Controllers;
 
