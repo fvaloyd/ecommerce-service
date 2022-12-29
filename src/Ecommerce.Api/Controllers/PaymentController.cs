@@ -1,16 +1,17 @@
 using Ecommerce.Core.Entities;
+using Ecommerce.Application.Data;
+using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.EmailSender;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+using Ecommerce.Infrastructure.Payment.Models;
 using Ecommerce.Application.Common.Interfaces;
-using Ecommerce.Application.Data;
-using Microsoft.EntityFrameworkCore;
 using Ecommerce.Infrastructure.EmailSender.Models;
 using Ecommerce.Infrastructure.EmailSender.Common;
-using Ecommerce.Infrastructure.Payment;
-using Ecommerce.Infrastructure.Payment.Models;
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.Api.Controllers;
 

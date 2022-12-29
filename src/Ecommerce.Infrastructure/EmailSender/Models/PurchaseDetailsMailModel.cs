@@ -1,5 +1,3 @@
-#nullable disable
-using Ecommerce;
 using Ecommerce.Core.Entities;
 using Ecommerce.Infrastructure.Identity;
 

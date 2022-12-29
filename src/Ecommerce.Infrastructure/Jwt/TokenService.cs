@@ -1,14 +1,14 @@
+using Ecommerce.Infrastructure.Identity;
+using Ecommerce.Core.Enums;
+using Ecommerce.Infrastructure.Jwt.Options;
+
 using System.Security.Cryptography;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Ecommerce.Core.Entities;
-using Ecommerce.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Ecommerce.Core.Enums;
-using Ecommerce.Infrastructure.Jwt.Options;
 
 namespace Ecommerce.Infrastructure.Jwt;
 

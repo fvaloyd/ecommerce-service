@@ -1,6 +1,7 @@
+using Ecommerce.Infrastructure.CloudImageStorage.Options;
+
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using Ecommerce.Infrastructure.CloudImageStorage.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 

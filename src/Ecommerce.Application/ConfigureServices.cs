@@ -1,6 +1,7 @@
 ﻿using Ecommerce.Application.Baskets;
 using Ecommerce.Application.Products;
 using Ecommerce.Application.Stores;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ecommerce.Application;

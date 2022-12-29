@@ -1,7 +1,8 @@
-using System.Reflection;
 using Ecommerce.Api.Startup;
 using Ecommerce.Application;
 using Ecommerce.Infrastructure;
+
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 

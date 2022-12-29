@@ -1,13 +1,13 @@
-using Ecommerce.Api.Dtos.Store;
-using Ecommerce.Application.Stores;
-using Ecommerce.Core.Entities;
 using Ecommerce.Core.Enums;
+using Ecommerce.Core.Entities;
+using Ecommerce.Api.Dtos.Store;
+using Ecommerce.Application.Data;
+using Ecommerce.Application.Stores;
 
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Ecommerce.Application.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.Api.Controllers;
 

@@ -1,4 +1,3 @@
-using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Data;
 using Ecommerce.Core.Entities;
 

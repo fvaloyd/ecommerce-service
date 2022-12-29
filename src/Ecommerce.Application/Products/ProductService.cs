@@ -1,5 +1,6 @@
 using Ecommerce.Application.Data;
 using Ecommerce.Core.Entities;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Application.Products;

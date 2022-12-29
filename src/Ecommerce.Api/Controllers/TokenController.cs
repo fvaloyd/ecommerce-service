@@ -1,11 +1,11 @@
-using System.Security.Claims;
-using Ecommerce.Api.Dtos.Authentication;
-using Ecommerce.Core.Entities;
-using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Jwt;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using Ecommerce.Api.Dtos.Authentication;
+using Ecommerce.Infrastructure.Identity;
+
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.Api.Controllers;
 

@@ -1,6 +1,7 @@
 using Ecommerce.Application.Data;
 using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Application.Baskets;

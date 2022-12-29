@@ -1,14 +1,15 @@
-using Ecommerce.Infrastructure.Identity;
-using Ecommerce.Infrastructure.EmailSender;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Ecommerce.Core.Enums;
+using Ecommerce.Infrastructure.Jwt;
+using Ecommerce.Infrastructure.Payment;
+using Ecommerce.Infrastructure.Identity;
+using Ecommerce.Api.Dtos.Authentication;
+using Ecommerce.Infrastructure.EmailSender;
 using Ecommerce.Infrastructure.EmailSender.Models;
 using Ecommerce.Infrastructure.EmailSender.Common;
-using Ecommerce.Infrastructure.Payment;
-using Ecommerce.Infrastructure.Jwt;
-using Ecommerce.Api.Dtos.Authentication;
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -34,24 +35,24 @@ public class AuthenticateController : ApiControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequest model)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
     {
-        ApplicationUser userExist = await _userManager.FindByEmailAsync(model.Email);
+        ApplicationUser userExist = await _userManager.FindByEmailAsync(registerRequest.Email);
 
         if (userExist != null) return BadRequest("User already exist");
 
         ApplicationUser user = new()
         {
-            Email = model.Email,
+            Email = registerRequest.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
-            UserName = model.UserName,
-            PhoneNumber = model.PhoneNumber,
+            UserName = registerRequest.UserName,
+            PhoneNumber = registerRequest.PhoneNumber,
         };
 
         var customer = await _stripeService.CreateCustomerToken(user);
         user.CustomerId = customer.Id;
 
-        IdentityResult result = await _userManager.CreateAsync(user, model.Password);
+        IdentityResult result = await _userManager.CreateAsync(user, registerRequest.Password);
 
         if (!result.Succeeded) return BadRequest("User creation failed! Please try again");
 
@@ -143,7 +144,6 @@ public class AuthenticateController : ApiControllerBase
 
         if (!signInResult.Succeeded) return BadRequest();
 
-        //string accessToken = await _tokenService.CreateToken(model);
         string accessToken = await _tokenService.CreateToken(user);
 
         string RefreshToken = _tokenService.CreateRefreshToken();
@@ -169,7 +169,7 @@ public class AuthenticateController : ApiControllerBase
     {
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user); 
 
-        var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authenticate", new { token = token, email = user.Email}, Request.Scheme);
+        var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authenticate", new { token, email = user.Email}, Request.Scheme);
 
         var mailRequest = await CreateMailRequest(user, confirmationLink!);
 

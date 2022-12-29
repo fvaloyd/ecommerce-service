@@ -1,6 +1,6 @@
-using System.Security.Claims;
-using Ecommerce.Core.Entities;
 using Ecommerce.Infrastructure.Identity;
+
+using System.Security.Claims;
 
 namespace Ecommerce.Infrastructure.Jwt;
 

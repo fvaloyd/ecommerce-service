@@ -15,7 +15,7 @@ public class Store : BaseEntity
     public void SetName(string name)
     {
         if (name is null) throw new ArgumentNullException();
-        if (name.Count() < 1) throw new ArgumentException("Name length could not be less than 1");
+        if (name.Length < 1) throw new ArgumentException("Name length could not be less than 1");
         Name = name;
     }
 

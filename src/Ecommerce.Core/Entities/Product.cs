@@ -22,7 +22,7 @@ public class Product : BaseEntity
     public void SetName(string name)
     {
         if (name is null) throw new ArgumentNullException();
-        if (name.Count() < 1) throw new ArgumentException("The Name could not have a length less than 1");
+        if (name.Length < 1) throw new ArgumentException("The Name could not have a length less than 1");
 
         Name = name;
     }

@@ -1,5 +1,6 @@
-using System.Security.Claims;
 using Ecommerce.Application.Common.Interfaces;
+
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
 namespace Ecommerce.Infrastructure.Services;

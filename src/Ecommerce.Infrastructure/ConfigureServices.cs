@@ -1,24 +1,25 @@
-using System.Text;
-using Ecommerce.Infrastructure.Identity;
-using Ecommerce.Infrastructure.Persistence.Identity;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using Ecommerce.Infrastructure.Services;
-using Microsoft.Extensions.Options;
-using Ecommerce.Infrastructure.EmailSender;
-using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Data;
 using Ecommerce.Infrastructure.Jwt;
 using Ecommerce.Infrastructure.Payment;
+using Ecommerce.Infrastructure.Identity;
+using Ecommerce.Infrastructure.Services;
+using Ecommerce.Infrastructure.EmailSender;
 using Ecommerce.Infrastructure.Jwt.Options;
+using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Infrastructure.Payment.Options;
-using Ecommerce.Infrastructure.EmailSender.Options;
 using Ecommerce.Infrastructure.CloudImageStorage;
+using Ecommerce.Infrastructure.EmailSender.Options;
+using Ecommerce.Infrastructure.Persistence.Identity;
 using Ecommerce.Infrastructure.CloudImageStorage.Options;
+
+using System.Text;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Ecommerce.Infrastructure;
 

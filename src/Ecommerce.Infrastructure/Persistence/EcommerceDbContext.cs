@@ -1,7 +1,8 @@
-using System.Reflection;
 using Ecommerce.Application.Data;
 using Ecommerce.Core.Entities;
 using Ecommerce.Infrastructure.Identity;
+
+using System.Reflection;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
