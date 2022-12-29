@@ -26,16 +26,27 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // Options
+        services.ConfigureEcommerceOptions()
+                .AddDbContext<EcommerceDbContext>(opt => opt.UseSqlServer(configuration.GetConnectionString("ApplicationConnection")))
+                .ConfigureIdentity()
+                .ConfigureJwtAuthentication()
+                .SetupServices();
+
+        return services;
+    }
+
+    private static IServiceCollection ConfigureEcommerceOptions(this IServiceCollection services)
+    {
         services.ConfigureOptions<JWTOptionsSetup>();
         services.ConfigureOptions<StripeSetup>();
         services.ConfigureOptions<CloudinarySetup>();
         services.ConfigureOptions<SmtpSetup>();
 
-        // Context
-        services.AddDbContext<EcommerceDbContext>(opt => opt.UseSqlServer(configuration.GetConnectionString("ApplicationConnection")));
+        return services;
+    }
 
-        // Identity
+    private static IServiceCollection ConfigureIdentity(this IServiceCollection services)
+    {
         services.AddIdentity<ApplicationUser, IdentityRole>(opt => {
             opt.Password.RequireUppercase = false;
             opt.Password.RequireDigit = true;
@@ -48,7 +59,11 @@ public static class ConfigureServices
                 .AddEntityFrameworkStores<EcommerceDbContext>()
                 .AddDefaultTokenProviders();
 
-        // Authentication
+        return services;
+    }
+    
+    private static IServiceCollection ConfigureJwtAuthentication(this IServiceCollection services)
+    {
         services.AddAuthentication(options =>
         {
 
@@ -73,7 +88,11 @@ public static class ConfigureServices
             };
         });
 
-        // Services
+        return services;
+    }
+
+    private static IServiceCollection SetupServices(this IServiceCollection services)
+    {
         services.AddScoped<IEcommerceDbContext>(provider => provider.GetRequiredService<EcommerceDbContext>());
 
         services.AddScoped<ITokenService, TokenService>();
