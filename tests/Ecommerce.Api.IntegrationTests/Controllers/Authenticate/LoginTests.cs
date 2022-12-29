@@ -21,33 +21,44 @@ public sealed class LoginTests
     readonly LoginRequest unAuthenticatedUser = new("invalid@gmail.com", "invalid.123"); 
 
     [Fact]
-    public async Task Login_WithAuthenticatedUser_ShouldReturnAnAuthenticationResponse()
+    public async Task Login_ShouldReturnAnAuthenticationResponse_WhenTheUserIsAuthenticate()
     {
+        // Act
         var httpResponse = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(endPointPath, authenticatedUser);
 
         var stringResult = await httpResponse.Content.ReadAsStringAsync();
 
         var parseAuthenticateResponse = JsonConvert.DeserializeObject<AuthenticateResponse>(stringResult);
 
+        // Assert
         httpResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
         parseAuthenticateResponse.AccessToken.Should().NotBeNull();
+
         parseAuthenticateResponse.AccessToken.Should().NotBeEmpty();
+
         parseAuthenticateResponse.RefreshToken.Should().NotBeNull();
+
         parseAuthenticateResponse.RefreshToken.Should().NotBeEmpty();
     }
 
     [Fact]
-    public async Task Login_WithUnAuthenticateUser_ShouldReturnUnauthorize()
+    public async Task Login_ShouldReturnUnauthorize_WhenUnAuthorizeUserTryToLogin()
     {
+        // Act
         var httpResponse = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(endPointPath, unAuthenticatedUser);
 
+        // Assert
         httpResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
-    public async Task Login_WithIncorrectPassword_ShouldReturnBadRequest()
+    public async Task Login_ShouldReturnBadRequest_WhenIncorrectPasswordIsSent()
     {
+        // Act
         var httpResponse = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(endPointPath, authenticatedUserWithIncorrectPassword);
+        
+        // Assert
         httpResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }

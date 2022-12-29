@@ -1,7 +1,8 @@
 using Ecommerce.Infrastructure.CloudImageStorage;
 using Ecommerce.Infrastructure.CloudImageStorage.Options;
-using Microsoft.AspNetCore.Http;
+
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http;
 
 namespace Ecommerce.Infrastructure.UnitTests.Services;
 
@@ -13,12 +14,15 @@ public class CloudinaryServiceTest
         ApiSecret = "ss9df87s9d8f7s9df87s9df",
         CloudName = "s98f7s9d8f7s"
     };
+
     private readonly IOptions<CloudinaryOptions> cloudinaryIOptions;
+
     private readonly Mock<CloudinaryService> cloudinaryServiceMock;
 
     public CloudinaryServiceTest()
     {
-        cloudinaryIOptions = Microsoft.Extensions.Options.Options.Create<CloudinaryOptions>(cloudinaryOptions);
+        cloudinaryIOptions = Microsoft.Extensions.Options.Options.Create(cloudinaryOptions);
+
         cloudinaryServiceMock = new Mock<CloudinaryService>(cloudinaryIOptions);
     }
 

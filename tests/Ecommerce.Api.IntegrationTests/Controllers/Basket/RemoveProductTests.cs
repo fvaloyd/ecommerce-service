@@ -4,7 +4,9 @@ namespace Ecommerce.Api.IntegrationTests.Controllers.Basket;
 public class RemoveProductTests
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
+
     readonly string endPointPath = "api/basket/removeproduct?productId=";
+
     readonly string addProductPath = "api/basket/addproduct?productId="; 
 
     public RemoveProductTests(BaseIntegrationTest baseIntegrationTest)
@@ -13,22 +15,32 @@ public class RemoveProductTests
     }
 
     [Fact]
-    public async Task RemoveProduct_ShouldReturnBadRequest_WhenTheUserDoesNotHaveTheSpecificProductInBasket()
+    public async Task RemoveProduct_ShouldReturnBadRequest_WhenTheUserDoesntHaveTheSpecificProductInBasket()
     {
+        // Arrange
         int unExistingProductId = 100_000_000;
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(endPointPath + unExistingProductId.ToString());
 
+        // Act
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(endPointPath + unExistingProductId.ToString());
+        
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
     public async Task RemoveProduct_ShouldReturnNoContent_WhenTheUserHaveTheSpecificProductInBasket()
     {
+        // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
+
         var product = db.Products.First();
+
         var _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(addProductPath + product.Id.ToString(), null);
+
+        // Act
         var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(endPointPath + product.Id.ToString());
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 }

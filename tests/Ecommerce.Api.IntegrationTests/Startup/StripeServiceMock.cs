@@ -1,6 +1,7 @@
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Payment.Models;
+
 using Stripe;
 
 namespace Ecommerce.Api.IntegrationTests.Startup;

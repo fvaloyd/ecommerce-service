@@ -1,6 +1,7 @@
 using Ecommerce.Infrastructure.CloudImageStorage;
 using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Persistence.Identity;
+
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +15,9 @@ internal class EcommerceProgram : WebApplicationFactory<Program>
     public EcommerceDbContext CreateApplicationDbContext()
     {
         var db = Services.GetRequiredService<IDbContextFactory<EcommerceDbContext>>().CreateDbContext();
+
         db.Database.EnsureCreated();
+
         return db;
     }
     protected override IHost CreateHost(IHostBuilder builder)

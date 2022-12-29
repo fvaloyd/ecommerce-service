@@ -16,7 +16,7 @@ public class CloudinaryServiceMock : ICloudinaryService
         return Task.FromResult("https://testimage.com");
     }
 
-    public Task<(string ImageUrl, string PublicId)> UploadImage(IFormFile file, string imageName)
+    public Task<(string ImageUrl, string PublicId)> UploadImage(IFormFile? file, string imageName)
     {
         return Task.FromResult(("https://testimage.com", "123"));
     }

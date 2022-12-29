@@ -88,6 +88,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
     {
         // Arrange
         var productId = TestData.ProductStores.First(ps => ps.Quantity > 0).ProductId;
+
         var userId = "test";
 
         storeServiceMock.Setup(ss => ss.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(false);
@@ -106,6 +107,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
     {
         // Arrange
         var productId = TestData.ProductStores.First(ps => ps.Quantity > 0).ProductId;
+
         var userId = "test";
 
         storeServiceMock.Setup(ss => ss.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(true);
@@ -124,6 +126,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
     {
         // Arrange
         var productId = 1;
+
         var userId = "test";
 
         var service = new BasketService(storeServiceMock.Object, _db);
@@ -258,7 +261,9 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
     {
         // Arrange
         string userId = "1";
+
         int productId = 100_100_000;
+
         List<Basket> userBasket = TestData.Baskets.Where(b => b.Product == null).ToList();
 
         var service = new BasketService(storeServiceMock.Object, _db);

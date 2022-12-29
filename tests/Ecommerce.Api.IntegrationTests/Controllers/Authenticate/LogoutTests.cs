@@ -13,7 +13,7 @@ public class LogoutTests
     }
 
     [Fact]
-    public async Task ShouldReturnOk_WhenAlreadyAUserLogIn()
+    public async Task ShouldReturnOk_WhenTheUserIsLoged()
     {
         // Act
         var logoutResponse = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(logoutPath, null);

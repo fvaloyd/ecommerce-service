@@ -1,4 +1,3 @@
-using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Infrastructure.Jwt;
 
 namespace Ecommerce.Infrastructure.UnitTests.Services;

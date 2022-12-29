@@ -1,5 +1,4 @@
 ﻿using Ecommerce.Core.Entities;
-using System.Runtime.CompilerServices;
 
 namespace Ecommerce.Application.UnitTests;
 static class TestData
