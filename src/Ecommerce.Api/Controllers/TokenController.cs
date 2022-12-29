@@ -37,7 +37,6 @@ public class TokenController : ApiControllerBase
         if (user is null || user.RefreshToken != apiToken.RefreshToken || user.RefreshTokenExpireTime <= DateTime.Now)
             return BadRequest("User null or refreshtoken diferent or token is expire");
 
-        //string newAccessToken = await _tokenService.CreateToken(new UserBase{Email = user.Email});
         string newAccessToken = await _tokenService.CreateToken(user);
         string newRefreshToken = _tokenService.CreateRefreshToken();
 

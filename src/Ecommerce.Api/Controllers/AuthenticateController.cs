@@ -77,29 +77,13 @@ public class AuthenticateController : ApiControllerBase
         return Ok("Email confirm successfully");
     }
 
-    private async Task<MailRequest> CreateMailRequest(ApplicationUser user, string confirmationLink)
-    {
-        var emailConfirmationMailModel = new EmailConfirmationMailModel(User: user, ConfirmationLink: confirmationLink);
-
-        string template = await _emailService.GetTemplate(((int)MailTemplates.EmailConfirmation));
-
-        string compiledTemplate = await _emailService.GetCompiledTemplateAsync(template, emailConfirmationMailModel);
-
-        return new MailRequest(
-            Body: compiledTemplate,
-            Subject: "Email confirmation",
-            Email: user.Email
-        );
-    }
-
     [HttpPost("register-admin")]
     [Authorize(Roles = UserRoles.Admin)]
     public async Task<IActionResult> RegisterAdmin([FromBody] RegisterRequest model)
     {
         ApplicationUser userExist = await _userManager.FindByEmailAsync(model.Email);
 
-        if (userExist != null)
-            return BadRequest("User already exist");
+        if (userExist != null) return BadRequest("User already exist");
 
         ApplicationUser user = new()
         {
@@ -135,14 +119,13 @@ public class AuthenticateController : ApiControllerBase
         if (!isEmailConfirmed)
         {
             await SendMailToConfirmEmail(user);
+
             return BadRequest("You need to confirm your email. Check your mail to confirm");
         }
 
-        if (!await _userManager.CheckPasswordAsync(user, model.Password)) return BadRequest("Incorrect password");
-
         var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
 
-        if (!signInResult.Succeeded) return BadRequest();
+        if (!signInResult.Succeeded) return BadRequest("Incorrect password");
 
         string accessToken = await _tokenService.CreateToken(user);
 
@@ -162,6 +145,7 @@ public class AuthenticateController : ApiControllerBase
     public async Task<IActionResult> LogOut()
     {
         await _signInManager.SignOutAsync();
+
         return Ok("Closed session");
     }
 
@@ -174,5 +158,20 @@ public class AuthenticateController : ApiControllerBase
         var mailRequest = await CreateMailRequest(user, confirmationLink!);
 
         await _emailService.SendAsync(mailRequest);
+    }
+
+    private async Task<MailRequest> CreateMailRequest(ApplicationUser user, string confirmationLink)
+    {
+        var emailConfirmationMailModel = new EmailConfirmationMailModel(User: user, ConfirmationLink: confirmationLink);
+
+        string template = await _emailService.GetTemplate(((int)MailTemplates.EmailConfirmation));
+
+        string compiledTemplate = await _emailService.GetCompiledTemplateAsync(template, emailConfirmationMailModel);
+
+        return new MailRequest(
+            Body: compiledTemplate,
+            Subject: "Email confirmation",
+            Email: user.Email
+        );
     }
 }
