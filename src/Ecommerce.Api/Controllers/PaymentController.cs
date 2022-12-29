@@ -1,17 +1,16 @@
 using Ecommerce.Core.Entities;
-using Ecommerce.Core.Models;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.EmailSender;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Ecommerce.Api.Filters;
 using Ecommerce.Application.Common.Interfaces;
 using Ecommerce.Application.Data;
 using Microsoft.EntityFrameworkCore;
 using Ecommerce.Infrastructure.EmailSender.Models;
 using Ecommerce.Infrastructure.EmailSender.Common;
 using Ecommerce.Infrastructure.Payment;
+using Ecommerce.Infrastructure.Payment.Models;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -39,7 +38,7 @@ public class PaymentController : ApiControllerBase
     }
 
     [HttpPost("pay")]
-    public async Task<IActionResult> CreateOrder(CardOptions card)
+    public async Task<IActionResult> CreateOrder(PayRequest card)
     {
         #region GET USER BASKET
         ApplicationUser user = await GetUser(HttpContext);

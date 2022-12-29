@@ -1,9 +1,4 @@
-﻿using Ecommerce.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Ecommerce.Infrastructure.Payment.Models;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers;
 [Collection("BaseIntegrationTestCollection")]
@@ -19,13 +14,7 @@ public class PaymentControllerTests
     [Fact]
     public async Task Pay_WithNoProductInBasket_ShouldReturnBadRequest()
     {
-        var card = new CardOptions()
-        {
-            Cvc = "314",
-            ExpMonth = "11",
-            ExpYear = "2023",
-            Number = "3434343434343434"
-        };
+        var card = new PayRequest("3434343434343434", "11", "2023", "314");
 
         var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsJsonAsync(endPointPath + "pay", card);
 
@@ -35,13 +24,8 @@ public class PaymentControllerTests
     [Fact]
     public async Task Pay_WithProductInBasket_ShouldReturnOk()
     {
-        var card = new CardOptions()
-        {
-            Cvc = "314",
-            ExpMonth = "11",
-            ExpYear = "2023",
-            Number = "3434343434343434"
-        };
+        var card = new PayRequest("3434343434343434", "11", "2023", "314");
+
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
         var productId = db.Products.Select(p => p.Id).First();
         _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync($"api/basket/addproduct?productId={productId}", null);

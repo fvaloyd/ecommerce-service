@@ -1,59 +1,59 @@
-using Ecommerce.Core.Models;
+using Ecommerce.Api.Dtos.Authentication;
 namespace Ecommerce.Api.IntegrationTests.Controllers.Authenticate;
 
 [Collection("BaseIntegrationTestCollection")]
 public class ResgisterAdminTest
 {
-    BaseIntegrationTest _baseIntegrationTest;
+    readonly BaseIntegrationTest _baseIntegrationTest;
 
     public ResgisterAdminTest(BaseIntegrationTest baseIntegrationTest)
     {
         _baseIntegrationTest = baseIntegrationTest;
     }
 
-    string endPointPath = "/api/authenticate/register-admin";
-    RegisterUser ValidUser = new() {
-        Email = "registeradmintest@gmail.com",
-        Password = "test.324234",
-        UserName = "registeradmintest",
-        PhoneNumber = "8888888888"
-    };
-    RegisterUser ExistingUser = new() {
-        UserName = "admin",
-        PhoneNumber = "8888888888",
-        Email = "admin@gmail.com",
-        Password = "password.123"
-    };
+    readonly string endPointPath = "/api/authenticate/register-admin";
+
+    readonly RegisterRequest ValidUser = new("registeradmintest", "8888888888", "registeradmintest@gmail.com", "test.324234");
+
+    readonly RegisterRequest ExistingUser = new("admin", "8888888888", "admin@gmail.com", "password.123"); 
 
     [Fact]
-    public async Task NonAdministratorUserTriesToCreateAnAdministrator_ShouldReturnForbidden()
+    public async Task ShouldReturnForbidden_WhenNoAdminUserTriesToCreateAnAdminUser()
     {
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsJsonAsync<RegisterUser>(endPointPath, ValidUser);
+        // Act
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsJsonAsync(endPointPath, ValidUser);
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
-    public async Task UnAuthenticateUserTriesToCreateAnAdministrator_ShouldReturnUnAuthorize()
+    public async Task ShouldReturnUnAuthorize_UnAuthenticateUserTriesToCreateAnAdministrator()
     {
-        var response = await _baseIntegrationTest.HttpClient.PostAsJsonAsync<RegisterUser>(endPointPath, ValidUser);
+        // Act
+        var response = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(endPointPath, ValidUser);
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
-    public async Task AdminUserTriesToRegisterAnValidUser_ShouldReturnOk()
+    public async Task ShouldReturnOk_WhenAdminUserTriesToRegisterAnValidUser()
     {
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync<RegisterUser>(endPointPath, ValidUser);
+        // Act
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endPointPath, ValidUser);
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
-    public async Task AdminUserTriesToRegisterAnAlreadyAuthenticateUser_ShouldReturnBadRequest()
+    public async Task ShouldReturnBadRequest_WhenAdminUserTriesToRegisterAnAlreadyAuthenticateUser()
     {
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync<RegisterUser>(endPointPath, ExistingUser);
+        // Act
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endPointPath, ExistingUser);
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }

@@ -1,41 +1,40 @@
-using Ecommerce.Core.Models;
-using Ecommerce.Infrastructure.Identity;
+using Ecommerce.Api.Dtos.Authentication;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers.Authenticate;
 
 [Collection("BaseIntegrationTestCollection")]
 public class RegisterTests
 {
-    BaseIntegrationTest _baseIntegrationTest;
+    readonly BaseIntegrationTest _baseIntegrationTest;
+    
     public RegisterTests(BaseIntegrationTest baseIntegrationTest)
     {
         _baseIntegrationTest = baseIntegrationTest;
     }
-    string endPointPath = "/api/authenticate/register";
-    RegisterUser ValidUser = new() {
-        Email = "registertest@gmail.com",
-        Password = "test.123324234",
-        UserName = "registertest",
-        PhoneNumber = "8888888888"
-    };
-    RegisterUser ExistingUser = new() {
-        UserName = "admin",
-        PhoneNumber = "8888888888",
-        Email = "admin@gmail.com",
-        Password = "password.123"
-    };
+    
+    readonly string endPointPath = "/api/authenticate/register";
+
+    readonly RegisterRequest ValidUser = new("registertest", "8888888888", "registertest@gmail.com", "test.123324234");
+
+    readonly RegisterRequest ExistingUser = new("admin", "8888888888", "admin@gmail.com", "password.123"); 
 
     [Fact]
-    public async Task Register_WithValidUser_ShouldReturnOk()
+    public async Task Register_ShouldReturnOk_WhenValidUserIsSending()
     {
-        var response = await _baseIntegrationTest.HttpClient.PostAsJsonAsync<RegisterUser>(endPointPath, ValidUser);
+        // Act
+        var response = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(endPointPath, ValidUser);
+        
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
-    public async Task Register_WithExistingUser_ShouldReturnBadRequest()
+    public async Task Register_ShouldReturnBadRequest_WhenExistingUserIsSending()
     {
-        var response = await _baseIntegrationTest.HttpClient.PostAsJsonAsync<RegisterUser>(endPointPath, ExistingUser);
+        // Act
+        var response = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(endPointPath, ExistingUser);
+        
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }

@@ -33,14 +33,14 @@ public class TokenService : ITokenService
         }
     }
 
-    public async Task<string> CreateToken(UserBase model)
+    public async Task<string> CreateToken(ApplicationUser user)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
-        var userRoles = await _userManager.GetRolesAsync(user);
+        //var user = await _userManager.FindByEmailAsync(user.Email);
+        var userRoles = await _userManager.GetRolesAsync((ApplicationUser)user);
 
         var authClaims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Email, model.Email),
+                new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())

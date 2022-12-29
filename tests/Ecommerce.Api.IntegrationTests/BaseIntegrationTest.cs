@@ -1,5 +1,5 @@
+using Ecommerce.Api.Dtos.Authentication;
 using Ecommerce.Api.IntegrationTests.Startup;
-using Ecommerce.Core.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Respawn;
@@ -9,17 +9,9 @@ namespace Ecommerce.Api.IntegrationTests;
 
 public class BaseIntegrationTest : IAsyncLifetime
 {
-    LoginUser defaultUser = new()
-    {
-        Email = "default@gmail.com",
-        Password = "password.123"
-    };
+    readonly LoginRequest defaultUser = new("default@gmail.com", "password.123");
 
-    LoginUser adminUser = new()
-    {
-        Email = "admin@gmail.com",
-        Password = "password.123"
-    };
+    readonly LoginRequest adminUser = new("admin@gmail.com", "password.123");
 
     public HttpClient HttpClient = null!;
 
@@ -57,9 +49,9 @@ public class BaseIntegrationTest : IAsyncLifetime
         });
     }
 
-    private async Task<HttpClient> GetCustomHttpClient(EcommerceProgram program, HttpClient httpClient, LoginUser user)
+    private async Task<HttpClient> GetCustomHttpClient(EcommerceProgram program, HttpClient httpClient, LoginRequest user)
     {
-        var httpResponse = await httpClient.PostAsJsonAsync<LoginUser>("api/authenticate/login", user);
+        var httpResponse = await httpClient.PostAsJsonAsync("api/authenticate/login", user);
         
         var httpResponseReadedAsString = await httpResponse.Content.ReadAsStringAsync();
         

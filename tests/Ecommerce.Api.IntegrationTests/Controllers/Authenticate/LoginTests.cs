@@ -1,30 +1,24 @@
-using Ecommerce.Core.Models;
+using Ecommerce.Api.Dtos.Authentication;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers.Authenticate;
 
 [Collection("BaseIntegrationTestCollection")]
 public sealed class LoginTests
 {
-    BaseIntegrationTest _baseIntegrationTest;
-    string endPointPath = "/api/authenticate/login";
+    readonly BaseIntegrationTest _baseIntegrationTest;
+
+    readonly string endPointPath = "/api/authenticate/login";
 
     public LoginTests(BaseIntegrationTest baseIntegrationTest)
     {
         _baseIntegrationTest = baseIntegrationTest;
     }
 
-    LoginUser authenticatedUser = new() {
-        Email = "admin@gmail.com",
-        Password = "password.123"
-    };
-    LoginUser authenticatedUserWithIncorrectPassword = new() {
-        Email = "admin@gmail.com",
-        Password = "password"
-    };
-    LoginUser unAuthenticatedUser = new() {
-        Email = "invalid@gmail.com",
-        Password = "invalid.123"
-    };
+    readonly LoginRequest authenticatedUser = new("admin@gmail.com", "password.123");
+
+    readonly LoginRequest authenticatedUserWithIncorrectPassword = new("admin@gmail.com", "password");
+
+    readonly LoginRequest unAuthenticatedUser = new("invalid@gmail.com", "invalid.123"); 
 
     [Fact]
     public async Task Login_WithAuthenticatedUser_ShouldReturnAnAuthenticationResponse()

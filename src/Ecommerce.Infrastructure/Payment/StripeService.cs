@@ -1,6 +1,5 @@
-using System.Reflection.Metadata;
-using Ecommerce.Core.Models;
 using Ecommerce.Infrastructure.Identity;
+using Ecommerce.Infrastructure.Payment.Models;
 using Stripe;
 
 namespace Ecommerce.Infrastructure.Payment;
@@ -17,7 +16,7 @@ public class StripeService : IStripeService
         return await cardService.CreateAsync(parentId: customerId, options: cardOptions);
     }
 
-    public Token CreateCardToken(CardOptions card)
+    public Token CreateCardToken(PayRequest card)
     {
         var tokenOptions = new TokenCreateOptions()
         {

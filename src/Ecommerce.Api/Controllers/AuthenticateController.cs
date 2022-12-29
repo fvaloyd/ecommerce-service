@@ -1,4 +1,3 @@
-using Ecommerce.Core.Models;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.EmailSender;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +8,7 @@ using Ecommerce.Infrastructure.EmailSender.Models;
 using Ecommerce.Infrastructure.EmailSender.Common;
 using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Jwt;
+using Ecommerce.Api.Dtos.Authentication;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -34,7 +34,7 @@ public class AuthenticateController : ApiControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterUser model)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest model)
     {
         ApplicationUser userExist = await _userManager.FindByEmailAsync(model.Email);
 
@@ -93,7 +93,7 @@ public class AuthenticateController : ApiControllerBase
 
     [HttpPost("register-admin")]
     [Authorize(Roles = UserRoles.Admin)]
-    public async Task<IActionResult> RegisterAdmin([FromBody] RegisterUser model)
+    public async Task<IActionResult> RegisterAdmin([FromBody] RegisterRequest model)
     {
         ApplicationUser userExist = await _userManager.FindByEmailAsync(model.Email);
 
@@ -123,7 +123,7 @@ public class AuthenticateController : ApiControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginUser model)
+    public async Task<IActionResult> Login([FromBody] LoginRequest model)
     {
         ApplicationUser user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -143,7 +143,8 @@ public class AuthenticateController : ApiControllerBase
 
         if (!signInResult.Succeeded) return BadRequest();
 
-        string accessToken = await _tokenService.CreateToken(model);
+        //string accessToken = await _tokenService.CreateToken(model);
+        string accessToken = await _tokenService.CreateToken(user);
 
         string RefreshToken = _tokenService.CreateRefreshToken();
 
