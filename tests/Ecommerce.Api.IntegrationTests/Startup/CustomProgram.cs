@@ -41,7 +41,7 @@ internal class EcommerceProgram : WebApplicationFactory<Program>
     }
 }
 
-public static class ServiceCollectionExtensions
+file static class ServiceCollectionExtensions
 {
     public static IServiceCollection Remove<TService>(this IServiceCollection service)
     {
