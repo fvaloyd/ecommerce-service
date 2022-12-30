@@ -47,7 +47,11 @@ The command should look like this:
 
 ### Core
 
-All domain logic is here, this layer cant depend on any other layer.
+All domain models are here, this layer cannot depend on any other layer.
+
+### Application
+
+In this layer you find the domain services and some abstractions of the app
 
 ### Infrastructure
 
