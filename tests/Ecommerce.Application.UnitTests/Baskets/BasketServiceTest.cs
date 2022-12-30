@@ -6,37 +6,15 @@ using Ecommerce.Core.Entities;
 
 namespace Ecommerce.Application.UnitTests.Baskets;
 
-public class BasketServiceTest
+public class BasketServiceTest : IClassFixture<DbContextFixture>
 {
+    readonly IEcommerceDbContext _db;
+
     readonly Mock<IStoreService> storeServiceMock = new();
 
-    static Mock<IEcommerceDbContext> GetDbContextMock()
+    public BasketServiceTest(DbContextFixture dbContextFixture)
     {
-        Mock<IEcommerceDbContext> dbContextMock = new();
-
-        dbContextMock.Setup(x => x.SaveChangesAsync(default)).ReturnsAsync(1);
-
-        SetUpDbSets(dbContextMock);
-
-        return dbContextMock;
-    }
-
-    static void SetUpDbSets(Mock<IEcommerceDbContext> mockDbContext)
-    {
-        var storeDbSet = TestData.Stores.AsQueryable().BuildMockDbSet();
-        var productStoreDbSet = TestData.ProductStores.AsQueryable().BuildMockDbSet();
-        var productDbSet = TestData.Products.AsQueryable().BuildMockDbSet();
-        var brandDbSet = TestData.Brands.AsQueryable().BuildMockDbSet();
-        var categoryDbSet = TestData.Categories.AsQueryable().BuildMockDbSet();
-        var basketDbSet = TestData.Baskets.AsQueryable().BuildMockDbSet();
-
-
-        mockDbContext.Setup(db => db.Baskets).Returns(basketDbSet.Object);
-        mockDbContext.Setup(db => db.Stores).Returns(storeDbSet.Object);
-        mockDbContext.Setup(db => db.ProductStores).Returns(productStoreDbSet.Object);
-        mockDbContext.Setup(db => db.Products).Returns(productDbSet.Object);
-        mockDbContext.Setup(db => db.Brands).Returns(brandDbSet.Object);
-        mockDbContext.Setup(db => db.Categories).Returns(categoryDbSet.Object);
+        _db = dbContextFixture.GetDbContext();
     }
 
     [Fact]
@@ -51,7 +29,7 @@ public class BasketServiceTest
         // Arrange
         var basket = new Basket(100_100, "", 10);
 
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         var result = await service.RestoreTheQuantityIntoStore(basket);
@@ -66,7 +44,7 @@ public class BasketServiceTest
         // Arrange
         var basket = new Basket(1, "", 1);
         
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         var result = await service.RestoreTheQuantityIntoStore(basket);
@@ -81,7 +59,7 @@ public class BasketServiceTest
         // Arrange
         int productWithNoStockId = TestData.ProductStores.First(ps => ps.Quantity == 0).ProductId;
 
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         var result = await service.AddProductAsync(productWithNoStockId, "1");
@@ -96,7 +74,7 @@ public class BasketServiceTest
         // Arrange
         var basket = TestData.Baskets.First(b => b.ApplicationUserId == "1");
 
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         var result = await service.AddProductAsync(basket.ProductId, basket.ApplicationUserId);
@@ -110,11 +88,12 @@ public class BasketServiceTest
     {
         // Arrange
         var productId = TestData.ProductStores.First(ps => ps.Quantity > 0).ProductId;
+
         var userId = "test";
 
         storeServiceMock.Setup(ss => ss.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(false);
 
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         var result = await service.AddProductAsync(productId, userId);
@@ -128,11 +107,12 @@ public class BasketServiceTest
     {
         // Arrange
         var productId = TestData.ProductStores.First(ps => ps.Quantity > 0).ProductId;
+
         var userId = "test";
 
         storeServiceMock.Setup(ss => ss.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(true);
 
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         var result = await service.AddProductAsync(productId, userId);
@@ -146,9 +126,10 @@ public class BasketServiceTest
     {
         // Arrange
         var productId = 1;
+
         var userId = "test";
 
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         var result = await service.IncreaseProduct(productId, userId);
@@ -165,7 +146,7 @@ public class BasketServiceTest
 
         storeServiceMock.Setup(ss => ss.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(false);
 
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         var result = await service.IncreaseProduct(basket.ProductId, basket.ApplicationUserId);
@@ -182,10 +163,10 @@ public class BasketServiceTest
 
         storeServiceMock.Setup(ss => ss.DecreaseProductAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(true);
 
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var result = await service.IncreaseProduct(basket.ProductId, basket.ApplicationUserId);
+        var result = await service.IncreaseProduct(basket!.ProductId, basket.ApplicationUserId);
 
         // Assert
         result.Should().BeTrue();
@@ -198,7 +179,7 @@ public class BasketServiceTest
         var userId = TestData.Baskets.First().ApplicationUserId;
         var productId = 100_000;
 
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         //Act
         var result = await service.DecreaseProduct(productId, userId);
@@ -215,7 +196,7 @@ public class BasketServiceTest
 
         storeServiceMock.Setup(ss => ss.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(false);
 
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         var result = await service.DecreaseProduct(basket.ProductId, basket.ApplicationUserId);
@@ -232,7 +213,7 @@ public class BasketServiceTest
 
         storeServiceMock.Setup(ss => ss.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(true);
 
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         var result = await service.DecreaseProduct(basket.ProductId, basket.ApplicationUserId);
@@ -249,7 +230,7 @@ public class BasketServiceTest
 
         storeServiceMock.Setup(ss => ss.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(true);
         
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         var act = async () => await service.GetAllProducts(userId);
@@ -266,7 +247,7 @@ public class BasketServiceTest
 
         storeServiceMock.Setup(ss => ss.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(true);
         
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         (IEnumerable<Product> result, float total) = await service.GetAllProducts(userBasket.First().ApplicationUserId);
@@ -280,10 +261,12 @@ public class BasketServiceTest
     {
         // Arrange
         string userId = "1";
+
         int productId = 100_100_000;
+
         List<Basket> userBasket = TestData.Baskets.Where(b => b.Product == null).ToList();
 
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         var result = await service.RemoveProduct(productId, userId);
@@ -298,7 +281,7 @@ public class BasketServiceTest
         // Arrange
         Basket basket = TestData.Baskets.FirstOrDefault(b => b.ApplicationUserId == "1")!;
 
-        var service = new BasketService(storeServiceMock.Object, GetDbContextMock().Object);
+        var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
         var result = await service.RemoveProduct(basket.ProductId, basket.ApplicationUserId);

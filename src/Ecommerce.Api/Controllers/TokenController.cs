@@ -1,11 +1,11 @@
-using System.Security.Claims;
-using Ecommerce.Application.Common.Interfaces;
-using Ecommerce.Core.Entities;
-using Ecommerce.Core.Models;
+using Ecommerce.Infrastructure.Jwt;
+using Ecommerce.Api.Dtos.Authentication;
 using Ecommerce.Infrastructure.Identity;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -24,7 +24,9 @@ public class TokenController : ApiControllerBase
     }
 
     [HttpPost("refresh",Name = "refresh")]
-    public async Task<ActionResult> RefreshToken([FromBody] ApiToken apiToken)
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(AuthenticateResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult> RefreshToken([FromBody] RefreshTokenRequest apiToken)
     {
         if (apiToken is null) return BadRequest("Invalid apiToken");
 
@@ -37,7 +39,7 @@ public class TokenController : ApiControllerBase
         if (user is null || user.RefreshToken != apiToken.RefreshToken || user.RefreshTokenExpireTime <= DateTime.Now)
             return BadRequest("User null or refreshtoken diferent or token is expire");
 
-        string newAccessToken = await _tokenService.CreateToken(new UserBase{Email = user.Email});
+        string newAccessToken = await _tokenService.CreateToken(user);
         string newRefreshToken = _tokenService.CreateRefreshToken();
 
         user.RefreshToken = newRefreshToken;
@@ -50,6 +52,8 @@ public class TokenController : ApiControllerBase
 
     [HttpPost("revoke")]
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Revoke()
     {
         ClaimsPrincipal userPrincipal = HttpContext.User;

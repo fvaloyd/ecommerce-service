@@ -1,6 +1,7 @@
-using Ecommerce.Core.Models;
 using Ecommerce.Infrastructure.Identity;
-using Ecommerce.Infrastructure.Services;
+using Ecommerce.Infrastructure.Payment;
+using Ecommerce.Infrastructure.Payment.Models;
+
 using Stripe;
 
 namespace Ecommerce.Api.IntegrationTests.Startup;
@@ -15,7 +16,7 @@ public class StripeServiceMock : IStripeService
         });
     }
 
-    public Token CreateCardToken(CardOptions card)
+    public Token CreateCardToken(PayRequest card)
     {
         return new Token{
             Id = "test123"

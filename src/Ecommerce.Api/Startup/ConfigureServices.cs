@@ -4,9 +4,9 @@ namespace Ecommerce.Api.Startup;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection AddApiServices(this IServiceCollection services)
+    public static IServiceCollection AddApiServices(
+        this IServiceCollection services)
     {
-        services.AddSingleton<StripeExceptionFilter>();
         services.AddSingleton<GlobalFilters>();
 
         services.AddSwaggerConfiguration(); 
@@ -14,6 +14,7 @@ public static class ConfigureServices
         services.AddControllers(config => {
             config.Filters.Add(typeof(GlobalFilters));
         });
+
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 

@@ -1,8 +1,8 @@
-using System.Reflection;
 using Ecommerce.Api.Startup;
 using Ecommerce.Application;
 using Ecommerce.Infrastructure;
-using Stripe;
+
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,26 +11,28 @@ builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
             .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
             .AddEnvironmentVariables()
             .AddUserSecrets(Assembly.GetExecutingAssembly(), true);
-    
-builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddApiServices();
+
+builder.Services.AddApplicationServices()
+                .AddInfrastructureServices(builder.Configuration)
+                .AddApiServices();
 
 var app = builder.Build();
 
-app.ConfigureSwagger(); 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 await app.SeedDataHandle();
 
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
-
-//StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe")["ApiKey"];
-//sib_api_v3_sdk.Client.Configuration.Default.ApiKey.Add("api-key", builder.Configuration.GetSection("Smtp")["ApiKey"]);
 
 ConfigureKeys.SetupApiKeys(builder);
 

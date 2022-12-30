@@ -1,20 +1,25 @@
-using System.Text;
+using Ecommerce.Application.Data;
+using Ecommerce.Infrastructure.Jwt;
+using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Identity;
+using Ecommerce.Infrastructure.Services;
+using Ecommerce.Infrastructure.EmailSender;
+using Ecommerce.Infrastructure.Jwt.Options;
+using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Infrastructure.Payment.Options;
+using Ecommerce.Infrastructure.CloudImageStorage;
+using Ecommerce.Infrastructure.EmailSender.Options;
 using Ecommerce.Infrastructure.Persistence.Identity;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Ecommerce.Infrastructure.CloudImageStorage.Options;
+
+using System.Text;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using Ecommerce.Infrastructure.Services;
-using Ecommerce.Infrastructure.Options;
-using Microsoft.Extensions.Options;
-using Ecommerce.Infrastructure.Repository;
-using Ecommerce.Infrastructure.EmailSender;
-using Ecommerce.Infrastructure.Persistence;
-using Ecommerce.Application.Common.Interfaces;
-using Ecommerce.Application.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Ecommerce.Infrastructure;
 
@@ -22,16 +27,27 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // Options
+        services.ConfigureEcommerceOptions()
+                .AddDbContext<EcommerceDbContext>(opt => opt.UseSqlServer(configuration.GetConnectionString("ApplicationConnection")))
+                .ConfigureIdentity()
+                .ConfigureJwtAuthentication()
+                .SetupServices();
+
+        return services;
+    }
+
+    private static IServiceCollection ConfigureEcommerceOptions(this IServiceCollection services)
+    {
         services.ConfigureOptions<JWTOptionsSetup>();
         services.ConfigureOptions<StripeSetup>();
         services.ConfigureOptions<CloudinarySetup>();
         services.ConfigureOptions<SmtpSetup>();
 
-        // Context
-        services.AddDbContext<EcommerceDbContext>(opt => opt.UseSqlServer(configuration.GetConnectionString("ApplicationConnection")));
+        return services;
+    }
 
-        // Identity
+    private static IServiceCollection ConfigureIdentity(this IServiceCollection services)
+    {
         services.AddIdentity<ApplicationUser, IdentityRole>(opt => {
             opt.Password.RequireUppercase = false;
             opt.Password.RequireDigit = true;
@@ -44,6 +60,11 @@ public static class ConfigureServices
                 .AddEntityFrameworkStores<EcommerceDbContext>()
                 .AddDefaultTokenProviders();
 
+        return services;
+    }
+    
+    private static IServiceCollection ConfigureJwtAuthentication(this IServiceCollection services)
+    {
         services.AddAuthentication(options =>
         {
 
@@ -68,14 +89,21 @@ public static class ConfigureServices
             };
         });
 
-        // Services
-        services.AddScoped<IDbContext>(provider => provider.GetRequiredService<EcommerceDbContext>());
+        return services;
+    }
+
+    private static IServiceCollection SetupServices(this IServiceCollection services)
+    {
         services.AddScoped<IEcommerceDbContext>(provider => provider.GetRequiredService<EcommerceDbContext>());
+
         services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped(typeof(IEfRepository<>), typeof(EfRepository<>));
+
         services.AddScoped<IStripeService, StripeService>();
+
         services.AddScoped<ICloudinaryService, CloudinaryService>();
+
         services.AddScoped<IEmailSender, SendiblueService>();
+
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         return services;

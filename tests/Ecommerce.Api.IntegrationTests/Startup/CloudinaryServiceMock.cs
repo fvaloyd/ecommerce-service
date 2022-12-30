@@ -1,5 +1,5 @@
 using CloudinaryDotNet.Actions;
-using Ecommerce.Infrastructure.Services;
+using Ecommerce.Infrastructure.CloudImageStorage;
 using Microsoft.AspNetCore.Http;
 
 namespace Ecommerce.Api.IntegrationTests.Startup;
@@ -16,7 +16,7 @@ public class CloudinaryServiceMock : ICloudinaryService
         return Task.FromResult("https://testimage.com");
     }
 
-    public Task<(string ImageUrl, string PublicId)> UploadImage(IFormFile file, string imageName)
+    public Task<(string ImageUrl, string PublicId)> UploadImage(IFormFile? file, string imageName)
     {
         return Task.FromResult(("https://testimage.com", "123"));
     }

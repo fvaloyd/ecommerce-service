@@ -1,8 +1,6 @@
-using Ecommerce.Core.Common;
-
 namespace Ecommerce.Core.Entities;
 
-public class OrderDetail : BaseEntity
+public class OrderDetail
 {
     public int OrderId { get; set; }
     public string ApplicationUserId { get; set; } = null!;

@@ -4,7 +4,6 @@ namespace Ecommerce.Core.Entities;
 
 public class Product : BaseEntity
 {
-    public int Id { get; set; }
     public string Name { get; set; } = null!;
     public float Price { get; set; }
     public int BrandId { get; set; }
@@ -23,7 +22,7 @@ public class Product : BaseEntity
     public void SetName(string name)
     {
         if (name is null) throw new ArgumentNullException();
-        if (name.Count() < 1) throw new ArgumentException("The Name could not have a length less than 1");
+        if (name.Length < 1) throw new ArgumentException("The Name could not have a length less than 1");
 
         Name = name;
     }

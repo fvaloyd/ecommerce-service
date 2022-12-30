@@ -1,5 +1,5 @@
-using System.Runtime.Serialization;
 using Ecommerce.Core.Entities;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

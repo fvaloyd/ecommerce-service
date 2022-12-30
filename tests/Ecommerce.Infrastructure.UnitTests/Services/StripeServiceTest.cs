@@ -1,4 +1,4 @@
-using Ecommerce.Infrastructure.Services;
+using Ecommerce.Infrastructure.Payment;
 
 namespace Ecommerce.Infrastructure.UnitTests.Services;
 

@@ -1,98 +1,142 @@
 using Ecommerce.Core.Entities;
-using Ecommerce.Core.Models;
+using Ecommerce.Application.Data;
+using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.EmailSender;
-using Ecommerce.Infrastructure.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Ecommerce.Api.Filters;
+using Ecommerce.Infrastructure.Payment.Models;
 using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Infrastructure.EmailSender.Models;
+using Ecommerce.Infrastructure.EmailSender.Common;
+
+using Stripe;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.Api.Controllers;
 
 [Authorize]
-[ServiceFilter(typeof(StripeExceptionFilter))]
 public class PaymentController : ApiControllerBase
 {
-    private readonly IEfRepository<Basket> _basketRepo;
-    private readonly IEfRepository<Order> _orderRepo;
-    private readonly IEfRepository<OrderDetail> _orderDetailRepo;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IStripeService _stripeService;
     private readonly IEmailSender _emailService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IEcommerceDbContext _db;
 
     public PaymentController(
-        IEfRepository<Basket> basketRepo,
         UserManager<ApplicationUser> userManager,
         IStripeService stripeService,
-        IEfRepository<Order> orderRepo,
-        IEfRepository<OrderDetail> orderDetailRepo,
         IEmailSender emailService,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IEcommerceDbContext db)
     {
-        _basketRepo = basketRepo;
         _userManager = userManager;
         _stripeService = stripeService;
-        _orderRepo = orderRepo;
-        _orderDetailRepo = orderDetailRepo;
         _emailService = emailService;
         _currentUserService = currentUserService;
+        _db = db;
     }
 
-    [HttpPost("pay")]
-    public async Task<IActionResult> CreateOrder(CardOptions card)
-    {
-        #region GET USER BASKET
-        ApplicationUser user = await GetUser(HttpContext);
-        IEnumerable<Basket> userBasket = _basketRepo.GetAll(b => b.ApplicationUserId == user.Id, IncludeProperty: "Product");
-        if (userBasket is null || userBasket.Count() == 0) return BadRequest("The user not have items in basket");
-        #endregion
-
-        #region MAKE CHARGE
-        decimal totalToPay = Convert.ToDecimal(userBasket.Select(sb => sb.Total).Aggregate((acc, next) => acc + next));
-        Stripe.Token validatedCardToken = _stripeService.CreateCardToken(card);
-        if (validatedCardToken.Id is null || validatedCardToken.Id.Count() <= 0) return BadRequest("Invalid card");
-        Stripe.Card validCard = await _stripeService.CreateCard(validatedCardToken.Id, user.CustomerId!);
-        Stripe.Charge chargeToken = _stripeService.CreateChargeToken(cardToken: validCard.Id, totalToPay, user: user);
-        if (chargeToken.Status.ToLower() != "succeeded") return BadRequest("Payment could not be made");
-        #endregion
-
-        #region CREATE ORDER & ORDER DETAIL
-        Order order = new(applicationUserId: user.Id, paymentTransactionId: chargeToken.BalanceTransactionId, totalToPay);
-        Order orderCreated = await _orderRepo.AddAsync(order);
-        if (orderCreated is null) return BadRequest("Could not create the order");
-        IEnumerable<OrderDetail> orderDetail = CreateOrderDetail(userBaskets: userBasket, userId: user.Id , orderId: orderCreated.Id);
-        await _orderDetailRepo.AddRangeAsync(orderDetail);
-        #endregion
-
-        #region REMOVE BASKET
-        _basketRepo.RemoveRange(userBasket);
-        await _basketRepo.SaveChangeAsync();
-        #endregion
-
-        #region SEND MAIL
-        IEnumerable<OrderDetail> OrderDetailWithProduct = _orderDetailRepo.GetAll(od => od.OrderId == orderCreated.Id, IncludeProperty: "Product");
-        var mailRequest = await CreateMailRequest(user, OrderDetailWithProduct);
-        await _emailService.SendAsync(mailRequest);
-        #endregion
-
-        return Ok(new { Order = orderCreated, Charge = chargeToken.Id });
-    }
-    
     [HttpPost("refund")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<IActionResult> RefundCharge(string chargeToken)
     {
         Stripe.Refund refundToken = await _stripeService.CreateRefundToken(chargeToken);
-            
+
         if (refundToken.Status != "succeeded") return BadRequest("Could not refund");
 
-        return Ok(new {
+        return Ok(new
+        {
             RefundStatus = refundToken.Status,
             RefundId = refundToken.Id,
             RefundAt = refundToken.StripeResponse.Date
         });
+    }
+
+    [HttpPost("pay")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    public async Task<IActionResult> CreateOrder(PayRequest card)
+    {
+        ApplicationUser user = await GetUser(HttpContext);
+        
+        List<Basket> userBasket = await _db.Baskets.Include(b => b.Product).Where(b => b.ApplicationUserId == user.Id).ToListAsync();
+
+        if (userBasket is null || userBasket.Count < 1) return BadRequest("The user not have items in basket");
+
+        decimal totalToPay = GetTotalToPay(userBasket);
+
+        Stripe.Card validCard = await ValidateCard(card, user);
+
+        if (validCard is null) return BadRequest("Invalid Card");
+
+        Stripe.Charge chargeToken = MakeCharge(validCard, user, totalToPay);
+
+        if (chargeToken is null) return BadRequest("Could not made the charge");
+        
+        Order order = await CreateOrder(user, chargeToken, totalToPay, userBasket);
+
+        await RemoveBasket(userBasket);
+
+        await SendEmailWrapper(order, user);
+
+        return Ok(new { Order = order, Charge = chargeToken.Id });
+    }
+
+    private Stripe.Charge MakeCharge(Stripe.Card validCard, ApplicationUser user, decimal totalToPay)
+    {
+        Stripe.Charge chargeToken = _stripeService.CreateChargeToken(cardToken: validCard.Id, totalToPay, user: user);
+
+        if (chargeToken.Status.ToLower() != "succeeded") return null!;
+
+        return chargeToken;
+    }
+
+    private async Task<Stripe.Card> ValidateCard(PayRequest card, ApplicationUser user)
+    {
+        Stripe.Token validatedCardToken = _stripeService.CreateCardToken(card);
+
+        if (validatedCardToken.Id is null || validatedCardToken.Id.Length <= 0) return null!;
+
+        Stripe.Card validCard = await _stripeService.CreateCard(validatedCardToken.Id, user.CustomerId!);
+
+        return validCard;
+    }
+
+    private async Task<Order> CreateOrder(ApplicationUser user, Charge charge, decimal totalToPay, IEnumerable<Basket> basket)
+    {
+        Order order = new(applicationUserId: user.Id, paymentTransactionId: charge.BalanceTransactionId, totalToPay);
+
+        await _db.Orders.AddAsync(order);
+
+        await _db.SaveChangesAsync();
+
+        IEnumerable<OrderDetail> orderDetail = CreateOrderDetail(userBaskets: basket, userId: user.Id, orderId: order.Id);
+
+        await _db.OrderDetails.AddRangeAsync(orderDetail);
+
+        await _db.SaveChangesAsync();
+
+        return order;
+    }
+
+    private async Task RemoveBasket(IEnumerable<Basket> basket)
+    {
+        _db.Baskets.RemoveRange(basket);
+
+        await _db.SaveChangesAsync();
+    }
+
+    private async Task SendEmailWrapper(Order order, ApplicationUser user)
+    {
+        List<OrderDetail> OrderDetailWithProduct = await _db.OrderDetails.Include(od => od.Product).Where(od => od.OrderId == order.Id).ToListAsync();
+
+        var mailRequest = await CreateMailRequest(user, OrderDetailWithProduct);
+
+        await _emailService.SendAsync(mailRequest);
     }
 
     private async Task<MailRequest> CreateMailRequest(ApplicationUser user, IEnumerable<OrderDetail> orderDetail)
@@ -119,5 +163,9 @@ public class PaymentController : ApiControllerBase
         {
             yield return new OrderDetail(orderId: orderId, applicationUserId: userId, productId: basket.ProductId, quantity: basket.Quantity, unitPrice: basket.Product.Price);
         }
+    }
+    private decimal GetTotalToPay(IEnumerable<Basket> basket)
+    {
+        return Convert.ToDecimal(basket.Select(sb => sb.Total).Aggregate((acc, next) => acc + next));
     }
 }

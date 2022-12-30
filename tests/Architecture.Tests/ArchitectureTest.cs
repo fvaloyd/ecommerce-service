@@ -3,18 +3,13 @@ namespace Architecture.Tests;
 
 public class ArchitectureTest
 {
-    private readonly static Type coreType = typeof(Ecommerce.Core.AssemblyReference);
-    private readonly static Type ApiType = typeof(Ecommerce.Api.AssemblyReference);
-    private readonly static Type ApplicationType = typeof(Ecommerce.Application.AssemblyReference);
-    private readonly static Type InfrastructureType = typeof(Ecommerce.Infrastructure.AssemblyReference);
-
-    private readonly Assembly coreAssembly = Assembly.GetAssembly(coreType)!;
-    private readonly Assembly applicationAssembly = Assembly.GetAssembly(ApplicationType)!;
-    private readonly Assembly apiAssembly = Assembly.GetAssembly(ApiType)!;
-    private readonly Assembly infrastructureAssembly = Assembly.GetAssembly(InfrastructureType)!;
+    readonly Assembly coreAssembly = Assembly.GetAssembly(typeof(Ecommerce.Core.AssemblyReference))!;
+    readonly Assembly applicationAssembly = Assembly.GetAssembly(typeof(Ecommerce.Application.AssemblyReference))!;
+    readonly Assembly apiAssembly = Assembly.GetAssembly(typeof(Ecommerce.Api.AssemblyReference))!;
+    readonly Assembly infrastructureAssembly = Assembly.GetAssembly(typeof(Ecommerce.Infrastructure.AssemblyReference))!;
 
     [Fact]
-    public void Core_Should_NotHaveADependencyOnAnyLayer()
+    public void Core_ShouldNotHaveADependencyOnAnyLayer()
     {
         coreAssembly.Should().NotReference(infrastructureAssembly);
         coreAssembly.Should().NotReference(apiAssembly);
@@ -22,7 +17,7 @@ public class ArchitectureTest
     }
     
     [Fact]
-    public void Application_Should_OnlyDependesOnCoreLayer()
+    public void Application_ShouldOnlyDependesOnCoreLayer()
     {
         applicationAssembly.Should().Reference(coreAssembly);
         applicationAssembly.Should().NotReference(infrastructureAssembly);
@@ -30,7 +25,7 @@ public class ArchitectureTest
     }
 
     [Fact]
-    public void Infrastructure_Should_OnlyDependsOnApplicationLayer()
+    public void Infrastructure_ShouldOnlyDependsOnApplicationLayer()
     {
         infrastructureAssembly.Should().Reference(coreAssembly);
         infrastructureAssembly.Should().Reference(applicationAssembly);
@@ -38,7 +33,7 @@ public class ArchitectureTest
     }
 
     [Fact]
-    public void Api_Should_DependsOnfrastructureLayers()
+    public void Api_ShouldDependsOnfrastructureLayers()
     {
         apiAssembly.Should().Reference(coreAssembly);
         apiAssembly.Should().Reference(infrastructureAssembly);

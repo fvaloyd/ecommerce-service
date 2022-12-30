@@ -4,4 +4,4 @@ namespace Ecommerce.Api.Dtos.Basket;
 
 public record BasketResponse(
     float Total,
-    IEnumerable<GetProductDto> Products);
+    IEnumerable<ProductResponse> Products);

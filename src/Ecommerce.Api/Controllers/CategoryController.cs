@@ -1,100 +1,108 @@
-using AutoMapper;
-using Ecommerce.Api.Dtos.Category;
-using Ecommerce.Application.Common.Interfaces;
-using Ecommerce.Core.Entities;
 using Ecommerce.Core.Enums;
-using Microsoft.AspNetCore.Authorization;
+using Ecommerce.Core.Entities;
+using Ecommerce.Application.Data;
+using Ecommerce.Api.Dtos.Category;
+
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.Api.Controllers;
 
 [Authorize]
 public class CategoryController : ApiControllerBase
 {
-    private readonly IEfRepository<Category> _categoryRepo;
+    private readonly IEcommerceDbContext _db;
     private readonly IMapper _mapper;
 
-    public CategoryController(IEfRepository<Category> categoryRepo, IMapper mapper)
+    public CategoryController(
+        IMapper mapper,
+        IEcommerceDbContext db)
     {
-        _categoryRepo = categoryRepo;
         _mapper = mapper;
+        _db = db;
     }
 
     [HttpGet("GetAll")]
-    public ActionResult<IEnumerable<Category>> GetAllCategories()
+    [ProducesResponseType(typeof(List<Category>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<Category>>> GetAllCategories()
     {
-        IEnumerable<Category> categories = _categoryRepo.GetAll();
-        return categories.ToList();
+        List<Category> categories = await _db.Categories.ToListAsync();
+
+        return Ok(categories);
     }
 
     [HttpGet("GetById/{id}", Name = "GetCategoryById")]
-    public ActionResult<Category> GetCategoryById(int id)
+    [ProducesResponseType(typeof(Category), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<Category>> GetCategoryById(int id)
     {
-        if (id < 1)
-            return BadRequest("Invalid id");
+        if (id < 1) return BadRequest("Invalid id");
 
-        Category category = _categoryRepo.GetFirst(x => x.Id == id);
+        Category? category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == id);
 
-        if (category is null)
-            return NotFound($"Category with the id::{id} not found");
+        if (category is null) return NotFound($"Category with the id::{id} not found");
 
-        return category;
+        return Ok(category);
     }
 
     [HttpPost("Create")]
     [Authorize(Roles = UserRoles.Admin)]
-    public async Task<IActionResult> CreateCategory([FromBody] PostCategoryDto categoryDto)
+    [ProducesResponseType(typeof(Category), StatusCodes.Status302Found)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest categoryRequest)
     {
-        Category category = _mapper.Map<Category>(categoryDto);
+        Category category = _mapper.Map<Category>(categoryRequest);
 
-        Category categoryAdded = await _categoryRepo.AddAsync(category);
+        await _db.Categories.AddAsync(category);
 
-        if (categoryAdded is null)
-            return BadRequest("Could not create the category");
+        await _db.SaveChangesAsync();
 
-        return RedirectToRoute(nameof(GetCategoryById), new {id = categoryAdded.Id} );
+        if (category.Id < 1) return BadRequest("Could not create the category");
+
+        return RedirectToRoute(nameof(GetCategoryById), new {id = category.Id} );
     }
 
     [HttpPut("Edit/{id}")]
     [Authorize(Roles = UserRoles.Admin)]
-    public async Task<IActionResult> EditCategory(int id, [FromBody] PutCategoryDto categoryDto)
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> EditCategory(int id, [FromBody] EditCategoryRequest categoryRequest)
     {
-        if (id < 1)
-            return BadRequest("Invalid id");
+        if (id < 1) return BadRequest("Invalid id");
 
-        Category categoryToEdit = _categoryRepo.GetFirst(x => x.Id == id);
+        if (!await _db.Categories.AnyAsync(c => c.Id == id)) return NotFound($"Category with the id::{id} not found");
 
-        if (categoryToEdit is null)
-            return NotFound($"Category with the id::{id} not found");
+        Category categoryToUpdate = _mapper.Map<Category>(categoryRequest);
 
-        _mapper.Map(categoryDto, categoryToEdit);
+        categoryToUpdate.Id = id;
 
-        int result = await _categoryRepo.SaveChangeAsync();
+        _db.Categories.Update(categoryToUpdate);
 
-        if (result < 1)
-            return BadRequest("Could not edit the category");
+        if (await _db.SaveChangesAsync() < 1) return BadRequest("Could not edit the category");
 
         return NoContent();
     }
 
     [HttpDelete("Delete/{id}")]
     [Authorize(Roles = UserRoles.Admin)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteCategory(int id)
     {
-        if (id < 1)
-            return BadRequest("Invalid id");
+        if (id < 1) return BadRequest("Invalid id");
 
-        Category categoryToDelete = _categoryRepo.GetFirst(x => x.Id == id);
+        Category? category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == id);
 
-        if (categoryToDelete is null)
-            return NotFound($"Category with the id::{id} not found");
+        if (category is null) return NotFound($"Category with the id::{id} not found");
 
-        _categoryRepo.Remove(categoryToDelete);
+        _db.Categories.Remove(category);
 
-        int result = await _categoryRepo.SaveChangeAsync();
-
-        if (result < 1)
-            return BadRequest("Could not remove the category");
+        if (await _db.SaveChangesAsync() < 1) return BadRequest("Could not remove the category");
 
         return NoContent();
     }

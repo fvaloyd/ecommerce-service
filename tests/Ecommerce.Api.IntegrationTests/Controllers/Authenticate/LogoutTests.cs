@@ -1,12 +1,11 @@
-using Ecommerce.Core.Models;
-
 namespace Ecommerce.Api.IntegrationTests.Controllers.Authenticate;
 
 [Collection("BaseIntegrationTestCollection")]
 public class LogoutTests
 {
-    BaseIntegrationTest _baseIntegrationTest;
-    string logoutPath = "api/authenticate/logout";
+    readonly BaseIntegrationTest _baseIntegrationTest;
+    
+    readonly string logoutPath = "api/authenticate/logout";
 
     public LogoutTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -14,10 +13,12 @@ public class LogoutTests
     }
 
     [Fact]
-    public async Task ShouldLogOutTheUser()
+    public async Task ShouldReturnOk_WhenTheUserIsLoged()
     {
+        // Act
         var logoutResponse = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(logoutPath, null);
 
+        // Assert
         logoutResponse.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 }

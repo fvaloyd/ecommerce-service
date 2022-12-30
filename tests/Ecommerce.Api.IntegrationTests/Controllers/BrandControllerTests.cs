@@ -6,9 +6,10 @@ namespace Ecommerce.Api.IntegrationTests.Controllers;
 [Collection("BaseIntegrationTestCollection")]
 public class BrandController
 {
-    BaseIntegrationTest _baseIntegrationTest;
+    readonly BaseIntegrationTest _baseIntegrationTest;
 
-    string endPointPath = "api/brand/";
+    readonly string endPointPath = "api/brand/";
+    
     public BrandController(BaseIntegrationTest baseIntegrationTest)
     {
         _baseIntegrationTest = baseIntegrationTest;
@@ -17,120 +18,164 @@ public class BrandController
     [Fact]
     public async Task GetAllBrands_ShouldReturnAListOfBrands()
     {
+        // Act
         var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath + "getall");
+    
         var responseReaded = await response.Content.ReadAsStringAsync();
-        IEnumerable<Ecommerce.Core.Entities.Brand> listOfBrands = JsonConvert.DeserializeObject<IEnumerable<Ecommerce.Core.Entities.Brand>>(responseReaded);
+        
+        List<Brand> listOfBrands = JsonConvert.DeserializeObject<List<Brand>>(responseReaded);
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+        
         listOfBrands.Should().NotBeNull();
     }
 
     [Fact]
-    public async Task GetBrandById_WithInvalidId_ShouldReturnBadRequest()
+    public async Task GetBrandById_ShouldReturnBadRequest_WhenInvalidIdIsSending()
     {
+        // Arrange
         int invalidId = 0;
 
+        // Act
         var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath + $"getbyid/{invalidId}");
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task GetBrandById_WithNoBrandWithGiveItId_ShouldReturnNotFound()
+    public async Task GetBrandById_ShouldReturnNotFound_WhenUnExistingBrandIdIsSending()
     {
+        // Arrange
         int randomId = 100_000_000;
 
+        // Act
         var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath + $"getbyid/{randomId}");
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task GetBrandById_WithValidId_ShouldReturnOkWithSpecifigBrand()
+    public async Task GetBrandById_ShouldReturnOkWithASingleBrand_WhenValidIdIsSending()
     {
+        // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
+
         var dbBrand = db.Brands.First();
 
+        // Act
         var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath + $"getbyid/{dbBrand.Id}");
+        
         var responseReaded = await response.Content.ReadAsStringAsync();
+        
         var requestBrand = JsonConvert.DeserializeObject<Ecommerce.Core.Entities.Brand>(responseReaded);
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+        
         requestBrand.Should().BeEquivalentTo(dbBrand);
     }
 
     [Fact]
-    public async Task CreateBrand_WithValidBrand_ShouldRedirectToRoute()
+    public async Task CreateBrand_ShouldRedirectToRoute_WhenValidBrandIsSending()
     {
-        PostBrandDto validDto = new("test", true);
+        // Arrange
+        CreateBrandRequest validDto = new("test", true);
 
+        // Act
         var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endPointPath + "create", validDto);
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Found);
     }
 
     [Fact]
-    public async Task EditBrand_InvalidId_ShouldReturnBadRequest()
+    public async Task EditBrand_ShouldReturnBadRequest_WhenInvalidIdIsSending()
     {
+        // Arrange
         int invalidId = 0;
-        PutBrandDto dto = new(default!, default);
 
+        EditBrandRequest dto = new(default!, default);
+
+        // Act
         var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endPointPath + $"edit/{invalidId}", dto);
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task EditBrand_WithNoBrandWithSpecificId_ShouldReturnNotFound()
+    public async Task EditBrand_ShouldReturnNotFound_WhenUnExistingBrandIdIsSending()
     {
+        // Arrange
         int randomId = 100_000_000;
-        PutBrandDto dto = new("", true);
 
+        EditBrandRequest dto = new("", true);
+
+        // Act
         var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endPointPath + $"edit/{randomId}", dto);
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task EditBrand_WithValidId_ShouldReturnNoContent()
+    public async Task EditBrand_ShouldReturnNoContent_WhenValidIdIsSending()
     {
+        // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
+        
         Brand dbBrand = db.Brands.First();
-        PutBrandDto brandDto = new("test", true);
 
+        EditBrandRequest brandDto = new("test", true);
+
+        // Act
         var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endPointPath + $"edit/{dbBrand.Id}", brandDto);
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 
     [Fact]
-    public async Task DeleteBrand_WithInvalidId_ShouldReturnBadRequest()
+    public async Task DeleteBrand_ShouldReturnBadRequest_WhenInvalidIdIsSending()
     {
+        // Arrange
         int invalidId = 0;
 
+        // Act
         var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endPointPath + $"delete/{invalidId}");
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task DeleteBrand_WithNoBrandWithSpecificId_ShouldReturnNotFound()
+    public async Task DeleteBrand_ShouldReturnNotFound_WhenUnExistingBrandIdIsSending()
     {
+        // Arrange
         int randomId = 100_000_000;
 
+        // Act
         var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endPointPath + $"delete/{randomId}");
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task DeleteBrand_WithValidId_ShouldReturnNoContent()
+    public async Task DeleteBrand_ShouldReturnNoContent_WhenValidBrandIdIsSending()
     {
+        // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
+        
         var dbBrand = db.Brands.OrderBy(b => b).Last();
 
+        // Act
         var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endPointPath + $"delete/{dbBrand.Id}");
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 }

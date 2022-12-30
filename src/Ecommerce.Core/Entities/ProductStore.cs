@@ -1,8 +1,6 @@
-using Ecommerce.Core.Common;
-
 namespace Ecommerce.Core.Entities;
 
-public class ProductStore : BaseEntity
+public class ProductStore
 {
     public int ProductId { get; set; }
     public Product Product { get; set; } = null!;
@@ -14,7 +12,7 @@ public class ProductStore : BaseEntity
     public ProductStore(
         int productId,
         int storeId,
-        int quantity)
+        int quantity = 1)
     {
         ProductId = productId;
         StoreId = storeId;
