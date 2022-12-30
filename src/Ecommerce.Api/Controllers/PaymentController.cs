@@ -61,7 +61,9 @@ public class PaymentController : ApiControllerBase
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateOrder(PayRequest card)
     {
-        ApplicationUser user = await GetUser(HttpContext);
+        ApplicationUser? user = await GetUser();
+
+        if (user is null) return BadRequest("Something wrong happened");
         
         List<Basket> userBasket = await _db.Baskets.Include(b => b.Product).Where(b => b.ApplicationUserId == user.Id).ToListAsync();
 
@@ -147,14 +149,14 @@ public class PaymentController : ApiControllerBase
 
         string templateCompiled = await _emailService.GetCompiledTemplateAsync(template, purchaseDetailsMailModel);
 
-        return new MailRequest(Body: templateCompiled, Subject: "Purchased products", Email: user.Email);
+        return new MailRequest(Body: templateCompiled, Subject: "Purchased products", Email: user.Email!);
     }
 
-    private async Task<ApplicationUser> GetUser(HttpContext ctx)
+    private async Task<ApplicationUser?> GetUser()
     {
         string userId = _currentUserService.UserId!;
 
-        return await _userManager.FindByIdAsync(userId);
+        return await _userManager.FindByIdAsync(userId)!;
     }
 
     private IEnumerable<OrderDetail> CreateOrderDetail(IEnumerable<Basket> userBaskets, string userId, int orderId)
@@ -164,6 +166,7 @@ public class PaymentController : ApiControllerBase
             yield return new OrderDetail(orderId: orderId, applicationUserId: userId, productId: basket.ProductId, quantity: basket.Quantity, unitPrice: basket.Product.Price);
         }
     }
+
     private decimal GetTotalToPay(IEnumerable<Basket> basket)
     {
         return Convert.ToDecimal(basket.Select(sb => sb.Total).Aggregate((acc, next) => acc + next));

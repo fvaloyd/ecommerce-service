@@ -34,10 +34,10 @@ public class TokenController : ApiControllerBase
 
         string userId = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
-        ApplicationUser user = await _userManager.FindByIdAsync(userId);
+        ApplicationUser? user = await _userManager.FindByIdAsync(userId);
 
         if (user is null || user.RefreshToken != apiToken.RefreshToken || user.RefreshTokenExpireTime <= DateTime.Now)
-            return BadRequest("User null or refreshtoken diferent or token is expire");
+            return BadRequest("Something go wrong with user token");
 
         string newAccessToken = await _tokenService.CreateToken(user);
         string newRefreshToken = _tokenService.CreateRefreshToken();
@@ -59,7 +59,7 @@ public class TokenController : ApiControllerBase
         ClaimsPrincipal userPrincipal = HttpContext.User;
         string userEmail = userPrincipal.FindFirst(ClaimTypes.Email)!.Value;
 
-        ApplicationUser currentUser = await _userManager.FindByEmailAsync(userEmail);
+        ApplicationUser? currentUser = await _userManager.FindByEmailAsync(userEmail);
 
         if (currentUser is null) return BadRequest();
 

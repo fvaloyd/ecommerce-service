@@ -39,7 +39,7 @@ public class AuthenticateController : ApiControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
     {
-        ApplicationUser userExist = await _userManager.FindByEmailAsync(registerRequest.Email);
+        ApplicationUser? userExist = await _userManager.FindByEmailAsync(registerRequest.Email);
 
         if (userExist != null) return BadRequest("User already exist");
 
@@ -88,7 +88,7 @@ public class AuthenticateController : ApiControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<IActionResult> RegisterAdmin([FromBody] RegisterRequest model)
     {
-        ApplicationUser userExist = await _userManager.FindByEmailAsync(model.Email);
+        ApplicationUser? userExist = await _userManager.FindByEmailAsync(model.Email);
 
         if (userExist != null) return BadRequest("User already exist");
 
@@ -120,7 +120,7 @@ public class AuthenticateController : ApiControllerBase
     [ProducesResponseType(typeof(AuthenticateResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> Login([FromBody] LoginRequest model)
     {
-        ApplicationUser user = await _userManager.FindByEmailAsync(model.Email);
+        ApplicationUser? user = await _userManager.FindByEmailAsync(model.Email);
 
         if (user is null) return Unauthorized();
 
@@ -182,7 +182,7 @@ public class AuthenticateController : ApiControllerBase
         return new MailRequest(
             Body: compiledTemplate,
             Subject: "Email confirmation",
-            Email: user.Email
+            Email: user.Email!
         );
     }
 }

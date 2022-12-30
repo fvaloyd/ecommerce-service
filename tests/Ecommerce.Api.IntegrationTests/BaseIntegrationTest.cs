@@ -38,7 +38,7 @@ public class BaseIntegrationTest : IAsyncLifetime
 
         DefaultUserHttpClient = await GetCustomHttpClient(EcommerceProgram, HttpClient, defaultUser);
 
-        _respawner = await Respawner.CreateAsync(_configuration.GetConnectionString("TestConnection"), new RespawnerOptions{
+        _respawner = await Respawner.CreateAsync(_configuration.GetConnectionString("TestConnection")!, new RespawnerOptions{
             TablesToIgnore = new Table[]
             {
                 "AspNetRoleClaims",

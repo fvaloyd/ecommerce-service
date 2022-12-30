@@ -21,16 +21,23 @@ public static class SeedIdentityData
         }
 
         await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+
         await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
 
         var defaultUser = new ApplicationUser { UserName = "default", Email = "default@gmail.com", PhoneNumber = "8095582534", CustomerId = "cus_MaYQGocnCeaxlC", EmailConfirmed = true};
+        
         await userManager.CreateAsync(defaultUser, defaultPassword);
+
         defaultUser = await userManager.FindByNameAsync("default");
-        await userManager.AddToRoleAsync(defaultUser, UserRoles.User);
+
+        await userManager.AddToRoleAsync(defaultUser!, UserRoles.User);
 
         var adminUser = new ApplicationUser { UserName = "admin", Email = "admin@gmail.com", PhoneNumber = "8095582108", CustomerId = "cus_MaYPZimk4Ilx5c", EmailConfirmed = true};
+        
         await userManager.CreateAsync(adminUser, defaultPassword);
+        
         adminUser = await userManager.FindByNameAsync("admin");
-        await userManager.AddToRoleAsync(adminUser, UserRoles.Admin);
+        
+        await userManager.AddToRoleAsync(adminUser!, UserRoles.Admin);
     }
 }
