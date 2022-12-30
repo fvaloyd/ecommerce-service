@@ -67,6 +67,6 @@ public class BaseIntegrationTest : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await _respawner.ResetAsync(_configuration.GetConnectionString("TestConnection"));
+        await _respawner.ResetAsync(_configuration.GetConnectionString("TestConnection")!);
     }
 }
