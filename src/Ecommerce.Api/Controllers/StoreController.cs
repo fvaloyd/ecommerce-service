@@ -94,7 +94,7 @@ public class StoreController : ApiControllerBase
     {
         if (id < 1) return BadRequest("Invalid id");
 
-        bool operationResult = await _storeService.Deletestore(id);
+        bool operationResult = await _storeService.DeleteStore(id);
 
         if (!operationResult) return BadRequest("Could not delete the store"); 
 

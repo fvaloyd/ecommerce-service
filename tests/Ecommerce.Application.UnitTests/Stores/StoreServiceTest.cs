@@ -168,7 +168,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        var result = await service.Deletestore(unExistingStoreId); 
+        var result = await service.DeleteStore(unExistingStoreId); 
         
         // Assert
         result.Should().BeFalse();
@@ -183,7 +183,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        var result = await service.Deletestore(storeId); 
+        var result = await service.DeleteStore(storeId); 
         
         // Assert
         result.Should().BeTrue();

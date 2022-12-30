@@ -61,7 +61,7 @@ public class StoreService : IStoreService
         return true;
     }
 
-    public async Task<bool> Deletestore(int storeId)
+    public async Task<bool> DeleteStore(int storeId)
     {
         Store? store = await _db.Stores.FirstOrDefaultAsync(s => s.Id == storeId);
     
