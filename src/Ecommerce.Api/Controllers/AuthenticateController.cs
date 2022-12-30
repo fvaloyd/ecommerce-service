@@ -35,6 +35,8 @@ public class AuthenticateController : ApiControllerBase
     }
 
     [HttpPost("register")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
     {
         ApplicationUser userExist = await _userManager.FindByEmailAsync(registerRequest.Email);
@@ -64,6 +66,9 @@ public class AuthenticateController : ApiControllerBase
     }
 
     [HttpGet("confirm-email", Name = "ConfirmEmail")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public async Task<ActionResult> ConfirmEmail(string token, string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
@@ -79,6 +84,8 @@ public class AuthenticateController : ApiControllerBase
 
     [HttpPost("register-admin")]
     [Authorize(Roles = UserRoles.Admin)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<IActionResult> RegisterAdmin([FromBody] RegisterRequest model)
     {
         ApplicationUser userExist = await _userManager.FindByEmailAsync(model.Email);
@@ -108,6 +115,9 @@ public class AuthenticateController : ApiControllerBase
     }
 
     [HttpPost("login")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(AuthenticateResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> Login([FromBody] LoginRequest model)
     {
         ApplicationUser user = await _userManager.FindByEmailAsync(model.Email);
@@ -142,6 +152,7 @@ public class AuthenticateController : ApiControllerBase
 
     [HttpPost("logout")]
     [Authorize]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<IActionResult> LogOut()
     {
         await _signInManager.SignOutAsync();

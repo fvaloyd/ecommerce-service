@@ -33,6 +33,7 @@ public class ProductController : ApiControllerBase
     }
 
     [HttpGet("GetAll")]
+    [ProducesResponseType(typeof(List<Product>), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<ProductResponse>>> GetAllProducts()
     {
         var productsDto = await _db.Products.Include(p => p.Category).Include(p => p.Brand).Select(p => _mapper.Map<ProductResponse>(p)).ToListAsync();
@@ -41,6 +42,9 @@ public class ProductController : ApiControllerBase
     }
 
     [HttpGet("GetById/{id}", Name = "GetProductById")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Product), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ProductResponse>> GetProductById(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
@@ -54,6 +58,8 @@ public class ProductController : ApiControllerBase
 
     [HttpPost("Create")]
     [Authorize(Roles = UserRoles.Admin)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Product), StatusCodes.Status302Found)]
     public async Task<IActionResult> CreateProduct([FromForm] CreateProductRequest productDto)
     {
         if (productDto.StoreId < 1) return BadRequest("Need to provide the Id of the store to which this product belongs");
@@ -77,6 +83,9 @@ public class ProductController : ApiControllerBase
 
     [HttpPut("Edit/{id}")]
     [Authorize(Roles = UserRoles.Admin)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<IActionResult> EditProduct(int id, [FromBody] EditProductRequest productDto)
     {
         if (id < 1) return BadRequest("Invalid id");
@@ -96,6 +105,9 @@ public class ProductController : ApiControllerBase
 
     [HttpDelete("Delete/{id}")]
     [Authorize(Roles = UserRoles.Admin)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteProduct(int id)
     {
         if (id < 1) return BadRequest("Invalid id");

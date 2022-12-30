@@ -40,6 +40,8 @@ public class PaymentController : ApiControllerBase
     }
 
     [HttpPost("refund")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<IActionResult> RefundCharge(string chargeToken)
     {
         Stripe.Refund refundToken = await _stripeService.CreateRefundToken(chargeToken);
@@ -55,6 +57,8 @@ public class PaymentController : ApiControllerBase
     }
 
     [HttpPost("pay")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateOrder(PayRequest card)
     {
         ApplicationUser user = await GetUser(HttpContext);

@@ -24,6 +24,8 @@ public class TokenController : ApiControllerBase
     }
 
     [HttpPost("refresh",Name = "refresh")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(AuthenticateResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult> RefreshToken([FromBody] RefreshTokenRequest apiToken)
     {
         if (apiToken is null) return BadRequest("Invalid apiToken");
@@ -50,6 +52,8 @@ public class TokenController : ApiControllerBase
 
     [HttpPost("revoke")]
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Revoke()
     {
         ClaimsPrincipal userPrincipal = HttpContext.User;

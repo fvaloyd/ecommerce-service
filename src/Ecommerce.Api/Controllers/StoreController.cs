@@ -132,7 +132,7 @@ public class StoreController : ApiControllerBase
     [HttpGet("GetStoreWithProducts/{id}")]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(StoreResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<StoreResponse>> GetStoreWithProductsAsync(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
