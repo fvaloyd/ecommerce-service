@@ -17,7 +17,7 @@ public class ArchitectureTest
     }
     
     [Fact]
-    public void Application_ShouldOnlyDependesOnCoreLayer()
+    public void Application_ShouldOnlyDependsOnCoreLayer()
     {
         applicationAssembly.Should().Reference(coreAssembly);
         applicationAssembly.Should().NotReference(infrastructureAssembly);
@@ -33,7 +33,7 @@ public class ArchitectureTest
     }
 
     [Fact]
-    public void Api_ShouldDependsOnfrastructureLayers()
+    public void Api_ShouldDependsOnInfrastructureLayers()
     {
         apiAssembly.Should().Reference(coreAssembly);
         apiAssembly.Should().Reference(infrastructureAssembly);
