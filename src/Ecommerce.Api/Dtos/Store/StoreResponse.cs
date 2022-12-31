@@ -1,8 +1,6 @@
 namespace Ecommerce.Api.Dtos.Store;
 
-public class StoreResponse
-{
-    public string Name { get; set; } = null!;
-    public bool State { get; set; }
-    public IEnumerable<string> ProductsName { get; set; } = null!;
-}
+public record StoreResponse(
+    string Name,
+    bool State,
+    IEnumerable<string> ProductsName);
