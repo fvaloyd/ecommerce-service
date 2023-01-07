@@ -34,9 +34,9 @@ public class BaseIntegrationTest : IAsyncLifetime
 
         HttpClient = EcommerceProgram.CreateDefaultClient();
 
-        AdminUserHttpClient = await GetCustomHttpClient(EcommerceProgram, HttpClient, adminUser);
+        AdminUserHttpClient = await CreateCustomHttpClient(EcommerceProgram, HttpClient, adminUser);
 
-        DefaultUserHttpClient = await GetCustomHttpClient(EcommerceProgram, HttpClient, defaultUser);
+        DefaultUserHttpClient = await CreateCustomHttpClient(EcommerceProgram, HttpClient, defaultUser);
 
         _respawner = await Respawner.CreateAsync(_configuration.GetConnectionString("TestConnection")!, new RespawnerOptions{
             TablesToIgnore = new Table[]
@@ -50,7 +50,7 @@ public class BaseIntegrationTest : IAsyncLifetime
         });
     }
 
-    private static async Task<HttpClient> GetCustomHttpClient(EcommerceProgram program, HttpClient httpClient, LoginRequest user)
+    private static async Task<HttpClient> CreateCustomHttpClient(EcommerceProgram program, HttpClient httpClient, LoginRequest user)
     {
         var httpResponse = await httpClient.PostAsJsonAsync("api/authenticate/login", user);
         
