@@ -1,6 +1,7 @@
 using Ecommerce.Core.Entities;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Ecommerce.Application.Data;
 
@@ -14,6 +15,7 @@ public interface IEcommerceDbContext
     DbSet<Basket> Baskets { get; }
     DbSet<Order> Orders { get; }
     DbSet<OrderDetail> OrderDetails { get; }
+    public ChangeTracker ChangeTracker { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

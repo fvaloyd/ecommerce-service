@@ -57,7 +57,7 @@ public class BasketService : IBasketService
 
         if (decreaseProductFromStoreResult is false)
         {
-            _db.Baskets.Remove(userBasket);
+            _db.ChangeTracker.Clear();
 
             return false;
         }
