@@ -28,9 +28,9 @@ public class Product : BaseEntity
     }
     public void SetImage(string imageUrl)
     {
-        Uri.TryCreate(imageUrl, UriKind.Absolute, out Uri? result);
-
         if (imageUrl is null) throw new ArgumentNullException();
+
+        Uri.TryCreate(imageUrl, UriKind.Absolute, out Uri? result);
 
         if (result is null || !( (result!.Scheme == Uri.UriSchemeHttp) || (result.Scheme == Uri.UriSchemeHttps) ))
         {
