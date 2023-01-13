@@ -3,6 +3,7 @@ using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
 
 using Microsoft.EntityFrameworkCore;
+using Francisvac.Result;
 
 namespace Ecommerce.Application.Baskets;
 
@@ -19,22 +20,22 @@ public class BasketService : IBasketService
         _db = db;
     }
 
-    public async Task<bool> RestoreTheQuantityIntoStore(Basket basket)
+    public async Task<Result> RestoreTheQuantityIntoStore(Basket basket)
     {
         Store store = await _db.Stores.FirstAsync();
 
         ProductStore? productStore = await _db.ProductStores.FirstOrDefaultAsync(s => s.ProductId == basket.ProductId && s.StoreId == store.Id);
 
-        if (productStore is null) return false;
+        if (productStore is null) return Result.NotFound($"No product with id {basket.ProductId} is related to the store.");
 
         productStore.IncreaseQuantity(basket.Quantity);
 
-        if (await _db.SaveChangesAsync() < 1) return false;
+        if (await _db.SaveChangesAsync() < 1) return Result.Error("Changes were not saved to the database.");
 
-        return true;
+        return Result.Success("the product was restored to the store successfully.");
     }
 
-    public async Task<bool> AddProductAsync(int productId, string userId)
+    public async Task<Result> AddProductAsync(int productId, string userId)
     {
         Store store = await _db.Stores.FirstAsync();
 
@@ -42,12 +43,12 @@ public class BasketService : IBasketService
                                             .Include(ps => ps.Product)
                                             .FirstOrDefaultAsync(ps => ps.ProductId == productId && ps.StoreId == store.Id);
    
-        if (productStore is null || productStore.Quantity == 0) return false;
+        if (productStore is null || productStore.Quantity == 0) return Result.Error("No products in stock.");
 
         Basket? userBasketExist = await _db.Baskets
                                             .FirstOrDefaultAsync(b => b.ProductId == productId && b.ApplicationUserId == userId);
         
-        if (userBasketExist is not null) return false;
+        if (userBasketExist is not null) return Result.Error("The basket already contains the product.");
 
         Basket userBasket = new(productId, productStore.Product, userId);
 
@@ -55,38 +56,31 @@ public class BasketService : IBasketService
 
         bool decreaseProductFromStoreResult = await _storeService.DecreaseProductAsync(productId, store.Id);
 
-        if (decreaseProductFromStoreResult is false)
-        {
-            _db.ChangeTracker.Clear();
+        if (!decreaseProductFromStoreResult) return Result.Error("An error occurred when trying to decrease the product in the store.");
 
-            return false;
-        }
-
-        await _db.SaveChangesAsync();
-
-        return true;
+        return Result.Success("Product added to basket satisfactorily.");
     }
 
-    public async Task<bool> IncreaseProduct(int productId, string userId)
+    public async Task<Result> IncreaseProduct(int productId, string userId)
     {
         Store store = await _db.Stores.FirstAsync();
 
         Basket? userBasket = await _db.Baskets.Include(b => b.Product).FirstOrDefaultAsync(b => b.ProductId == productId && b.ApplicationUserId == userId);
 
-        if (userBasket is null) return false;
+        if (userBasket is null) return Result.NotFound($"The product with id {productId} is not found in the basket.");
 
         bool decreaseProductFromStoreResult = await _storeService.DecreaseProductAsync(productId: productId, storeId: store.Id);
 
-        if (decreaseProductFromStoreResult is false) return false;
+        if (decreaseProductFromStoreResult is false) return Result.Error("An error occurred when trying to decrease the product in the store.");
 
         userBasket.IncreaseProductQuantity();
 
-        if (await _db.SaveChangesAsync() < 1) return false;
+        if (await _db.SaveChangesAsync() < 1) return Result.Error("Changes were not saved to the database.");
 
-        return true;
+        return Result.Success("The product was successfully increased.");
     }
 
-    public async Task<bool> DecreaseProduct(int productId, string userId)
+    public async Task<Result> DecreaseProduct(int productId, string userId)
     {
         Store store = await _db.Stores.FirstAsync();
 
@@ -94,20 +88,20 @@ public class BasketService : IBasketService
                                     .Include(b => b.Product)                            
                                     .FirstOrDefaultAsync(b => b.ProductId == productId && b.ApplicationUserId == userId);
 
-        if (userBasket is null) return false;
+        if (userBasket is null) return Result.NotFound($"The basket does not contain the product with id {productId}.");
 
         bool increaseProductFromStoreResult = await _storeService.IncreaseProductAsync(productId: productId, storeId: store.Id);
 
-        if (increaseProductFromStoreResult is false) return false;
+        if (increaseProductFromStoreResult is false) return Result.Error("An error occurred when trying to increase the product in the store.");
 
         userBasket.DecreaseProductQuantity();
 
-        if (await _db.SaveChangesAsync() < 1) return false;
+        if (await _db.SaveChangesAsync() < 1) return Result.Error("Changes were not saved to the database.");
 
-        return true;
+        return Result.Success("The product was successfully increased.");
     }
 
-    public async Task<(IEnumerable<Product>, float)> GetAllProducts(string userId)
+    public async Task<Result<(IEnumerable<Product>, float)>> GetAllProducts(string userId)
     {
         List<Basket> userBasket = await _db.Baskets
                                                 .Include(b => b.Product)
@@ -117,7 +111,7 @@ public class BasketService : IBasketService
                                                 .Where(b => b.ApplicationUserId == userId)
                                                 .ToListAsync();
 
-        if (userBasket is null) throw new InvalidOperationException("The user did not have a basket associated");
+        if (userBasket is null || userBasket.Count < 1) return Result.NotFound("No product was found in the basket.");
 
         List<Product> userBasketProducts = userBasket.Select(sb => sb.Product).ToList();
 
@@ -126,20 +120,22 @@ public class BasketService : IBasketService
         return (userBasketProducts, total);
     }
 
-    public async Task<bool> RemoveProduct(int productId, string UserId)
+    public async Task<Result> RemoveProduct(int productId, string UserId)
     {
         Basket? userBasket = await _db.Baskets
                                         .Include(b => b.Product)
                                         .FirstOrDefaultAsync(b => b.ApplicationUserId == UserId && b.ProductId == productId);
 
-        if (userBasket is null) return false;
+        if (userBasket is null) return Result.NotFound("The product was not found in the basket.");
 
-        if (await RestoreTheQuantityIntoStore(userBasket) is false) return false;
+        Result restoreQuantityIntoStoreResult = await RestoreTheQuantityIntoStore(userBasket);
+
+        if (restoreQuantityIntoStoreResult.IsSuccess) return restoreQuantityIntoStoreResult;
 
         _db.Baskets.Remove(userBasket);
 
-        if (await _db.SaveChangesAsync() < 1) return false;
+        if (await _db.SaveChangesAsync() < 1) return Result.Error("Changes were not saved to the database.");
 
-        return true;
+        return Result.Success("The product was removed from the basket successfully.");
     }
 }

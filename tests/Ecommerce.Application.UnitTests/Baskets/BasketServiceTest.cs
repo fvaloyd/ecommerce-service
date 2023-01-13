@@ -2,7 +2,7 @@ using Ecommerce.Application.Baskets;
 using Ecommerce.Application.Data;
 using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
-
+using Francisvac.Result;
 
 namespace Ecommerce.Application.UnitTests.Baskets;
 
@@ -24,7 +24,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
     }
 
     [Fact]
-    public async Task RestoreTheQuantityIntoStore_ShouldReturnFalse_WhenTheStoreDoesntHaveABasketproductAssociated()
+    public async Task RestoreTheQuantityIntoStore_ShouldReturnNotFoundResult_WhenTheStoreDoesntHaveABasketproductAssociated()
     {
         // Arrange
         var basket = new Basket(100_100, "", 10);
@@ -32,14 +32,15 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var result = await service.RestoreTheQuantityIntoStore(basket);
+        Result result = await service.RestoreTheQuantityIntoStore(basket);
 
         // Assert
-        result.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
-    public async Task RestoreTheQuantityIntoStore_ShouldReturnTrue_WhenTheStoreHaveTheBasketproductAssociated()
+    public async Task RestoreTheQuantityIntoStore_ShouldReturnSuccessResult_WhenTheStoreHaveTheBasketproductAssociated()
     {
         // Arrange
         var basket = new Basket(1, "", 1);
@@ -47,14 +48,15 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var result = await service.RestoreTheQuantityIntoStore(basket);
+        Result result = await service.RestoreTheQuantityIntoStore(basket);
 
         // Arrange
-        result.Should().BeTrue();
+        result.IsSuccess.Should().BeTrue();
+        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
     }
 
     [Fact]
-    public async Task AddProductAsync_ShouldReturnFalse_WhenNoProductsInStock()
+    public async Task AddProductAsync_ShouldReturnErrorResult_WhenNoProductsInStock()
     {
         // Arrange
         int productWithNoStockId = TestData.ProductStores.First(ps => ps.Quantity == 0).ProductId;
@@ -62,14 +64,15 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var result = await service.AddProductAsync(productWithNoStockId, "1");
+        Result result = await service.AddProductAsync(productWithNoStockId, "1");
 
         // Assert
-        result.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.Error);
     }
 
     [Fact]
-    public async Task AddProductAsync_ShouldReturnFalse_WhenTheBasketAlreadyHaveTheProduct()
+    public async Task AddProductAsync_ShouldReturnErrorResult_WhenTheBasketAlreadyHaveTheProduct()
     {
         // Arrange
         var basket = TestData.Baskets.First(b => b.ApplicationUserId == "1");
@@ -77,14 +80,15 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var result = await service.AddProductAsync(basket.ProductId, basket.ApplicationUserId);
+        Result result = await service.AddProductAsync(basket.ProductId, basket.ApplicationUserId);
 
         // Assert
-        result.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.Error);
     }
 
     [Fact]
-    public async Task AddProductAsync_ShouldReturnFalse_WhenErrorOcurrsWhileDecrementingTheStoreProduct()
+    public async Task AddProductAsync_ShouldReturnErrorResult_WhenErrorOcurrsWhileDecrementingTheStoreProduct()
     {
         // Arrange
         var productId = TestData.ProductStores.First(ps => ps.Quantity > 0).ProductId;
@@ -96,14 +100,15 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var result = await service.AddProductAsync(productId, userId);
+        Result result = await service.AddProductAsync(productId, userId);
 
         // Assert
-        result.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.Error);
     }
 
     [Fact]
-    public async Task AddProductAsync_ShouldReturnTrue_WhenDecreaseTheProductFromTheStoreIsSuccessful()
+    public async Task AddProductAsync_ShouldReturnSuccessResult_WhenDecreaseTheProductFromTheStoreIsSuccessful()
     {
         // Arrange
         var productId = TestData.ProductStores.First(ps => ps.Quantity > 0).ProductId;
@@ -118,11 +123,12 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var result = await service.AddProductAsync(productId, userId);
 
         // Assert
-        result.Should().BeTrue();
+        result.IsSuccess.Should().BeTrue();
+        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
     }
 
     [Fact]
-    public async Task IncreaseProduct_ShouldReturnFalse_WhenTheUserBasketDoesNotContainTheProduct()
+    public async Task IncreaseProduct_ShouldReturnNotFoundResult_WhenTheUserBasketDoesNotContainTheProduct()
     {
         // Arrange
         var productId = 1;
@@ -132,14 +138,15 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var result = await service.IncreaseProduct(productId, userId);
+        Result result = await service.IncreaseProduct(productId, userId);
 
         // Assert
-        result.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
-    public async Task IncreaseProduct_ShouldReturnFalse_WhenErrorOccursWhileDrecreaseTheProductFromStore()
+    public async Task IncreaseProduct_ShouldReturnErrorResult_WhenErrorOccursWhileDrecreaseTheProductFromStore()
     {
         // Arrange
         var basket = TestData.Baskets.Last();
@@ -149,14 +156,15 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var result = await service.IncreaseProduct(basket.ProductId, basket.ApplicationUserId);
+        Result result = await service.IncreaseProduct(basket.ProductId, basket.ApplicationUserId);
 
         // Assert
-        result.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.Error);
     }
 
     [Fact]
-    public async Task IncreaseProduct_ShouldReturnTrue_WhenSuccess()
+    public async Task IncreaseProduct_ShouldReturnSuccessResult_WhenSuccess()
     {
         // Arrange
         var basket = TestData.Baskets.FirstOrDefault(b => b.ApplicationUserId == "1");
@@ -166,14 +174,15 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var result = await service.IncreaseProduct(basket!.ProductId, basket.ApplicationUserId);
+        Result result = await service.IncreaseProduct(basket!.ProductId, basket.ApplicationUserId);
 
         // Assert
-        result.Should().BeTrue();
+        result.IsSuccess.Should().BeTrue();
+        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
     }
 
     [Fact]
-    public async Task DecreaseProduct_ShouldReturnFalse_WhenTheBasketDoesnHaveTheCurrentProduct()
+    public async Task DecreaseProduct_ShouldReturnNotFoundResult_WhenTheBasketDoesnHaveTheCurrentProduct()
     {
         // Arrange
         var userId = TestData.Baskets.First().ApplicationUserId;
@@ -182,14 +191,15 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         //Act
-        var result = await service.DecreaseProduct(productId, userId);
+        Result result = await service.DecreaseProduct(productId, userId);
 
         // Assert
-        result.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
-    public async Task DecreaseProduct_ShouldReturnFalse_WhenIncreaseProductInStoreFail()
+    public async Task DecreaseProduct_ShouldReturnErrorResult_WhenIncreaseProductInStoreFail()
     {
         // Arrange
         var basket = TestData.Baskets.First(b => b.ProductId == 1);
@@ -199,14 +209,15 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var result = await service.DecreaseProduct(basket.ProductId, basket.ApplicationUserId);
+        Result result = await service.DecreaseProduct(basket.ProductId, basket.ApplicationUserId);
 
         // Assert
-        result.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.Error);
     }
 
     [Fact]
-    public async Task DecreaseProduct_ShouldReturnTrue_WhenDecreaseProductIsSuccessful()
+    public async Task DecreaseProduct_ShouldReturnSuccessResult_WhenDecreaseProductIsSuccessful()
     {
         // Arrange
         var basket = TestData.Baskets.First(b => b.ProductId == 1);
@@ -216,27 +227,32 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var result = await service.DecreaseProduct(basket.ProductId, basket.ApplicationUserId);
+        Result result = await service.DecreaseProduct(basket.ProductId, basket.ApplicationUserId);
 
         // Assert
-        result.Should().BeTrue();
+        result.IsSuccess.Should().BeTrue();
+        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
     }
 
     [Fact]
-    public void GetAllProducts_ShouldThrowInvalidOperationException_WhenTheUserHasNoProductsInBasket()
+    public async Task GetAllProducts_ShouldReturnNotFoundResult_WhenTheUserHasNoProductsInBasket()
     {
         // Arrange
-        var userId = "test";
+        string userId = "test";
 
         storeServiceMock.Setup(ss => ss.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(true);
         
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var act = async () => await service.GetAllProducts(userId);
+        //var act = async () => await service.GetAllProducts(userId);
+        Result<(IEnumerable<Product>, float)> result = await service.GetAllProducts(userId);
 
         // Assert
-        act.Should().ThrowAsync<InvalidOperationException>();
+        //act.Should().ThrowAsync<InvalidOperationException>();
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+        result.Data.Item1.Should().BeNullOrEmpty();
     }
 
     [Fact]
@@ -250,10 +266,12 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        (IEnumerable<Product> result, float total) = await service.GetAllProducts(userBasket.First().ApplicationUserId);
+        Result<(IEnumerable<Product>, float)> result = await service.GetAllProducts(userBasket.First().ApplicationUserId);
 
         // Assert
-        result.Count().Should().Be(userBasket.Count);
+        result.IsSuccess.Should().BeTrue();
+        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
+        result.Data.Item1.Should().NotBeNullOrEmpty();
     }
 
     [Fact]
@@ -269,10 +287,11 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var result = await service.RemoveProduct(productId, userId);
+        Result result = await service.RemoveProduct(productId, userId);
 
         // Assert
-        result.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -284,9 +303,10 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         var service = new BasketService(storeServiceMock.Object, _db);
 
         // Act
-        var result = await service.RemoveProduct(basket.ProductId, basket.ApplicationUserId);
+        Result result = await service.RemoveProduct(basket.ProductId, basket.ApplicationUserId);
 
         // Assert
-        result.Should().BeTrue();
+        result.IsSuccess.Should().BeTrue();
+        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
     }
 }

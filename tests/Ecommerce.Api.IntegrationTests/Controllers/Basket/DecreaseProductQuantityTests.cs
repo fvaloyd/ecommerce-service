@@ -26,7 +26,7 @@ public class DecreaseProductQuantityTests
         var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + productId, null!);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]

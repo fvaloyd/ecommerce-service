@@ -8,6 +8,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Ecommerce.Api.Dtos.Product;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -141,12 +142,17 @@ public class StoreController : ApiControllerBase
 
         if (store is null) return NotFound("Could not found the store");
 
-        IEnumerable<ProductStore> storeProducts = await _db.ProductStores.Include(ps => ps.Product).Where(s => s.StoreId == id).ToListAsync();
+        IEnumerable<ProductResponse> storeProducts = await _db.ProductStores
+                                                    .Include(ps => ps.Product)
+                                                    .ThenInclude(p => p.Brand)
+                                                    .Include(ps => ps.Product)
+                                                    .ThenInclude(p => p.Category)
+                                                    .Where(s => s.StoreId == id)
+                                                    .Select(ps => _mapper.Map<ProductResponse>(ps.Product))
+                                                    .ToListAsync();
 
         if (storeProducts is null || !storeProducts.Any()) return NotFound("Could not found products in the store");
 
-        var storeWithProductDto = _mapper.Map<StoreResponse>((storeProducts, store));
-
-        return storeWithProductDto;
+        return Ok(new StoreResponse(store, storeProducts));
     }
 }

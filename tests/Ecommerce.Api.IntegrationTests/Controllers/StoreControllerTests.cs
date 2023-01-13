@@ -339,6 +339,6 @@ public class StoreControllerTests
 
         store.Should().NotBeNull();
 
-        store.ProductsName.Should().NotBeNullOrEmpty();
+        store.Products.Should().NotBeNullOrEmpty();
     }
 }

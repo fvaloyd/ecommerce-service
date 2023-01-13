@@ -7,6 +7,7 @@ using Ecommerce.Application.Common.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Francisvac.Result;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -28,73 +29,31 @@ public class BasketController : ApiControllerBase
     }
 
     [HttpPost("AddProduct")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> AddProduct(int productId)
-    {
-        var userId = _currentUserService.UserId;
-
-        bool operationResult = await _basketService.AddProductAsync(productId: productId, userId: userId!);
-
-        if (operationResult is false) return BadRequest("Could not add the product to the basket");
-
-        return Ok("Product added successfully");
-    }
+    public async Task<IActionResult> AddProduct(int productId) 
+        => await _basketService.AddProductAsync(productId, _currentUserService.UserId!).ToActionResult();
 
     [HttpPost("IncreaseProductQuantity")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> IncreaseProductQuantity(int productId)
-    {
-        var userId = _currentUserService.UserId;
-
-        bool operationResult = await _basketService.IncreaseProduct(productId: productId, userId: userId!);
-
-        if (operationResult is false) return BadRequest("Could not increase the quantity");
-
-        return Ok("Quantity increase successfully");
-    }
+        => await _basketService.IncreaseProduct(productId, _currentUserService.UserId!).ToActionResult();
 
     [HttpPost("DecreaseProductQuantity")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DecreaseProductQuantity(int productId)
-    {
-        var userId = _currentUserService.UserId;
-
-        bool operationResult = await _basketService.DecreaseProduct(productId: productId, userId: userId!);
-
-        if (operationResult is false) return BadRequest("Could not decrease the quantity");
-
-        return Ok("Quantity decrease successfully");
-    }
+        => await _basketService.DecreaseProduct(productId, _currentUserService.UserId!).ToActionResult();
 
     [HttpDelete("RemoveProduct")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RemoveProduct(int productId)
-    {
-        var userId = _currentUserService.UserId;
-
-        var operationResult = await _basketService.RemoveProduct(productId, userId!);
-
-        if (operationResult == false) return BadRequest("Could not remove the product");
-
-        return NoContent();
-    }
+        => await _basketService.RemoveProduct(productId, _currentUserService.UserId!).ToActionResult();
 
     [HttpGet("GetAllProduct")]
-    [ProducesResponseType(typeof(BasketResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<BasketResponse>> GetAllProduct()
     {
         var userId = _currentUserService.UserId;
         
-        (IEnumerable<Product> basketProducts, float total) = await _basketService.GetAllProducts(userId!);
+        Result<(IEnumerable<Product>, float)> operationResult = await _basketService.GetAllProducts(userId!);
+
+        if (!operationResult.IsSuccess) return operationResult.ToActionResult();
         
-        BasketResponse basketResponse = new(Total: total, Products: basketProducts.Select(p => _mapper.Map<ProductResponse>(p)));
+        BasketResponse basketResponse = new(Total: operationResult.Data.Item2, Products: operationResult.Data.Item1.Select(p => _mapper.Map<ProductResponse>(p)));
         
         return Ok(basketResponse);
     }

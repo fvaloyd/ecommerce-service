@@ -33,7 +33,7 @@ public class AddProductTests
 
         int validProductId = Db.Products.Select(p => p.Id).First();
 
-        _ = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync($"api/basket/removeproduct?productId={validProductId.ToString()}");
+        _ = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync($"api/basket/removeproduct?productId={validProductId}");
     
         // Act
         var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + validProductId.ToString(), null);

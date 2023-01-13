@@ -15,7 +15,7 @@ public class IncreaseProductQuantityTests
     }
 
     [Fact]
-    public async Task ShouldReturnBadRequest_WhenTheBasketDoesnHaveTheProduct()
+    public async Task ShouldReturnNotFound_WhenTheBasketDoesnHaveTheProduct()
     {
         // Arrange
         int invalidProductId = 0;
@@ -24,7 +24,7 @@ public class IncreaseProductQuantityTests
         var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + invalidProductId.ToString(), null);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]

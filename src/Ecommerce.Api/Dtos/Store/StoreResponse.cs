@@ -1,6 +1,7 @@
+using Ecommerce.Api.Dtos.Product;
+
 namespace Ecommerce.Api.Dtos.Store;
 
 public record StoreResponse(
-    string Name,
-    bool State,
-    IEnumerable<string> ProductsName);
+    Ecommerce.Core.Entities.Store Store,
+    IEnumerable<ProductResponse> Products);

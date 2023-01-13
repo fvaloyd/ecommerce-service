@@ -15,7 +15,7 @@ public class RemoveProductTests
     }
 
     [Fact]
-    public async Task RemoveProduct_ShouldReturnBadRequest_WhenTheUserDoesntHaveTheSpecificProductInBasket()
+    public async Task RemoveProduct_ShouldReturnNotFound_WhenTheUserDoesntHaveTheSpecificProductInBasket()
     {
         // Arrange
         int unExistingProductId = 100_000_000;
@@ -24,7 +24,7 @@ public class RemoveProductTests
         var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(endPointPath + unExistingProductId.ToString());
         
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -41,6 +41,6 @@ public class RemoveProductTests
         var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(endPointPath + product.Id.ToString());
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 }
