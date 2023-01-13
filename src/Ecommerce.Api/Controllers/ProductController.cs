@@ -9,6 +9,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Francisvac.Result;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -74,9 +75,9 @@ public class ProductController : ApiControllerBase
 
         if (await _db.SaveChangesAsync() < 1) return BadRequest("Could not create the product");
 
-        bool relatedToStoreResult = await _productService.RelatedToStoreAsync(product.Id, productDto.StoreId);
+        Result relatedToStoreResult = await _productService.RelatedToStoreAsync(product.Id, productDto.StoreId);
 
-        if (!relatedToStoreResult) return BadRequest("Product was created but could not related with a store");
+        if (!relatedToStoreResult.IsSuccess) return relatedToStoreResult.ToActionResult();
 
         return RedirectToRoute(nameof(GetProductById), new { id = product.Id });
     }
@@ -105,9 +106,6 @@ public class ProductController : ApiControllerBase
 
     [HttpDelete("Delete/{id}")]
     [Authorize(Roles = UserRoles.Admin)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteProduct(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
@@ -118,7 +116,9 @@ public class ProductController : ApiControllerBase
 
         _db.Products.Remove(productToDelete);
 
-        if (await _productService.DeleteProductStoreRelation(id) is false) return BadRequest($"Could not delete the product with Id::{id}");
+        Result deleteProductStoreRelationResult = await _productService.DeleteProductStoreRelation(id);
+
+        if (!deleteProductStoreRelationResult.IsSuccess) return deleteProductStoreRelationResult.ToActionResult();
 
         await _cloudinaryService.DeleteImage(productToDelete.Name.Replace(' ', '-'));
 

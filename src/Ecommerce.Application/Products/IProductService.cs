@@ -1,7 +1,9 @@
+using Francisvac.Result;
+
 namespace Ecommerce.Application.Products;
 
 public interface IProductService
 {
-    Task<bool> RelatedToStoreAsync(int productId, int storeId);
-    Task<bool> DeleteProductStoreRelation(int productId);
+    Task<Result> RelatedToStoreAsync(int productId, int storeId);
+    Task<Result> DeleteProductStoreRelation(int productId);
 }
