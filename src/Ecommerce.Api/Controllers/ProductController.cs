@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Francisvac.Result;
+using AutoMapper.QueryableExtensions;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -37,8 +38,8 @@ public class ProductController : ApiControllerBase
     [ProducesResponseType(typeof(List<Product>), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<ProductResponse>>> GetAllProducts()
     {
-        var productsDto = await _db.Products.Include(p => p.Category).Include(p => p.Brand).Select(p => _mapper.Map<ProductResponse>(p)).ToListAsync();
-        
+        // var productsDto = await _db.Products.Include(p => p.Category).Include(p => p.Brand).Select(p => _mapper.Map<ProductResponse>(p)).ToListAsync();
+        var productsDto = await _db.Products.Include(p => p.Category).Include(p => p.Brand).ProjectTo<ProductResponse>(_mapper.ConfigurationProvider).ToListAsync();
         return productsDto;
     }
 
@@ -77,9 +78,9 @@ public class ProductController : ApiControllerBase
 
         Result relatedToStoreResult = await _productService.RelatedToStoreAsync(product.Id, productDto.StoreId);
 
-        if (!relatedToStoreResult.IsSuccess) return relatedToStoreResult.ToActionResult();
-
-        return RedirectToRoute(nameof(GetProductById), new { id = product.Id });
+        return !relatedToStoreResult.IsSuccess
+          ? relatedToStoreResult.ToActionResult()
+          : (IActionResult)RedirectToRoute(nameof(GetProductById), new { id = product.Id });
     }
 
     [HttpPut("Edit/{id}")]

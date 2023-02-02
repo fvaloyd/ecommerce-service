@@ -29,7 +29,7 @@ public class BasketController : ApiControllerBase
     }
 
     [HttpPost("AddProduct")]
-    public async Task<IActionResult> AddProduct(int productId) 
+    public async Task<IActionResult> AddProduct(int productId)
         => await _basketService.AddProductAsync(productId, _currentUserService.UserId!).ToActionResult();
 
     [HttpPost("IncreaseProductQuantity")]
@@ -48,13 +48,13 @@ public class BasketController : ApiControllerBase
     public async Task<ActionResult<BasketResponse>> GetAllProduct()
     {
         var userId = _currentUserService.UserId;
-        
+
         Result<(IEnumerable<Product>, float)> operationResult = await _basketService.GetAllProducts(userId!);
 
         if (!operationResult.IsSuccess) return operationResult.ToActionResult();
-        
+
         BasketResponse basketResponse = new(Total: operationResult.Data.Item2, Products: operationResult.Data.Item1.Select(p => _mapper.Map<ProductResponse>(p)));
-        
+
         return Ok(basketResponse);
     }
 }
