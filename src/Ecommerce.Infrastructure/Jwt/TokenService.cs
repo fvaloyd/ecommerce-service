@@ -26,11 +26,9 @@ public class TokenService : ITokenService
     public string CreateRefreshToken()
     {
         var randNumber = new byte[32];
-        using (var rng = RandomNumberGenerator.Create())
-        {
-            rng.GetBytes(randNumber);
-            return Convert.ToBase64String(randNumber);
-        }
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randNumber);
+        return Convert.ToBase64String(randNumber);
     }
 
     public async Task<string> CreateToken(ApplicationUser user)
