@@ -28,7 +28,7 @@ public class RemoveProductTests
     }
 
     [Fact]
-    public async Task RemoveProduct_ShouldReturnNoContent_WhenTheUserHaveTheSpecificProductInBasket()
+    public async Task RemoveProduct_ShouldReturnOk_WhenTheUserHaveTheSpecificProductInBasket()
     {
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
