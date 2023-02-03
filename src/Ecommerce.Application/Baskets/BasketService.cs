@@ -128,9 +128,9 @@ public class BasketService : IBasketService
 
         if (userBasket is null) return Result.NotFound("The product was not found in the basket.");
 
-        Result restoreQuantityIntoStoreResult = await RestoreTheQuantityIntoStore(userBasket);
+        Result amountRestoredInStoreResult = await RestoreTheQuantityIntoStore(userBasket);
 
-        if (restoreQuantityIntoStoreResult.IsSuccess) return restoreQuantityIntoStoreResult;
+        if (!amountRestoredInStoreResult.IsSuccess) return amountRestoredInStoreResult;
 
         _db.Baskets.Remove(userBasket);
 
