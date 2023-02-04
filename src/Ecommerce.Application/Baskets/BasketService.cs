@@ -54,9 +54,9 @@ public class BasketService : IBasketService
 
         await _db.Baskets.AddAsync(userBasket);
 
-        bool decreaseProductFromStoreResult = await _storeService.DecreaseProductAsync(productId, store.Id);
+        Result decreaseProductFromStoreResult = await _storeService.DecreaseProductAsync(productId, store.Id);
 
-        if (!decreaseProductFromStoreResult) return Result.Error("An error occurred when trying to decrease the product in the store.");
+        if (!decreaseProductFromStoreResult.IsSuccess) return decreaseProductFromStoreResult;
 
         return Result.Success("Product added to basket satisfactorily.");
     }
@@ -69,9 +69,9 @@ public class BasketService : IBasketService
 
         if (userBasket is null) return Result.NotFound($"The product with id {productId} is not found in the basket.");
 
-        bool decreaseProductFromStoreResult = await _storeService.DecreaseProductAsync(productId: productId, storeId: store.Id);
+        Result decreaseProductFromStoreResult = await _storeService.DecreaseProductAsync(productId: productId, storeId: store.Id);
 
-        if (decreaseProductFromStoreResult is false) return Result.Error("An error occurred when trying to decrease the product in the store.");
+        if (!decreaseProductFromStoreResult.IsSuccess) return decreaseProductFromStoreResult;
 
         userBasket.IncreaseProductQuantity();
 
@@ -90,9 +90,9 @@ public class BasketService : IBasketService
 
         if (userBasket is null) return Result.NotFound($"The basket does not contain the product with id {productId}.");
 
-        bool increaseProductFromStoreResult = await _storeService.IncreaseProductAsync(productId: productId, storeId: store.Id);
+        Result increaseProductFromStoreResult = await _storeService.IncreaseProductAsync(productId: productId, storeId: store.Id);
 
-        if (increaseProductFromStoreResult is false) return Result.Error("An error occurred when trying to increase the product in the store.");
+        if (!increaseProductFromStoreResult.IsSuccess) return increaseProductFromStoreResult;
 
         userBasket.DecreaseProductQuantity();
 

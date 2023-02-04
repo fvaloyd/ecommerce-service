@@ -1,6 +1,7 @@
 using Ecommerce.Application.Data;
 using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
+using Francisvac.Result;
 
 namespace Ecommerce.Application.UnitTests.Stores;
 
@@ -28,10 +29,10 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        var result = await service.AddProductAsync(productId: productAlreadyInStore.ProductId, storeId: productAlreadyInStore.StoreId);
+        Result result = await service.AddProductAsync(productId: productAlreadyInStore.ProductId, storeId: productAlreadyInStore.StoreId);
 
         // Assert
-        result.Should().Be(false);
+        result.IsSuccess.Should().BeFalse();
     }
 
     [Fact]
@@ -45,10 +46,10 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        var result = await service.AddProductAsync(productId, storeId);
+        Result result = await service.AddProductAsync(productId, storeId);
         
         // Assert
-        result.Should().Be(true);
+        result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
@@ -62,10 +63,11 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        var result = await service.DecreaseProductAsync(productId, storeId);
+        Result result = await service.DecreaseProductAsync(productId, storeId);
 
         // Assert
-        result.Should().Be(false);
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -77,10 +79,10 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        var result = await service.DecreaseProductAsync(productStoreWithZeroQuantity!.ProductId, productStoreWithZeroQuantity.StoreId);
+        Result result = await service.DecreaseProductAsync(productStoreWithZeroQuantity!.ProductId, productStoreWithZeroQuantity.StoreId);
         
         // Assert
-        result.Should().Be(true);
+        result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
@@ -92,10 +94,10 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        var result = await service.DecreaseProductAsync(productStore!.ProductId, productStore.StoreId);
+        Result result = await service.DecreaseProductAsync(productStore!.ProductId, productStore.StoreId);
 
         // Assert
-        result.Should().Be(true);
+        result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
@@ -106,10 +108,11 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        var result = await service.DeleteProductStoreRelation(storeIdWithNoProductRelated);
+        Result result = await service.DeleteProductStoreRelation(storeIdWithNoProductRelated);
 
         // Assert
-        result.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -121,10 +124,10 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        var result = await service.DeleteProductStoreRelation(storeWithRelatedProducts!.Id);
+        Result result = await service.DeleteProductStoreRelation(storeWithRelatedProducts!.Id);
 
         // Assert
-        result.Should().BeTrue();
+        result.IsSuccess.Should().BeTrue();
     } 
 
     [Fact]
@@ -138,10 +141,11 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        var result = await service.IncreaseProductAsync(productId, storeId);
+        Result result = await service.IncreaseProductAsync(productId, storeId);
 
         // Assert
-        result.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -153,10 +157,10 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        var result = await service.IncreaseProductAsync(productStore!.ProductId, productStore.StoreId); 
+        Result result = await service.IncreaseProductAsync(productStore!.ProductId, productStore.StoreId); 
         
         // Assert
-        result.Should().BeTrue();
+        result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
@@ -168,10 +172,11 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        var result = await service.DeleteStore(unExistingStoreId); 
+        Result result = await service.DeleteStore(unExistingStoreId); 
         
         // Assert
-        result.Should().BeFalse();
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -183,9 +188,9 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        var result = await service.DeleteStore(storeId); 
+        Result result = await service.DeleteStore(storeId); 
         
         // Assert
-        result.Should().BeTrue();
+        result.IsSuccess.Should().BeTrue();
     }
 }

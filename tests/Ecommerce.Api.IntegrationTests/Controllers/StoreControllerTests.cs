@@ -177,7 +177,7 @@ public class StoreControllerTests
         var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endpointPath + $"delete/{unExistingId}");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -226,7 +226,7 @@ public class StoreControllerTests
         var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(endpointPath + $"increaseProduct?storeId={storeId}&productId={unExistingId}", null);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -273,7 +273,7 @@ public class StoreControllerTests
         var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(endpointPath + $"decreaseProduct?storeId={storeId}&productId={unExistingId}", null);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]

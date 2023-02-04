@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Ecommerce.Api.Dtos.Product;
+using Francisvac.Result;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -95,9 +96,9 @@ public class StoreController : ApiControllerBase
     {
         if (id < 1) return BadRequest("Invalid id");
 
-        bool operationResult = await _storeService.DeleteStore(id);
+        Result operationResult = await _storeService.DeleteStore(id);
 
-        if (!operationResult) return BadRequest("Could not delete the store"); 
+        if (!operationResult.IsSuccess) return operationResult.ToActionResult();
 
         return NoContent();
     }
@@ -109,9 +110,9 @@ public class StoreController : ApiControllerBase
     {
         if (storeId < 1 || productId < 1) return BadRequest("Invalid id");
 
-        bool operationResult = await _storeService.IncreaseProductAsync(productId: productId, storeId: storeId);
+        Result operationResult = await _storeService.IncreaseProductAsync(productId: productId, storeId: storeId);
 
-        if (operationResult is false) return BadRequest("Could not increase the product");
+        if (!operationResult.IsSuccess) return operationResult.ToActionResult();
 
         return Ok("Product increase successfully");
     }
@@ -123,9 +124,9 @@ public class StoreController : ApiControllerBase
     {
         if (storeId < 1 || productId < 1) return BadRequest("Invalid id");
 
-        bool operationResult = await _storeService.DecreaseProductAsync(productId: productId, storeId: storeId);
+        Result operationResult = await _storeService.DecreaseProductAsync(productId: productId, storeId: storeId);
 
-        if (operationResult is false) return BadRequest("Could not decrease the product");
+        if (!operationResult.IsSuccess) return operationResult.ToActionResult();
 
         return Ok("Product decrease successfully");
     }
