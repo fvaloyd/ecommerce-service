@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Hangfire;
+using Ecommerce.Api.BackgroundJobs;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -21,22 +23,22 @@ public class PaymentController : ApiControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IStripeService _stripeService;
-    private readonly IEmailSender _emailService;
     private readonly ICurrentUserService _currentUserService;
     private readonly IEcommerceDbContext _db;
+    private readonly IBackgroundJobClient _backgroundJobClient;
 
     public PaymentController(
         UserManager<ApplicationUser> userManager,
         IStripeService stripeService,
-        IEmailSender emailService,
         ICurrentUserService currentUserService,
-        IEcommerceDbContext db)
+        IEcommerceDbContext db,
+        IBackgroundJobClient backgroundJobClient)
     {
         _userManager = userManager;
         _stripeService = stripeService;
-        _emailService = emailService;
         _currentUserService = currentUserService;
         _db = db;
+        _backgroundJobClient = backgroundJobClient;
     }
 
     [HttpPost("refund")]
@@ -83,7 +85,7 @@ public class PaymentController : ApiControllerBase
 
         await RemoveBasket(userBasket);
 
-        await SendEmailWrapper(order, user);
+        _backgroundJobClient.Enqueue<SendEmailWithOrderDetails>(x => x.Handle(order.Id, user.Id));
 
         return Ok(new { Order = order, Charge = chargeToken.Id });
     }
@@ -130,26 +132,6 @@ public class PaymentController : ApiControllerBase
         _db.Baskets.RemoveRange(basket);
 
         await _db.SaveChangesAsync();
-    }
-
-    private async Task SendEmailWrapper(Order order, ApplicationUser user)
-    {
-        List<OrderDetail> OrderDetailWithProduct = await _db.OrderDetails.Include(od => od.Product).Where(od => od.OrderId == order.Id).ToListAsync();
-
-        var mailRequest = await CreateMailRequest(user, OrderDetailWithProduct);
-
-        await _emailService.SendAsync(mailRequest);
-    }
-
-    private async Task<MailRequest> CreateMailRequest(ApplicationUser user, IEnumerable<OrderDetail> orderDetail)
-    {
-        PurchaseDetailsMailModel purchaseDetailsMailModel = new(User: user, OrderDetails: orderDetail);
-
-        string template = await _emailService.GetTemplate(((int)MailTemplates.PurchaseDetails));
-
-        string templateCompiled = await _emailService.GetCompiledTemplateAsync(template, purchaseDetailsMailModel);
-
-        return new MailRequest(Body: templateCompiled, Subject: "Purchased products", Email: user.Email!);
     }
 
     private async Task<ApplicationUser?> GetUser()
