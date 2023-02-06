@@ -1,5 +1,5 @@
 using Ecommerce.Api.Dtos.Authentication;
-namespace Ecommerce.Api.IntegrationTests.Controllers.Authenticate;
+namespace Ecommerce.Api.IntegrationTests.Controllers.Auth;
 
 [Collection("BaseIntegrationTestCollection")]
 public class ResgisterAdminTest
@@ -11,7 +11,7 @@ public class ResgisterAdminTest
         _baseIntegrationTest = baseIntegrationTest;
     }
 
-    readonly string endPointPath = "/api/authenticate/register-admin";
+    readonly string endPointPath = "/api/auth/register-admin";
 
     readonly RegisterRequest ValidUser = new("registeradmintest", "8888888888", "registeradmintest@gmail.com", "test.324234");
 

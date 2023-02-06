@@ -1,11 +1,11 @@
-namespace Ecommerce.Api.IntegrationTests.Controllers.Authenticate;
+namespace Ecommerce.Api.IntegrationTests.Controllers.Auth;
 
 [Collection("BaseIntegrationTestCollection")]
 public class LogoutTests
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
     
-    readonly string logoutPath = "api/authenticate/logout";
+    readonly string logoutPath = "api/auth/logout";
 
     public LogoutTests(BaseIntegrationTest baseIntegrationTest)
     {

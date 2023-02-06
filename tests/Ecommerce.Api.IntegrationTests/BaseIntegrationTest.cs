@@ -52,7 +52,7 @@ public class BaseIntegrationTest : IAsyncLifetime
 
     private static async Task<HttpClient> CreateCustomHttpClient(EcommerceProgram program, HttpClient httpClient, LoginRequest user)
     {
-        var httpResponse = await httpClient.PostAsJsonAsync("api/authenticate/login", user);
+        var httpResponse = await httpClient.PostAsJsonAsync("api/auth/login", user);
         
         var httpResponseReadedAsString = await httpResponse.Content.ReadAsStringAsync();
         

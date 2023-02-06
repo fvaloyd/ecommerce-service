@@ -1,6 +1,6 @@
 using Ecommerce.Api.Dtos.Authentication;
 
-namespace Ecommerce.Api.IntegrationTests.Controllers.Authenticate;
+namespace Ecommerce.Api.IntegrationTests.Controllers.Auth;
 
 [Collection("BaseIntegrationTestCollection")]
 public class RegisterTests
@@ -12,7 +12,7 @@ public class RegisterTests
         _baseIntegrationTest = baseIntegrationTest;
     }
     
-    readonly string endPointPath = "/api/authenticate/register";
+    readonly string endPointPath = "/api/auth/register";
 
     readonly RegisterRequest ValidUser = new("registertest", "8888888888", "registertest@gmail.com", "test.123324234");
 

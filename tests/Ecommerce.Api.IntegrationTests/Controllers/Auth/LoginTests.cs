@@ -1,13 +1,13 @@
 using Ecommerce.Api.Dtos.Authentication;
 
-namespace Ecommerce.Api.IntegrationTests.Controllers.Authenticate;
+namespace Ecommerce.Api.IntegrationTests.Controllers.Auth;
 
 [Collection("BaseIntegrationTestCollection")]
 public sealed class LoginTests
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
 
-    readonly string endPointPath = "/api/authenticate/login";
+    readonly string endPointPath = "/api/auth/login";
 
     public LoginTests(BaseIntegrationTest baseIntegrationTest)
     {

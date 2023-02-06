@@ -10,28 +10,30 @@ using Ecommerce.Infrastructure.EmailSender.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Hangfire;
+using Ecommerce.Api.BackgroundJobs;
 
 namespace Ecommerce.Api.Controllers;
 
-public class AuthenticateController : ApiControllerBase
+public class AuthController : ApiControllerBase
 {
     private readonly IStripeService _stripeService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IBackgroundJobClient _backgroundJobClient;
     private readonly ITokenService _tokenService;
-    private readonly IEmailSender _emailService;
-    public AuthenticateController(
+    public AuthController(
         UserManager<ApplicationUser> userManager,
         ITokenService tokenService,
         IStripeService stripeService,
-        IEmailSender emailService,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        IBackgroundJobClient backgroundJobClient)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _stripeService = stripeService;
-        _emailService = emailService;
         _signInManager = signInManager;
+        _backgroundJobClient = backgroundJobClient;
     }
 
     [HttpPost("register")]
@@ -60,7 +62,7 @@ public class AuthenticateController : ApiControllerBase
 
         await _userManager.AddToRoleAsync(user, UserRoles.User);
 
-        await SendMailToConfirmEmail(user);
+        _backgroundJobClient.Enqueue<SendMailToConfirmEmail>(sm => sm.Handle(user.Id, Request.Scheme, Request.Host.Value));
 
         return Ok("Check you mail message and confirm your email");
     }
@@ -109,7 +111,7 @@ public class AuthenticateController : ApiControllerBase
 
         await _userManager.AddToRoleAsync(user, UserRoles.Admin);
 
-        await SendMailToConfirmEmail(user);
+        _backgroundJobClient.Enqueue<SendMailToConfirmEmail>(sm => sm.Handle(user.Id, Request.Scheme, Request.Host.Value));
 
         return Ok("User created successfully");
     }
@@ -128,7 +130,7 @@ public class AuthenticateController : ApiControllerBase
 
         if (!isEmailConfirmed)
         {
-            await SendMailToConfirmEmail(user);
+            _backgroundJobClient.Enqueue<SendMailToConfirmEmail>(sm => sm.Handle(user.Id, Request.Scheme, Request.Host.Value));
 
             return BadRequest("You need to confirm your email. Check your mail to confirm");
         }
@@ -158,31 +160,5 @@ public class AuthenticateController : ApiControllerBase
         await _signInManager.SignOutAsync();
 
         return Ok("Closed session");
-    }
-
-    private async Task SendMailToConfirmEmail(ApplicationUser user)
-    {
-        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user); 
-
-        var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authenticate", new { token, email = user.Email}, Request.Scheme);
-
-        var mailRequest = await CreateMailRequest(user, confirmationLink!);
-
-        await _emailService.SendAsync(mailRequest);
-    }
-
-    private async Task<MailRequest> CreateMailRequest(ApplicationUser user, string confirmationLink)
-    {
-        var emailConfirmationMailModel = new EmailConfirmationMailModel(User: user, ConfirmationLink: confirmationLink);
-
-        string template = await _emailService.GetTemplate(((int)MailTemplates.EmailConfirmation));
-
-        string compiledTemplate = await _emailService.GetCompiledTemplateAsync(template, emailConfirmationMailModel);
-
-        return new MailRequest(
-            Body: compiledTemplate,
-            Subject: "Email confirmation",
-            Email: user.Email!
-        );
     }
 }
