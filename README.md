@@ -43,6 +43,15 @@ The command should look like this:
 
 `dotnet migrations add "yourmigrations" --project src/Ecommerce.Infrastructure --startup-project src/Ecommerce.Api --output-dir Persistence/Migrations`
 
+## Hangfire
+
+The application needs a database for hangfire.
+
+```sql
+CREATE DATABASE [HangfireTest]
+GO
+```
+
 ## Overview
 
 ### Core
