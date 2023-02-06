@@ -2,11 +2,8 @@ using Ecommerce.Core.Entities;
 using Ecommerce.Application.Data;
 using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Identity;
-using Ecommerce.Infrastructure.EmailSender;
 using Ecommerce.Infrastructure.Payment.Models;
 using Ecommerce.Application.Common.Interfaces;
-using Ecommerce.Infrastructure.EmailSender.Models;
-using Ecommerce.Infrastructure.EmailSender.Common;
 
 using Stripe;
 using Microsoft.AspNetCore.Mvc;
