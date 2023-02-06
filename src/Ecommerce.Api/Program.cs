@@ -1,7 +1,7 @@
 using Ecommerce.Api.Startup;
 using Ecommerce.Application;
 using Ecommerce.Infrastructure;
-
+using Hangfire;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +14,7 @@ builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
 
 builder.Services.AddApplicationServices()
                 .AddInfrastructureServices(builder.Configuration)
-                .AddApiServices();
+                .AddApiServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -33,6 +33,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseHangfireDashboard();
 
 ConfigureKeys.SetupApiKeys(builder);
 
