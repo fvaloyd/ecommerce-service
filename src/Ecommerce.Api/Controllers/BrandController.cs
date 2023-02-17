@@ -7,6 +7,8 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Ecommerce.Api.Dtos.Brand;
+using AutoMapper.QueryableExtensions;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -24,20 +26,20 @@ public class BrandController : ApiControllerBase
         _db = db;
     }
 
-    [HttpGet("GetAll")]
-    [ProducesResponseType(typeof(List<Brand>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<Brand>>> GetAllBrands()
+    [HttpGet("GetAllBrands")]
+    [ProducesResponseType(typeof(List<BrandResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<BrandResponse>>> GetAllBrands()
     {
-        List<Brand> brands = await _db.Brands.ToListAsync();
+        List<BrandResponse> brands = await _db.Brands.ProjectTo<BrandResponse>(_mapper.ConfigurationProvider).ToListAsync();
 
         return Ok(brands);
     }
 
-    [HttpGet("GetById/{id}", Name = "GetBrandById")]
-    [ProducesResponseType(typeof(Brand), StatusCodes.Status200OK)]
+    [HttpGet("GetBrandById/{id}", Name = "GetBrandById")]
+    [ProducesResponseType(typeof(BrandResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Brand>> GetBrandById(int id)
+    public async Task<ActionResult<BrandResponse>> GetBrandById(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -45,12 +47,12 @@ public class BrandController : ApiControllerBase
 
         if (brand is null) return NotFound($"Brand with the id::{id} not found");
 
-        return Ok(brand);
+        return Ok(_mapper.Map<BrandResponse>(brand));
     }
 
-    [HttpPost("Create")]
+    [HttpPost("CreateBrand")]
     [Authorize(Roles = UserRoles.Admin)]
-    [ProducesResponseType(typeof(Brand), StatusCodes.Status302Found)]
+    [ProducesResponseType(typeof(BrandResponse), StatusCodes.Status302Found)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateBrand([FromBody] CreateBrandRequest brandRequest)
     {
@@ -65,7 +67,7 @@ public class BrandController : ApiControllerBase
         return RedirectToRoute(nameof(GetBrandById), new { id = brand.Id });
     }
 
-    [HttpPut("Edit/{id}")]
+    [HttpPut("EditBrand/{id}", Name = "EditBrand")]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -86,7 +88,7 @@ public class BrandController : ApiControllerBase
         return NoContent();
     }
 
-    [HttpDelete("Delete/{id}")]
+    [HttpDelete("DeleteBrand/{id}", Name = "DeleteBrand")]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]

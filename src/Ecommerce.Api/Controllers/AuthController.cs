@@ -3,9 +3,6 @@ using Ecommerce.Infrastructure.Jwt;
 using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Api.Dtos.Authentication;
-using Ecommerce.Infrastructure.EmailSender;
-using Ecommerce.Infrastructure.EmailSender.Models;
-using Ecommerce.Infrastructure.EmailSender.Common;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;

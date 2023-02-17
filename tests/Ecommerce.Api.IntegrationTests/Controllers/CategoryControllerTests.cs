@@ -8,7 +8,13 @@ public class CategoryControllerTests
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
 
-    readonly string endPointPath = "api/category/";
+    const string endPointPath = "api/category/";
+    const string GetAllCategoriesPath = $"{endPointPath}GetAllCategories/";
+    const string GetCategoryByIdPath = $"{endPointPath}GetCategoryById/";
+    const string CreateCategoryPath = $"{endPointPath}CreateCategory/";
+    const string EditCategoryPath = $"{endPointPath}EditCategory/";
+    const string DeleteCategoryPath = $"{endPointPath}DeleteCategory/";
+
 
     public CategoryControllerTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -24,11 +30,11 @@ public class CategoryControllerTests
         var categoriesDb = db.Categories.ToList();
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath + "getall");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetAllCategoriesPath);
 
         var responseReaded = await response.Content.ReadAsStringAsync();
 
-        var parseResponse = JsonConvert.DeserializeObject<IEnumerable<Category>>(responseReaded);
+        var parseResponse = JsonConvert.DeserializeObject<IEnumerable<CategoryResponse>>(responseReaded);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -45,7 +51,7 @@ public class CategoryControllerTests
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath + $"GetById/{invalidId}");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetCategoryByIdPath + invalidId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -58,7 +64,7 @@ public class CategoryControllerTests
         int unExistingId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath + $"GetById/{unExistingId}");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetCategoryByIdPath + unExistingId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -73,7 +79,7 @@ public class CategoryControllerTests
         int validId = db.Categories.Select(c => c.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath + $"GetById/{validId}");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetCategoryByIdPath + validId);
 
         var responseReaded = await response.Content.ReadAsStringAsync();
 
@@ -94,7 +100,7 @@ public class CategoryControllerTests
         CreateCategoryRequest dto = new("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endPointPath + "create", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(CreateCategoryPath, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
@@ -109,7 +115,7 @@ public class CategoryControllerTests
         EditCategoryRequest dto = new("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endPointPath + $"Edit/{invalidId}", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditCategoryPath + invalidId, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -124,7 +130,7 @@ public class CategoryControllerTests
         EditCategoryRequest dto = new("test", true);
         
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endPointPath + $"Edit/{unExistingId}", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditCategoryPath + unExistingId, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -141,7 +147,7 @@ public class CategoryControllerTests
         EditCategoryRequest dto = new("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endPointPath + $"Edit/{categoryDb.Id.ToString()}", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditCategoryPath + categoryDb.Id, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
@@ -154,7 +160,7 @@ public class CategoryControllerTests
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endPointPath + $"Delete/{invalidId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteCategoryPath + invalidId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -167,7 +173,7 @@ public class CategoryControllerTests
         int unExisitingId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endPointPath + $"Delete/{unExisitingId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteCategoryPath +  unExisitingId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -186,7 +192,7 @@ public class CategoryControllerTests
         await db.SaveChangesAsync();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endPointPath + $"Delete/{cat.Id.ToString()}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteCategoryPath + cat.Id);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);

@@ -7,7 +7,8 @@ public class GetAllProductTests
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
 
-    readonly string endPointPath = "api/basket/getallproduct";
+    readonly string endPointPath = "api/basket/GetAllProductInBasket";
+    const string AddProductToBasketPath = "api/basket/AddProductToBasket?productId=";
     public GetAllProductTests(BaseIntegrationTest baseIntegrationTest)
     {
         _baseIntegrationTest = baseIntegrationTest;
@@ -21,9 +22,9 @@ public class GetAllProductTests
 
         var product = db.Products.First();
 
-        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync($"api/basket/addproduct?productId={product.Id}", null);
+        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductToBasketPath + product.Id, null);
 
-        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync($"api/basket/addproduct?productId={product.Id + 1}", null);
+        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductToBasketPath + (product.Id + 1), null);
 
         // Act
         var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath);

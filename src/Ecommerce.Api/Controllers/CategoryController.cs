@@ -7,6 +7,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using AutoMapper.QueryableExtensions;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -24,20 +25,22 @@ public class CategoryController : ApiControllerBase
         _db = db;
     }
 
-    [HttpGet("GetAll")]
-    [ProducesResponseType(typeof(List<Category>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<Category>>> GetAllCategories()
+    [HttpGet("GetAllCategories")]
+    [ProducesResponseType(typeof(List<CategoryResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<CategoryResponse>>> GetAllCategories()
     {
-        List<Category> categories = await _db.Categories.ToListAsync();
+        List<CategoryResponse> categories = await _db.Categories
+                                                .ProjectTo<CategoryResponse>(_mapper.ConfigurationProvider)
+                                                .ToListAsync();
 
         return Ok(categories);
     }
 
-    [HttpGet("GetById/{id}", Name = "GetCategoryById")]
-    [ProducesResponseType(typeof(Category), StatusCodes.Status200OK)]
+    [HttpGet("GetCategoryById/{id}", Name = "GetCategoryById")]
+    [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Category>> GetCategoryById(int id)
+    public async Task<ActionResult<CategoryResponse>> GetCategoryById(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -45,12 +48,12 @@ public class CategoryController : ApiControllerBase
 
         if (category is null) return NotFound($"Category with the id::{id} not found");
 
-        return Ok(category);
+        return Ok(_mapper.Map<CategoryResponse>(category));
     }
 
-    [HttpPost("Create")]
+    [HttpPost("CreateCategory")]
     [Authorize(Roles = UserRoles.Admin)]
-    [ProducesResponseType(typeof(Category), StatusCodes.Status302Found)]
+    [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status302Found)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest categoryRequest)
     {
@@ -65,7 +68,7 @@ public class CategoryController : ApiControllerBase
         return RedirectToRoute(nameof(GetCategoryById), new {id = category.Id} );
     }
 
-    [HttpPut("Edit/{id}")]
+    [HttpPut("EditCategory/{id}")]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -87,7 +90,7 @@ public class CategoryController : ApiControllerBase
         return NoContent();
     }
 
-    [HttpDelete("Delete/{id}")]
+    [HttpDelete("DeleteCategory/{id}")]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Ecommerce.Api.Dtos.Product;
 using Francisvac.Result;
+using AutoMapper.QueryableExtensions;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -30,19 +31,19 @@ public class StoreController : ApiControllerBase
         _db = db;
     }
 
-    [HttpGet("GetAll")]
-    [ProducesResponseType(typeof(IEnumerable<Store>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<Store>>> GetAllStores()
+    [HttpGet("GetAllStores")]
+    [ProducesResponseType(typeof(IEnumerable<StoreResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<StoreResponse>>> GetAllStores()
     {
-        List<Store> stores = await _db.Stores.ToListAsync();
+        List<StoreResponse> stores = await _db.Stores.ProjectTo<StoreResponse>(_mapper.ConfigurationProvider).ToListAsync();
 
-        return stores;
+        return Ok(stores);
     }
 
-    [HttpGet("GetById/{id}", Name = "GetStoreById")]
-    [ProducesResponseType(typeof(Store), StatusCodes.Status200OK)]
+    [HttpGet("GetStoreById/{id}", Name = "GetStoreById")]
+    [ProducesResponseType(typeof(StoreResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Store>> GetStoreById(int id)
+    public async Task<ActionResult<StoreResponse>> GetStoreById(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -50,11 +51,11 @@ public class StoreController : ApiControllerBase
 
         if (store is null) return NotFound($"Could not found the store with the Id::{id}");
 
-        return store;
+        return Ok(_mapper.Map<StoreResponse>(store));
     }
 
-    [HttpPost("Create")]
-    [ProducesResponseType(typeof(Store), StatusCodes.Status302Found)]
+    [HttpPost("CreateStore")]
+    [ProducesResponseType(typeof(StoreResponse), StatusCodes.Status302Found)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateStore([FromBody] CreateStoreRequest storeDto)
     {
@@ -67,7 +68,7 @@ public class StoreController : ApiControllerBase
         return RedirectToRoute(nameof(GetStoreById), new { id = store.Id });
     }
 
-    [HttpPut("Edit/{id}")]
+    [HttpPut("EditStore/{id}")]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -88,7 +89,7 @@ public class StoreController : ApiControllerBase
         return NoContent();
     }
 
-    [HttpDelete("Delete/{id}")]
+    [HttpDelete("DeleteStore/{id}")]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -103,10 +104,10 @@ public class StoreController : ApiControllerBase
         return NoContent();
     }
 
-    [HttpPost("IncreaseProduct")]
+    [HttpPost("IncreaseProductInStore")]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    public async Task<IActionResult> IncreaseProduct(int storeId, int productId)
+    public async Task<IActionResult> IncreaseProductInStore(int storeId, int productId)
     {
         if (storeId < 1 || productId < 1) return BadRequest("Invalid id");
 
@@ -117,10 +118,10 @@ public class StoreController : ApiControllerBase
         return Ok("Product increase successfully");
     }
 
-    [HttpPost("DecreaseProduct")]
+    [HttpPost("DecreaseProductInStore")]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    public async Task<IActionResult> DecreaseProduct(int storeId, int productId)
+    public async Task<IActionResult> DecreaseProductInStore(int storeId, int productId)
     {
         if (storeId < 1 || productId < 1) return BadRequest("Invalid id");
 
@@ -131,11 +132,11 @@ public class StoreController : ApiControllerBase
         return Ok("Product decrease successfully");
     }
 
-    [HttpGet("GetStoreWithProducts/{id}")]
+    [HttpGet("GetStoreWithProduct/{id}")]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(StoreResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<StoreResponse>> GetStoreWithProductsAsync(int id)
+    [ProducesResponseType(typeof(StoreWithProductResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<StoreWithProductResponse>> GetStoreWithProduct(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -154,6 +155,6 @@ public class StoreController : ApiControllerBase
 
         if (storeProducts is null || !storeProducts.Any()) return NotFound("Could not found products in the store");
 
-        return Ok(new StoreResponse(store, storeProducts));
+        return Ok(new StoreWithProductResponse(_mapper.Map<StoreResponse>(store), storeProducts));
     }
 }

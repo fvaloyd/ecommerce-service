@@ -5,9 +5,9 @@ public class RemoveProductTests
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
 
-    readonly string endPointPath = "api/basket/removeproduct?productId=";
+    readonly string endPointPath = "api/basket/RemoveProductFromBasket?productId=";
 
-    readonly string addProductPath = "api/basket/addproduct?productId="; 
+    readonly string addProductPath = "api/basket/AddProductToBasket?productId="; 
 
     public RemoveProductTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -21,7 +21,7 @@ public class RemoveProductTests
         int unExistingProductId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(endPointPath + unExistingProductId.ToString());
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(endPointPath + unExistingProductId);
         
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -35,10 +35,10 @@ public class RemoveProductTests
 
         var product = db.Products.First();
 
-        var _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(addProductPath + product.Id.ToString(), null);
+        var _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(addProductPath + product.Id, null);
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(endPointPath + product.Id.ToString());
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(endPointPath + product.Id);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

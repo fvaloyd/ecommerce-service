@@ -5,7 +5,8 @@ public class AddProductTests
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
 
-    readonly string endPointPath = "api/basket/addproduct?productId=";
+    readonly string endPointPath = "api/basket/AddProductToBasket?productId=";
+    const string DeleteProductFromBasketPath = "api/basket/RemoveProductFromBasket?productId=";
 
     public AddProductTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -19,7 +20,7 @@ public class AddProductTests
         var invalidProductId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + invalidProductId.ToString(), null);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + invalidProductId, null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -33,10 +34,10 @@ public class AddProductTests
 
         int validProductId = Db.Products.Select(p => p.Id).First();
 
-        _ = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync($"api/basket/removeproduct?productId={validProductId}");
+        _ = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(DeleteProductFromBasketPath + validProductId);
     
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + validProductId.ToString(), null);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + validProductId, null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -50,10 +51,10 @@ public class AddProductTests
 
         int validProductId = Db.Products.Select(p => p.Id).First();
 
-        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + validProductId.ToString(), null);
+        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + validProductId, null);
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + validProductId.ToString(), null);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + validProductId, null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);

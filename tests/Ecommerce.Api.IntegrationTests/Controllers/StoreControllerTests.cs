@@ -8,7 +8,15 @@ public class StoreControllerTests
 {
     private readonly BaseIntegrationTest _baseIntegrationTest;
 
-    readonly string endpointPath = "api/store/";
+    const string endpointPath = "api/store/";
+    const string GetStoreWithProductPath = $"{endpointPath}GetStoreWithProduct/";
+    const string DecreaseProductInStorePath = $"{endpointPath}DecreaseProductInStore?";
+    const string IncreaseProductInStorePath = $"{endpointPath}IncreaseProductInStore?";
+    const string DeleteStorePath = $"{endpointPath}DeleteStore/";
+    const string EditStorePath = $"{endpointPath}EditStore/";
+    const string CreateStorePath = $"{endpointPath}CreateStore/";
+    const string GetStoreByIdPath = $"{endpointPath}GetStoreById/";
+    const string GetAllStoresPath = $"{endpointPath}GetAllStores/";
 
     public StoreControllerTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -16,10 +24,10 @@ public class StoreControllerTests
     }
 
     [Fact]
-    public async Task GetAll_ShouldReturnOkWithAListOfStores()
+    public async Task GetAllStores_ShouldReturnOkWithAListOfStores()
     {
         // Arrange
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(endpointPath + "getall");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetAllStoresPath);
 
         // Act
         var readResponse = await response.Content.ReadAsStringAsync();
@@ -33,33 +41,33 @@ public class StoreControllerTests
     }
 
     [Fact]
-    public async Task GetById_ShouldReturnBadRequest_WhenInvalidIdIsSent()
+    public async Task GetStoreById_ShouldReturnBadRequest_WhenInvalidIdIsSent()
     {
         // Arrange
         var invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(endpointPath + $"getbyid/{invalidId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetStoreByIdPath + invalidId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task GetById_ShouldReturnNotFound_WhenUnExistingIdIsSent()
+    public async Task GetStoreById_ShouldReturnNotFound_WhenUnExistingIdIsSent()
     {
         // Arrange
         var unExistinId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(endpointPath + $"getbyid/{unExistinId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetStoreByIdPath + unExistinId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task GetById_ShouldReturnOk_WhenValidIdIsSent()
+    public async Task GetStoreById_ShouldReturnOk_WhenValidIdIsSent()
     {
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
@@ -67,7 +75,7 @@ public class StoreControllerTests
         var storeId = db.Stores.Select(s => s.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(endpointPath + $"getbyid/{storeId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetStoreByIdPath + storeId);
 
         var readResponse = await response.Content.ReadAsStringAsync();
 
@@ -80,7 +88,7 @@ public class StoreControllerTests
     }
 
     [Fact]
-    public async Task Create_ShouldReturnBadRequest_WhenInvalidStoreIsSent()
+    public async Task CreateStore_ShouldReturnBadRequest_WhenInvalidStoreIsSent()
     {
         // Arrange
         string invalidStoreName = "";
@@ -88,27 +96,27 @@ public class StoreControllerTests
         CreateStoreRequest dto = new(invalidStoreName, true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endpointPath + "create", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(CreateStorePath, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task Create_ShouldReturnRedirect_WhenValidCreateStoreRequestIsSent()
+    public async Task CreateStore_ShouldReturnRedirect_WhenValidCreateStoreRequestIsSent()
     {
         // Arrange
         CreateStoreRequest dto = new("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endpointPath + "create", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(CreateStorePath, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
     }
 
     [Fact]
-    public async Task Edit_ShouldReturnBadRequest_WhenInvalidIdIsSent()
+    public async Task EditStore_ShouldReturnBadRequest_WhenInvalidIdIsSent()
     {
         // Arrange
         int invalidId = 0;
@@ -116,14 +124,14 @@ public class StoreControllerTests
         EditStoreRequest dto = new("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endpointPath + $"edit/{invalidId}", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditStorePath + invalidId, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task Edit_ShouldReturnNotFound_WhenUnExistingIdIsSent()
+    public async Task EditStore_ShouldReturnNotFound_WhenUnExistingIdIsSent()
     {
         // Arrange
         int unExistingId = 100_000_000;
@@ -131,14 +139,14 @@ public class StoreControllerTests
         EditStoreRequest dto = new("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endpointPath + $"edit/{unExistingId}", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditStorePath + unExistingId, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task Edit_ShouldReturnNoContent_WhenValidIdIsSent()
+    public async Task EditStore_ShouldReturnNoContent_WhenValidIdIsSent()
     {
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
@@ -148,72 +156,72 @@ public class StoreControllerTests
         EditStoreRequest dto = new("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endpointPath + $"edit/{storeId}", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditStorePath + storeId, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 
     [Fact]
-    public async Task Delete_ShouldReturnBadRequest_WhenInvalidIdIsSent()
+    public async Task DeleteStore_ShouldReturnBadRequest_WhenInvalidIdIsSent()
     {
         // Arrange
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endpointPath + $"delete/{invalidId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteStorePath + invalidId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task Delete_ShouldReturnBadRequest_WhenUnExistingIdIsSent()
+    public async Task DeleteStore_ShouldReturnBadRequest_WhenUnExistingIdIsSent()
     {
         // Arrange
         int unExistingId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endpointPath + $"delete/{unExistingId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteStorePath + unExistingId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task Delete_ShouldReturnNoContent_WhenValidIdIsSent()
+    public async Task DeleteStore_ShouldReturnNoContent_WhenValidIdIsSent()
     {
         // Arrange
         CreateStoreRequest dto = new("test", true);
 
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
 
-        _ = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endpointPath + "create", dto);
+        _ = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(CreateStorePath, dto);
 
         var storeId = db.Stores.OrderBy(s => s).Select(s => s.Id).Last();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endpointPath + $"delete/{storeId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteStorePath + storeId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 
     [Fact]
-    public async Task IncreaseProduct_ShouldReturnBadRequest_WhenInvalidIdIsSent()
+    public async Task IncreaseProductInStore_ShouldReturnBadRequest_WhenInvalidIdIsSent()
     {
         // Arrange
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(endpointPath + $"increaseProduct?storeId={invalidId}&productId={invalidId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(IncreaseProductInStorePath +  $"storeId={invalidId}&productId={invalidId}", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task IncreaseProduct_ShouldReturnBadRequest_WhenTheStoreDoesnHaveTheSpecificProduct()
+    public async Task IncreaseProductInStore_ShouldReturnBadRequest_WhenTheStoreDoesnHaveTheSpecificProduct()
     {
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
@@ -223,14 +231,14 @@ public class StoreControllerTests
         int unExistingId = 100_100_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(endpointPath + $"increaseProduct?storeId={storeId}&productId={unExistingId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(IncreaseProductInStorePath + $"storeId={storeId}&productId={unExistingId}", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task IncreaseProduct_ShouldReturnOk_WhenStoreHaveTheSpecificProduct()
+    public async Task IncreaseProductInProduct_ShouldReturnOk_WhenStoreHaveTheSpecificProduct()
     {
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
@@ -240,27 +248,27 @@ public class StoreControllerTests
         var productId = db.Products.Select(p => p.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(endpointPath + $"increaseProduct?storeId={storeId}&productId={productId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(IncreaseProductInStorePath + $"storeId={storeId}&productId={productId}", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
-    public async Task DecreaseProduct_ShouldReturnBadRequest_WhenInvalidIdIsSent()
+    public async Task DecreaseProductInStore_ShouldReturnBadRequest_WhenInvalidIdIsSent()
     {
         // Arrange
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(endpointPath + $"decreaseProduct?storeId={invalidId}&productId={invalidId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(DecreaseProductInStorePath + $"storeId={invalidId}&productId={invalidId}", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task DecreaseProduct_ShouldReturnBadRequest_WhenTheStoreDoesnHaveTheSpecificProduct()
+    public async Task DecreaseProductInStore_ShouldReturnBadRequest_WhenTheStoreDoesnHaveTheSpecificProduct()
     {
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
@@ -270,14 +278,14 @@ public class StoreControllerTests
         int unExistingId = 100_100_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(endpointPath + $"decreaseProduct?storeId={storeId}&productId={unExistingId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(DecreaseProductInStorePath + $"storeId={storeId}&productId={unExistingId}", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task DecreaseProduct_ShouldReturnOk_WhenTheStoreHaveTheSpecificProduct()
+    public async Task DecreaseProductInStore_ShouldReturnOk_WhenTheStoreHaveTheSpecificProduct()
     {
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
@@ -287,40 +295,40 @@ public class StoreControllerTests
         var productId = db.Products.Select(p => p.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(endpointPath + $"decreaseProduct?storeId={storeId}&productId={productId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(DecreaseProductInStorePath + $"storeId={storeId}&productId={productId}", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
-    public async Task GetStoreWithProducts_ShouldReturnBadRequest_WhenInvalidIdIsSent()
+    public async Task GetStoreWithProduct_ShouldReturnBadRequest_WhenInvalidIdIsSent()
     {
         // Arrange
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(endpointPath + $"GetStoreWithProducts/{invalidId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetStoreWithProductPath + invalidId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task GetStoreWithProducts_ShouldReturnNotFound_WhenUnExistingIdIsSent()
+    public async Task GetStoreWithProduct_ShouldReturnNotFound_WhenUnExistingIdIsSent()
     {
         // Arrange
         int unExistingId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(endpointPath + $"GetStoreWithProducts/{unExistingId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetStoreWithProductPath + unExistingId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task GetStoreWithProducts_ShouldReturnOk_WhenValidIdIsSent()
+    public async Task GetStoreWithProduct_ShouldReturnOk_WhenValidIdIsSent()
     {
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
@@ -328,11 +336,11 @@ public class StoreControllerTests
         var storeId = db.Stores.Select(s => s.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(endpointPath + $"GetStoreWithProducts/{storeId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetStoreWithProductPath + storeId);
 
         var readResponse = await response.Content.ReadAsStringAsync();
 
-        var store = JsonConvert.DeserializeObject<StoreResponse>(readResponse);
+        var store = JsonConvert.DeserializeObject<StoreWithProductResponse>(readResponse);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

@@ -5,9 +5,9 @@ public class IncreaseProductQuantityTests
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
 
-    readonly string endPointPath = "api/basket/increaseproductquantity?productId=";
+    readonly string endPointPath = "api/basket/IncreaseProductQuantityInBasket?productId=";
 
-    readonly string addProductEndPointPath = "api/basket/addproduct?productId=";
+    readonly string addProductEndPointPath = "api/basket/AddProductToBasket?productId=";
 
     public IncreaseProductQuantityTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -21,7 +21,7 @@ public class IncreaseProductQuantityTests
         int invalidProductId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + invalidProductId.ToString(), null);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + invalidProductId, null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -35,10 +35,10 @@ public class IncreaseProductQuantityTests
 
         int validProductId = db.Products.Select(p => p.Id).First();
 
-        var _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(addProductEndPointPath + validProductId.ToString(), null);
+        var _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(addProductEndPointPath + validProductId, null);
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + validProductId.ToString(), null);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(endPointPath + validProductId, null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

@@ -1,7 +1,5 @@
 using Ecommerce.Api.Dtos.Product;
 
-using Microsoft.AspNetCore.Http;
-
 namespace Ecommerce.Api.IntegrationTests.Controllers;
 
 [Collection("BaseIntegrationTestCollection")]
@@ -9,7 +7,12 @@ public class ProductControllerTests
 {
     private readonly BaseIntegrationTest _baseIntegrationTest;
 
-    readonly string endpointPath = "api/product/";
+    const string endpointPath = "api/product";
+
+    const string GetAllProductsPath = $"{endpointPath}/getallproducts/";
+    const string GetProductByIdPath = $"{endpointPath}/getproductbyid/";
+    const string EditProductPath = $"{endpointPath}/editproduct/";
+    const string DeleteProductPath = $"{endpointPath}/deleteproduct/";
 
     public ProductControllerTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -17,10 +20,10 @@ public class ProductControllerTests
     }
 
     [Fact]
-    public async Task GetAll_ShouldReturnOkWithAListOfProduct()
+    public async Task GetAllProducts_ShouldReturnOkWithAListOfProduct()
     {
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endpointPath + "getall");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetAllProductsPath);
 
         var responseRead = await response.Content.ReadAsStringAsync();
 
@@ -33,33 +36,33 @@ public class ProductControllerTests
     }
 
     [Fact]
-    public async Task GetById_ShouldReturnBadRequest_WhenInvalidIdIsSent()
+    public async Task GetProductById_ShouldReturnBadRequest_WhenInvalidIdIsSent()
     {
         // Arrange
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endpointPath + $"getbyid/{invalidId}");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetProductByIdPath + invalidId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task GetById_ShouldReturnNotFound_WhenUnExistingIdIsSent()
+    public async Task GetProductById_ShouldReturnNotFound_WhenUnExistingIdIsSent()
     {
         // Arrange
         int unExistingId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endpointPath + $"getbyid/{unExistingId}");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetProductByIdPath + unExistingId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
     
     [Fact]
-    public async Task GetById_ShouldReturnOk_WhenValidIdIsSent()
+    public async Task GetProductById_ShouldReturnOk_WhenValidIdIsSent()
     {
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
@@ -67,7 +70,7 @@ public class ProductControllerTests
         var productId = db.Products.Select(p => p.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endpointPath + $"getbyid/{productId}");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetProductByIdPath + productId);
 
         var responseRead = await response.Content.ReadAsStringAsync();
 
@@ -80,7 +83,7 @@ public class ProductControllerTests
     }
 
     [Fact]
-    public async Task Edit_ShouldReturnBadRequest_WhenInvalidIdIsSent()
+    public async Task EditProduct_ShouldReturnBadRequest_WhenInvalidIdIsSent()
     {
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
@@ -94,14 +97,14 @@ public class ProductControllerTests
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endpointPath + $"edit/{invalidId}", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditProductPath + invalidId, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task Edit_ShouldReturnNotFound_WhenUnExistingIdIsSent()
+    public async Task EditProduct_ShouldReturnNotFound_WhenUnExistingIdIsSent()
     {
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
@@ -115,14 +118,14 @@ public class ProductControllerTests
         int unExistingId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endpointPath + $"edit/{unExistingId}", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditProductPath + unExistingId, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task Edit_ShouldReturnOk_WhenValidIdIsSent()
+    public async Task EditProduct_ShouldReturnOk_WhenValidIdIsSent()
     {
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
@@ -136,40 +139,40 @@ public class ProductControllerTests
         EditProductRequest dto = new("test", 100f, brandId, categoryId);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endpointPath + $"edit/{productId}", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditProductPath + productId, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
-    public async Task Delete_ShouldReturnBadRequest_WhenInvalidIdIsSent()
+    public async Task DeleteProduct_ShouldReturnBadRequest_WhenInvalidIdIsSent()
     {
         // Arrange
         var invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endpointPath + $"delete/{invalidId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteProductPath + invalidId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task Delete_ShouldReturnNotFound_WhenUnExistingIdIsSent()
+    public async Task DeleteProduct_ShouldReturnNotFound_WhenUnExistingIdIsSent()
     {
         // Arrange
         var unExistingId = 100_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endpointPath + $"delete/{unExistingId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteProductPath + unExistingId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task Delete_ShouldReturnOK_WhenValidIdIsSent()
+    public async Task DeleteProduct_ShouldReturnOK_WhenValidIdIsSent()
     {
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
@@ -177,7 +180,7 @@ public class ProductControllerTests
         var productId = db.Products.Select(p => p.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endpointPath + $"delete/{productId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteProductPath + productId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

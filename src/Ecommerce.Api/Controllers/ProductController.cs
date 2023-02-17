@@ -34,19 +34,18 @@ public class ProductController : ApiControllerBase
         _db = db;
     }
 
-    [HttpGet("GetAll")]
-    [ProducesResponseType(typeof(List<Product>), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IEnumerable<ProductResponse>>> GetAllProducts()
+    [HttpGet("GetAllProducts")]
+    [ProducesResponseType(typeof(List<ProductResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<ProductResponse>>> GetAllProducts()
     {
-        // var productsDto = await _db.Products.Include(p => p.Category).Include(p => p.Brand).Select(p => _mapper.Map<ProductResponse>(p)).ToListAsync();
         var productsDto = await _db.Products.Include(p => p.Category).Include(p => p.Brand).ProjectTo<ProductResponse>(_mapper.ConfigurationProvider).ToListAsync();
         return productsDto;
     }
 
-    [HttpGet("GetById/{id}", Name = "GetProductById")]
+    [HttpGet("GetProductById/{id}", Name = "GetProductById")]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Product), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ProductResponse>> GetProductById(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
@@ -58,10 +57,10 @@ public class ProductController : ApiControllerBase
         return _mapper.Map<ProductResponse>(product);
     }
 
-    [HttpPost("Create")]
+    [HttpPost("CreateProduct")]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(Product), StatusCodes.Status302Found)]
+    [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status302Found)]
     public async Task<IActionResult> CreateProduct([FromForm] CreateProductRequest productDto)
     {
         if (productDto.StoreId < 1) return BadRequest("Need to provide the Id of the store to which this product belongs");
@@ -83,7 +82,7 @@ public class ProductController : ApiControllerBase
           : (IActionResult)RedirectToRoute(nameof(GetProductById), new { id = product.Id });
     }
 
-    [HttpPut("Edit/{id}")]
+    [HttpPut("EditProduct/{id}", Name = "EditProduct")]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -105,7 +104,7 @@ public class ProductController : ApiControllerBase
         return Ok("Product edited successfully");
     }
 
-    [HttpDelete("Delete/{id}")]
+    [HttpDelete("DeleteProduct/{id}", Name = "DeleteProduct")]
     [Authorize(Roles = UserRoles.Admin)]
     public async Task<IActionResult> DeleteProduct(int id)
     {

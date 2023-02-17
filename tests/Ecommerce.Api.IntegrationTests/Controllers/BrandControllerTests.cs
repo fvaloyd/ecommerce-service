@@ -1,3 +1,4 @@
+using Ecommerce.Api.Dtos.Brand;
 using Ecommerce.APi.Dtos.Brand;
 using Ecommerce.Core.Entities;
 
@@ -8,8 +9,14 @@ public class BrandController
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
 
-    readonly string endPointPath = "api/brand/";
-    
+    const string endPointPath = "api/brand/";
+
+    const string GetAllBrandsPath = $"{endPointPath}GetAllBrands/";
+    const string GetBrandByIdPath = $"{endPointPath}GetBrandById/";
+    const string CreateBrandPath = $"{endPointPath}CreateBrand/";
+    const string EditBrandPath = $"{endPointPath}EditBrand/";
+    const string DeleteBrandPath = $"{endPointPath}DeleteBrand/";
+
     public BrandController(BaseIntegrationTest baseIntegrationTest)
     {
         _baseIntegrationTest = baseIntegrationTest;
@@ -19,11 +26,11 @@ public class BrandController
     public async Task GetAllBrands_ShouldReturnAListOfBrands()
     {
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath + "getall");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetAllBrandsPath);
     
         var responseReaded = await response.Content.ReadAsStringAsync();
         
-        List<Brand> listOfBrands = JsonConvert.DeserializeObject<List<Brand>>(responseReaded);
+        List<BrandResponse> listOfBrands = JsonConvert.DeserializeObject<List<BrandResponse>>(responseReaded);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -38,7 +45,7 @@ public class BrandController
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath + $"getbyid/{invalidId}");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetBrandByIdPath + invalidId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -51,7 +58,7 @@ public class BrandController
         int randomId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath + $"getbyid/{randomId}");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetBrandByIdPath + randomId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -66,7 +73,7 @@ public class BrandController
         var dbBrand = db.Brands.First();
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(endPointPath + $"getbyid/{dbBrand.Id}");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetBrandByIdPath + dbBrand.Id);
         
         var responseReaded = await response.Content.ReadAsStringAsync();
         
@@ -85,7 +92,7 @@ public class BrandController
         CreateBrandRequest validDto = new("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(endPointPath + "create", validDto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(CreateBrandPath, validDto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Found);
@@ -100,7 +107,7 @@ public class BrandController
         EditBrandRequest dto = new(default!, default);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endPointPath + $"edit/{invalidId}", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditBrandPath + invalidId, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -115,7 +122,7 @@ public class BrandController
         EditBrandRequest dto = new("", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endPointPath + $"edit/{randomId}", dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditBrandPath + randomId, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -132,7 +139,7 @@ public class BrandController
         EditBrandRequest brandDto = new("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(endPointPath + $"edit/{dbBrand.Id}", brandDto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditBrandPath + dbBrand.Id, brandDto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
@@ -145,7 +152,7 @@ public class BrandController
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endPointPath + $"delete/{invalidId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteBrandPath + invalidId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -158,7 +165,7 @@ public class BrandController
         int randomId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endPointPath + $"delete/{randomId}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteBrandPath + randomId);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -173,7 +180,7 @@ public class BrandController
         var dbBrand = db.Brands.OrderBy(b => b).Last();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(endPointPath + $"delete/{dbBrand.Id}");
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteBrandPath + dbBrand.Id);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);

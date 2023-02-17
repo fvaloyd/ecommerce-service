@@ -6,7 +6,9 @@ public class PaymentControllerTests
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
 
-    readonly string endPointPath = "api/payment/";
+    const string endPointPath = "api/payment/";
+    const string PayPath = $"{endPointPath}pay";
+    const string AddProductToBasketPath = "api/basket/AddProductToBasket?productId=";
 
     public PaymentControllerTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -20,7 +22,7 @@ public class PaymentControllerTests
         var card = new PayRequest("3434343434343434", "11", "2023", "314");
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsJsonAsync(endPointPath + "pay", card);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsJsonAsync(PayPath, card);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -36,10 +38,10 @@ public class PaymentControllerTests
 
         var productId = db.Products.Select(p => p.Id).First();
 
-        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync($"api/basket/addproduct?productId={productId}", null);
+        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductToBasketPath + productId, null);
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsJsonAsync(endPointPath + "pay", card);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsJsonAsync(PayPath, card);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

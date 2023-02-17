@@ -28,23 +28,23 @@ public class BasketController : ApiControllerBase
         _currentUserService = currentUserService;
     }
 
-    [HttpPost("AddProduct")]
-    public async Task<IActionResult> AddProduct(int productId)
+    [HttpPost("AddProductToBasket")]
+    public async Task<IActionResult> AddProductToBasket(int productId)
         => await _basketService.AddProductAsync(productId, _currentUserService.UserId!).ToActionResult();
 
-    [HttpPost("IncreaseProductQuantity")]
-    public async Task<IActionResult> IncreaseProductQuantity(int productId)
+    [HttpPost("IncreaseProductQuantityInBasket")]
+    public async Task<IActionResult> IncreaseProductQuantityInBasket(int productId)
         => await _basketService.IncreaseProduct(productId, _currentUserService.UserId!).ToActionResult();
 
-    [HttpPost("DecreaseProductQuantity")]
-    public async Task<IActionResult> DecreaseProductQuantity(int productId)
+    [HttpPost("DecreaseProductQuantityInBasket")]
+    public async Task<IActionResult> DecreaseProductQuantityInBasket(int productId)
         => await _basketService.DecreaseProduct(productId, _currentUserService.UserId!).ToActionResult();
 
-    [HttpDelete("RemoveProduct")]
-    public async Task<IActionResult> RemoveProduct(int productId)
+    [HttpDelete("RemoveProductFromBasket")]
+    public async Task<IActionResult> RemoveProductFromBasket(int productId)
         => await _basketService.RemoveProduct(productId, _currentUserService.UserId!).ToActionResult();
 
-    [HttpGet("GetAllProduct")]
+    [HttpGet("GetAllProductInBasket")]
     public async Task<ActionResult<BasketResponse>> GetAllProduct()
     {
         var userId = _currentUserService.UserId;
