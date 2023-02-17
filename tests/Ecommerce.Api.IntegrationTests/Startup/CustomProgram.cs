@@ -22,6 +22,16 @@ internal class EcommerceProgram : WebApplicationFactory<Program>
     }
     protected override IHost CreateHost(IHostBuilder builder)
     {
+        builder.ConfigureAppConfiguration(configurationBuilder =>
+        {
+            var integrationConfig = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.test.json")
+                .AddEnvironmentVariables()
+                .Build();
+
+            configurationBuilder.AddConfiguration(integrationConfig);
+        });
+
         builder.ConfigureServices((builder, services) => {
 
             services.Remove<DbContextOptions<EcommerceDbContext>>()

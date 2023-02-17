@@ -25,6 +25,7 @@ public class BaseIntegrationTest : IAsyncLifetime
     private IConfiguration _configuration = null!;
 
     private Respawner _respawner = null!;
+    private Respawner _respawnerHangFire = null!;
 
     public async Task InitializeAsync()
     {
@@ -48,6 +49,8 @@ public class BaseIntegrationTest : IAsyncLifetime
                 "__EFMigrationsHistory"
             }
         });
+        
+        _respawnerHangFire = await Respawner.CreateAsync(_configuration.GetConnectionString("HangfireConnection")!);
     }
 
     private static async Task<HttpClient> CreateCustomHttpClient(EcommerceProgram program, HttpClient httpClient, LoginRequest user)
@@ -67,6 +70,9 @@ public class BaseIntegrationTest : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await _respawner.ResetAsync(_configuration.GetConnectionString("TestConnection")!);
+        var task1 = _respawner.ResetAsync(_configuration.GetConnectionString("TestConnection")!);
+        var task2 = _respawnerHangFire.ResetAsync(_configuration.GetConnectionString("HangfireConnection")!);
+
+        await Task.WhenAll(task1, task2);
     }
 }
