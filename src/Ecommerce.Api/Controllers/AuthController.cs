@@ -138,15 +138,15 @@ public class AuthController : ApiControllerBase
 
         string accessToken = await _tokenService.CreateToken(user);
 
-        string RefreshToken = _tokenService.CreateRefreshToken();
+        string refreshToken = _tokenService.CreateRefreshToken();
 
-        user.RefreshToken = RefreshToken;
+        user.RefreshToken = refreshToken;
 
-        user.RefreshTokenExpireTime = DateTime.Now.AddHours(3);
+        user.RefreshTokenExpireTime = DateTime.Now.AddHours(5);
 
         await _userManager.UpdateAsync(user);
 
-        return Ok(new AuthenticateResponse(AccessToken: accessToken, RefreshToken: RefreshToken));
+        return Ok(new AuthenticateResponse(AccessToken: accessToken, RefreshToken: refreshToken));
     }
 
     [HttpPost("logout")]
