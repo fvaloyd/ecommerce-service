@@ -133,6 +133,7 @@ public class StoreController : ApiControllerBase
     }
 
     [HttpGet("GetStoreWithProduct/{id}")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(StoreWithProductResponse), StatusCodes.Status200OK)]
