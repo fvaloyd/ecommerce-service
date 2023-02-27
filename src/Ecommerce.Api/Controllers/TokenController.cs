@@ -9,8 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.Api.Controllers;
 
-[Authorize]
-public class TokenController : ApiControllerBase 
+public class TokenController : ApiControllerBase
 {
     private readonly ITokenService _tokenService;
     private readonly UserManager<ApplicationUser> _userManager;
