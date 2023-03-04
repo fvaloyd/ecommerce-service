@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Ecommerce.Api.Dtos.Product;
 using Francisvac.Result;
 using AutoMapper.QueryableExtensions;
+using Ecommerce.Application.Common.Models;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -157,5 +158,26 @@ public class StoreController : ApiControllerBase
         if (storeProducts is null || !storeProducts.Any()) return NotFound("Could not found products in the store");
 
         return Ok(new StoreWithProductResponse(_mapper.Map<StoreResponse>(store), storeProducts));
+    }
+
+    [HttpGet("GetStoreWithProductPaginated")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(StoreWithProductResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetStoreWithProductPaginated([FromQuery] Pagination pagination, string? categoryName, string? productName)
+    {
+        var result = await _storeService.StoreWithProductPaginated(pagination, categoryName, productName);
+
+        if (!result.IsSuccess)
+        {
+            return result.ToActionResult();
+        }
+        
+        return Ok(new StoreWithProductResponse(
+            Store: _mapper.Map<StoreResponse>(result.Data.First().Store),
+            Products: _mapper
+                        .Map<List<ProductResponse>>(result.Data.Select(ps => 
+                                _mapper.Map<ProductResponse>(ps.Product)))
+        ));
     }
 }

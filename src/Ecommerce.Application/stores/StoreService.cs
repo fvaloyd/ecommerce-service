@@ -99,11 +99,15 @@ public class StoreService : IStoreService
 
         if (!string.IsNullOrEmpty(categoryName))
         {
+            // We want the page number to be 1 if a filter is apply
+            // TODO: Create a PaginatedList to manage the PageNumber and PageTotal
+            pagination.PageNumber = 1;
             storeWithProductQuery = storeWithProductQuery.Where(sp => sp.Product.Category.Name.Contains(categoryName));
         }
 
         if (!string.IsNullOrEmpty(productName))
         {
+            pagination.PageNumber = 1;
             storeWithProductQuery = storeWithProductQuery.Where(sp => sp.Product.Name.Contains(productName));
         }
 
@@ -113,6 +117,6 @@ public class StoreService : IStoreService
 
         return storeWithProductPaginated.Any()
                 ? storeWithProductPaginated
-                : Result.NotFound("Something goes wrong with the PageSize or PageNumber");
+                : Result.NotFound("Products not found");
     }
 }

@@ -2,6 +2,7 @@ namespace Ecommerce.Application.Common.Models;
 
 public class Pagination
 {
+    public Pagination(){}
     public Pagination(int pageSize, int pageNumber)
     {
         PageNumber = pageNumber;

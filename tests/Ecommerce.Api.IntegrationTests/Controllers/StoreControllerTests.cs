@@ -1,4 +1,5 @@
 using Ecommerce.Api.Dtos.Store;
+using Ecommerce.Application.Common.Models;
 using Ecommerce.Core.Entities;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers;
@@ -17,6 +18,8 @@ public class StoreControllerTests
     const string CreateStorePath = $"{endpointPath}CreateStore/";
     const string GetStoreByIdPath = $"{endpointPath}GetStoreById/";
     const string GetAllStoresPath = $"{endpointPath}GetAllStores/";
+    const string GetStoreWithProductPaginated = $"{endpointPath}GetStoreWithProductPaginated";
+
 
     public StoreControllerTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -348,5 +351,26 @@ public class StoreControllerTests
         store.Should().NotBeNull();
 
         store.Products.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task GetStoreWithProductPaginated_ShouldReturnOk_WhenValidPaginationIsSent()
+    {
+        // Arrange
+        Pagination pagination = new(3, 1);
+
+        // Act
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetStoreWithProductPaginated + $"?pageSize={pagination.PageSize}&pageNumber={pagination.PageNumber}&categoryName=te&productName=te");
+
+        var readResponse = await response.Content.ReadAsStringAsync();
+
+        var storeWithProduct = JsonConvert.DeserializeObject<StoreWithProductResponse>(readResponse);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        storeWithProduct.Should().NotBeNull();
+
+        storeWithProduct.Products.Should().NotBeNullOrEmpty();
     }
 }
