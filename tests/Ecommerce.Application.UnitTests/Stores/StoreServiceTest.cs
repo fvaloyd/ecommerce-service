@@ -1,3 +1,4 @@
+using Ecommerce.Application.Common.Models;
 using Ecommerce.Application.Data;
 using Ecommerce.Application.Stores;
 using Ecommerce.Core.Entities;
@@ -21,7 +22,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
     }
 
     [Fact]
-    public async Task AddProductAsync_ShouldReturnFalse_WhenTheStoreAlreadyHaveTheProduct()
+    public async Task AddProductAsync_ShouldReturnFailureResult_WhenTheStoreAlreadyHaveTheProduct()
     {
         // Arrange
         ProductStore productAlreadyInStore = TestData.ProductStores.FirstOrDefault(ps => ps.StoreId == 1)!;
@@ -36,7 +37,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
     }
 
     [Fact]
-    public async Task AddProductAsync_ShouldReturnTrue_WhenTheStoreDoesntHaveTheProduct()
+    public async Task AddProductAsync_ShouldReturnSuccessResult_WhenTheStoreDoesntHaveTheProduct()
     {
         // Arrange
         int productId = 100_000;
@@ -53,7 +54,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
     }
 
     [Fact]
-    public async Task DecreaseProductAsync_ShouldReturnFalse_WhenTheStoreDoesntHaveTheSpecificProduct()
+    public async Task DecreaseProductAsync_ShouldReturnNotFoundResult_WhenTheStoreDoesntHaveTheSpecificProduct()
     {
         // Arrange
         int productId = 100_000;
@@ -86,7 +87,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
     }
 
     [Fact]
-    public async Task DecreaseProductAsync_ShouldReturnTrue_WhenProductQuantityAreGreaterThanOne()
+    public async Task DecreaseProductAsync_ShouldReturnSuccessResult_WhenProductQuantityAreGreaterThanOne()
     {
         // Arrange
         var productStore = TestData.ProductStores.FirstOrDefault(ps => ps.Quantity > 1);
@@ -101,7 +102,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
     }
 
     [Fact]
-    public async void DeleteProductStoreRelation_ShouldFalse_WhenNotFoundProductStoreRelation()
+    public async void DeleteProductStoreRelation_ShouldNotFoundResult_WhenNotFoundProductStoreRelation()
     {
         // Arrange
         int storeIdWithNoProductRelated = 100_000;
@@ -116,7 +117,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
     }
 
     [Fact]
-    public async void DeleteProductStoreRelation_ShouldReturnTrue_WhenExistAProductStoreRelation()
+    public async void DeleteProductStoreRelation_ShouldReturnSuccessResult_WhenExistAProductStoreRelation()
     {
         // Arrange
         var storeWithRelatedProducts = TestData.Stores.FirstOrDefault(s => s.Id == 1);
@@ -131,7 +132,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
     } 
 
     [Fact]
-    public async Task IncreaseProductAsync_ShouldReturnFalse_WhenStoreDoesntHaveSpecificProduct()
+    public async Task IncreaseProductAsync_ShouldReturnNotFoundResult_WhenStoreDoesntHaveSpecificProduct()
     {
         // Arrange
         int productId = 100_000;
@@ -149,7 +150,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
     }
 
     [Fact]
-    public async Task IncreaseProductAsync_ShouldIncreaseQuantityPersistChangeAndReturnTrue_WhenStoreHaveTheSpecificProduct()
+    public async Task IncreaseProductAsync_ShouldIncreaseQuantityPersistChangeAndReturnSuccessResult_WhenStoreHaveTheSpecificProduct()
     {
         // Arrange
         var productStore = TestData.ProductStores.FirstOrDefault(ps => ps.StoreId== 1);
@@ -164,7 +165,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
     }
 
     [Fact]
-    public async Task DeleteStore_ShouldReturnFalse_WhenTheStoreDoesnExist()
+    public async Task DeleteStore_ShouldReturnResultNotFound_WhenTheStoreDoesnExist()
     {
         // Arrange
         int unExistingStoreId = 100_000;
@@ -180,7 +181,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
     }
 
     [Fact]
-    public async Task DeleteStore_ShouldReturnTrue_WhenValidStoreIdIsPassed()
+    public async Task DeleteStore_ShouldReturnResultSuccess_WhenValidStoreIdIsPassed()
     {
         // Arrange
         int storeId = TestData.Stores.FirstOrDefault(s => s.Id == 1)!.Id;
@@ -192,5 +193,41 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         
         // Assert
         result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task StoreWithProductsPaginated_ShouldReturnSuccessResult_WhenProductsAreFound()
+    {
+        // Arrange
+        Pagination pagination = new(pageSize: 3, pageNumber: 1);
+        string SearchProductName = "te";
+        string CategoryName = "te";
+
+        var service = new StoreService(_db);
+
+        // Act
+        Result<List<ProductStore>> result = await service.StoreWithProductPaginated(pagination, SearchProductName, CategoryName);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Data.Count.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task StoreWithProductsPaginated_ShouldReturnNotFoundResult_WhenNoProductFound()
+    {
+        // Arrange
+        Pagination pagination = new(pageSize: 100_000, pageNumber: 10);
+        string searchProductName = "te";
+        string categoryName = "te";
+
+        var service = new StoreService(_db);
+
+        // Act
+        Result<List<ProductStore>> result = await service.StoreWithProductPaginated(pagination, categoryName, searchProductName);
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
     }
 }

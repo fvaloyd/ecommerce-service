@@ -77,6 +77,8 @@ static class TestData
             Name = "test",
             BrandId = 1,
             CategoryId = 1,
+            Category = Categories.FirstOrDefault(c => c.Id == 1)!,
+            Brand = Brands.FirstOrDefault(b => b.Id == 1)!,
             Price = 100f
         },
         new Product()
@@ -85,22 +87,28 @@ static class TestData
             Name = "test2",
             BrandId = 1,
             CategoryId = 1,
+            Category = Categories.FirstOrDefault(c => c.Id == 1)!,
+            Brand = Brands.FirstOrDefault(b => b.Id == 1)!,
             Price = 200f
         },
         new Product()
         {
             Id = 3,
             Name = "test3",
-            BrandId = 1,
-            CategoryId = 1,
+            BrandId = 2,
+            CategoryId = 2,
+            Category = Categories.FirstOrDefault(c => c.Id == 2)!,
+            Brand = Brands.FirstOrDefault(b => b.Id == 2)!,
             Price = 300f
         },
         new Product()
         {
             Id = 4,
             Name = "test4",
-            BrandId = 1,
-            CategoryId = 1,
+            BrandId = 2,
+            CategoryId = 2,
+            Category = Categories.FirstOrDefault(c => c.Id == 2)!,
+            Brand = Brands.FirstOrDefault(b => b.Id == 2)!,
             Price = 400f
         },
         new Product()
@@ -109,6 +117,8 @@ static class TestData
             Name = "test5",
             BrandId = 1,
             CategoryId = 1,
+            Category = Categories.FirstOrDefault(c => c.Id == 1)!,
+            Brand = Brands.FirstOrDefault(b => b.Id == 1)!,
             Price = 400f
         }
     };
@@ -120,10 +130,16 @@ static class TestData
             Id = 1,
             Name = "test",
             State = true
+        },
+        new Category()
+        {
+            Id = 2,
+            Name = "test2",
+            State = true
         }
     };
 
-    public static List<Brand> Brands => new List<Brand> { new Brand() { Id = 1, Name = "test", State = true } };
+    public static List<Brand> Brands => new List<Brand> { new Brand() { Id = 1, Name = "test", State = true }, new Brand() { Id = 2, Name = "test2", State = true } };
 
     public static List<Basket> Baskets => new List<Basket>
     {

@@ -1,3 +1,5 @@
+using Ecommerce.Application.Common.Models;
+using Ecommerce.Core.Entities;
 using Francisvac.Result;
 
 namespace Ecommerce.Application.Stores;
@@ -9,4 +11,5 @@ public interface IStoreService
     Task<Result> DecreaseProductAsync(int productId, int storeId);
     Task<Result> DeleteProductStoreRelation(int storeId);
     Task<Result> DeleteStore(int storeId);
+    Task<Result<List<ProductStore>>> StoreWithProductPaginated(Pagination pagination, string? categoryName, string? productName);
 }
