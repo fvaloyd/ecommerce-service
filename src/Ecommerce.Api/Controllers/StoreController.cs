@@ -164,9 +164,9 @@ public class StoreController : ApiControllerBase
     [AllowAnonymous]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(StoreWithProductResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetStoreWithProductPaginated([FromQuery] Pagination pagination, string? categoryName, string? productName)
+    public async Task<IActionResult> GetStoreWithProductPaginated([FromQuery] Pagination pagination)
     {
-        var result = await _storeService.StoreWithProductPaginated(pagination, categoryName, productName);
+        var result = await _storeService.StoreWithProductPaginated(pagination);
 
         if (!result.IsSuccess)
         {

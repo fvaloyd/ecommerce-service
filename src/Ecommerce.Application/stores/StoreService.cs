@@ -89,27 +89,13 @@ public class StoreService : IStoreService
         return Result.Success("The product was increase successfully");
     }
 
-    public async Task<Result<List<ProductStore>>> StoreWithProductPaginated(Pagination pagination, string? categoryName, string? productName)
+    public async Task<Result<List<ProductStore>>> StoreWithProductPaginated(Pagination pagination)
     {
         var storeWithProductQuery = _db.ProductStores
                                     .Include(s => s.Store)
                                     .Include(ps => ps.Product).ThenInclude(p => p.Brand)
                                     .Include(ps => ps.Product).ThenInclude(p => p.Category)
                                     .AsQueryable();
-
-        if (!string.IsNullOrEmpty(categoryName))
-        {
-            // We want the page number to be 1 if a filter is apply
-            // TODO: Create a PaginatedList to manage the PageNumber and PageTotal
-            pagination.PageNumber = 1;
-            storeWithProductQuery = storeWithProductQuery.Where(sp => sp.Product.Category.Name.Contains(categoryName));
-        }
-
-        if (!string.IsNullOrEmpty(productName))
-        {
-            pagination.PageNumber = 1;
-            storeWithProductQuery = storeWithProductQuery.Where(sp => sp.Product.Name.Contains(productName));
-        }
 
         var storeWithProductPaginated = await storeWithProductQuery
                                                 .Paginate(pagination)

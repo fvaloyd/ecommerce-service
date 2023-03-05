@@ -200,13 +200,11 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
     {
         // Arrange
         Pagination pagination = new(pageSize: 3, pageNumber: 1);
-        string SearchProductName = "te";
-        string CategoryName = "te";
 
         var service = new StoreService(_db);
 
         // Act
-        Result<List<ProductStore>> result = await service.StoreWithProductPaginated(pagination, SearchProductName, CategoryName);
+        Result<List<ProductStore>> result = await service.StoreWithProductPaginated(pagination);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -222,7 +220,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        Result<List<ProductStore>> result = await service.StoreWithProductPaginated(pagination, string.Empty, string.Empty);
+        Result<List<ProductStore>> result = await service.StoreWithProductPaginated(pagination);
 
         // Assert
         result.IsSuccess.Should().BeFalse();
