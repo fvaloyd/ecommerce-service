@@ -45,10 +45,13 @@ The command should look like this:
 
 ## Hangfire
 
-The application needs a database for hangfire.
+The application needs two database for hangfire.
 
 ```sql
-CREATE DATABASE [HangfireTest]
+CREATE DATABASE [Hangfire]
+GO
+
+CREATE DATABASE [HangfireForTest]
 GO
 ```
 
