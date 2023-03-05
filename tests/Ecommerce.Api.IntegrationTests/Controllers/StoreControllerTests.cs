@@ -360,7 +360,7 @@ public class StoreControllerTests
         Pagination pagination = new(3, 1);
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetStoreWithProductPaginated + $"?pageSize={pagination.PageSize}&pageNumber={pagination.PageNumber}&categoryName=te&productName=te");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetStoreWithProductPaginated + $"?pageSize={pagination.PageSize}&pageNumber={pagination.PageNumber}");
 
         var readResponse = await response.Content.ReadAsStringAsync();
 
@@ -372,5 +372,18 @@ public class StoreControllerTests
         storeWithProduct.Should().NotBeNull();
 
         storeWithProduct.Products.Should().NotBeNullOrEmpty();
+    }
+    
+    [Fact]
+    public async Task GetStoreWithProductPaginated_ShouldReturnNotFound_WhenInValidPaginationIsSent()
+    {
+        // Arrange
+        Pagination pagination = new(100_000, 100);
+
+        // Act
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetStoreWithProductPaginated + $"?pageSize={pagination.PageSize}&pageNumber={pagination.PageNumber}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }
