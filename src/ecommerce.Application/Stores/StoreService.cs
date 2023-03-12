@@ -2,6 +2,7 @@ using Ecommerce.Application.Common.Models;
 using Ecommerce.Application.Data;
 using Ecommerce.Application.Extensions;
 using Ecommerce.Core.Entities;
+
 using Francisvac.Result;
 using Microsoft.EntityFrameworkCore;
 
@@ -89,24 +90,18 @@ public class StoreService : IStoreService
         return Result.Success("The product was increase successfully");
     }
 
-    public async Task<Result<PaginatedList<ProductStore>>> StoreWithProductPaginated(Pagination pagination)
+    public async Task<Result<PaginatedList<Product>>> ProductsPaginated(Pagination pagination)
     {
-        var storeWithProductQuery = _db.ProductStores
+        var productPaginated = await _db.ProductStores
                                     .AsNoTracking()
                                     .Include(s => s.Store)
                                     .Include(ps => ps.Product).ThenInclude(p => p.Brand)
                                     .Include(ps => ps.Product).ThenInclude(p => p.Category)
-                                    .AsQueryable();
+                                    .Select(ps => ps.Product)
+                                    .PaginatedListAsync(pagination);
 
-        // var storeWithProductPaginated = await storeWithProductQuery
-        //                                         .Paginate(pagination)
-        //                                         .ToListAsync();
-
-        var storeWithProductPaginated = await storeWithProductQuery
-                                                .PaginatedListAsync(pagination);
-
-        return storeWithProductPaginated.Items.Any()
-                ? storeWithProductPaginated
+        return productPaginated.Items.Any()
+                ? productPaginated
                 : Result.NotFound("Products not found");
     }
 }
