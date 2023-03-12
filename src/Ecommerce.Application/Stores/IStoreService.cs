@@ -11,5 +11,5 @@ public interface IStoreService
     Task<Result> DecreaseProductAsync(int productId, int storeId);
     Task<Result> DeleteProductStoreRelation(int storeId);
     Task<Result> DeleteStore(int storeId);
-    Task<Result<PaginatedList<ProductStore>>> StoreWithProductPaginated(Pagination pagination);
+    Task<Result<PaginatedList<Product>>> ProductsPaginated(Pagination pagination);
 }
