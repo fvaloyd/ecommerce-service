@@ -1,4 +1,6 @@
-namespace Ecommerce.Api.Dtos.Product;
+using Microsoft.AspNetCore.Http;
+
+namespace Ecommerce.Contracts.Products;
 
 public record CreateProductRequest
 (

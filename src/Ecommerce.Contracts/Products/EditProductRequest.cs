@@ -1,4 +1,4 @@
-namespace Ecommerce.Api.Dtos.Product;
+namespace Ecommerce.Contracts.Products;
 
 public record EditProductRequest
 (

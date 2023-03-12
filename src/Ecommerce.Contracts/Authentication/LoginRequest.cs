@@ -1,2 +1,2 @@
-namespace Ecommerce.Api.Dtos.Authentication;
+namespace Ecommerce.Contracts.Authentication;
 public record LoginRequest(string Email, string Password);

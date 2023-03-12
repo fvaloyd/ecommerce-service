@@ -1,4 +1,4 @@
-namespace Ecommerce.Api.Dtos.Store;
+using Ecommerce.Contracts.Products;
 
 public record CreateStoreRequest
 (

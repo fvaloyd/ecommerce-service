@@ -1,6 +1,6 @@
-using Ecommerce.Api.Dtos.Product;
+using Ecommerce.Contracts.Products;
 
-namespace Ecommerce.Api.Dtos.Store;
+namespace Ecommerce.Contracts.Stores;
 
 public record StoreWithProductResponse(
     StoreResponse Store,

@@ -1,3 +1,3 @@
-namespace Ecommerce.APi.Dtos.Brand;
+namespace Ecommerce.Contracts.Brands;
 
 public record EditBrandRequest(string Name, bool State);
