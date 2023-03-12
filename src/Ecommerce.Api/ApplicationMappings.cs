@@ -6,6 +6,7 @@ using Ecommerce.Core.Entities;
 
 using AutoMapper;
 using Ecommerce.Api.Dtos.Brand;
+using Ecommerce.Application.Common.Models;
 
 namespace Ecommerce.Api;
 
