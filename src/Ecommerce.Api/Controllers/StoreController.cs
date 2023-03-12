@@ -12,6 +12,7 @@ using Ecommerce.Api.Dtos.Product;
 using Francisvac.Result;
 using AutoMapper.QueryableExtensions;
 using Ecommerce.Application.Common.Models;
+using Ecommerce.Application.Extensions;
 
 namespace Ecommerce.Api.Controllers;
 
@@ -163,21 +164,24 @@ public class StoreController : ApiControllerBase
     [HttpGet("GetStoreWithProductPaginated")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(StoreWithProductResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PaginatedList<ProductStore>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetStoreWithProductPaginated([FromQuery] Pagination pagination)
     {
-        var result = await _storeService.StoreWithProductPaginated(pagination);
+        int DEFAULT_STORE = 1;
+        var result = await _db.ProductStores
+                                .Include(p => p.Store)
+                                .Include(p => p.Product).ThenInclude(p => p.Brand)
+                                .Include(ps => ps.Product).ThenInclude(p => p.Category)
+                                .Where(ps => ps.Store.Id == DEFAULT_STORE)
+                                .Select(ps => ps.Product)
+                                .ProjectTo<ProductResponse>(_mapper.ConfigurationProvider)
+                                .PaginatedListAsync(pagination);
 
-        if (!result.IsSuccess)
+        if (result.Items.Any())
         {
-            return result.ToActionResult();
+            return Ok(result);
         }
-        
-        return Ok(new StoreWithProductResponse(
-            Store: _mapper.Map<StoreResponse>(result.Data.First().Store),
-            Products: _mapper
-                        .Map<List<ProductResponse>>(result.Data.Select(ps => 
-                                _mapper.Map<ProductResponse>(ps.Product)))
-        ));
+
+        return NotFound("Could not found products");
     }
 }

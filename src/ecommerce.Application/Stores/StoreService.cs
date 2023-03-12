@@ -89,19 +89,23 @@ public class StoreService : IStoreService
         return Result.Success("The product was increase successfully");
     }
 
-    public async Task<Result<List<ProductStore>>> StoreWithProductPaginated(Pagination pagination)
+    public async Task<Result<PaginatedList<ProductStore>>> StoreWithProductPaginated(Pagination pagination)
     {
         var storeWithProductQuery = _db.ProductStores
+                                    .AsNoTracking()
                                     .Include(s => s.Store)
                                     .Include(ps => ps.Product).ThenInclude(p => p.Brand)
                                     .Include(ps => ps.Product).ThenInclude(p => p.Category)
                                     .AsQueryable();
 
-        var storeWithProductPaginated = await storeWithProductQuery
-                                                .Paginate(pagination)
-                                                .ToListAsync();
+        // var storeWithProductPaginated = await storeWithProductQuery
+        //                                         .Paginate(pagination)
+        //                                         .ToListAsync();
 
-        return storeWithProductPaginated.Any()
+        var storeWithProductPaginated = await storeWithProductQuery
+                                                .PaginatedListAsync(pagination);
+
+        return storeWithProductPaginated.Items.Any()
                 ? storeWithProductPaginated
                 : Result.NotFound("Products not found");
     }

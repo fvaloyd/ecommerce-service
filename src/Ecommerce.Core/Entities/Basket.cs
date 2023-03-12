@@ -8,13 +8,15 @@ public class Basket
     public int Quantity { get; set; }
     public float Total { get; set; }
 
-    public void IncreaseProductQuantity(int quantity = 1)
+    public int IncreaseProductQuantity(int quantity = 1)
     {
-        if (quantity < 1) throw new ArgumentException("Amount to increase could not be less than 1");
+        if (quantity < 1) throw new ArgumentOutOfRangeException("The argument could not be less than 1");
 
         Quantity += quantity;
 
         ReloadTotal();
+
+        return quantity;
     }
 
     private void ReloadTotal()
@@ -24,15 +26,17 @@ public class Basket
         Total = Product.Price * Quantity;
     }
 
-    public void DecreaseProductQuantity(int amountToDecrease = 1)
+    public int DecreaseProductQuantity(int amountToDecrease = 1)
     {
-        if (Quantity == 0) throw new InvalidOperationException("The Basket doesn't have a quantity to decrease");
+        if (amountToDecrease < 1) throw new ArgumentOutOfRangeException("The argument could not be less than 1");
 
-        if (amountToDecrease < 1) throw new ArgumentException("Amount to decrease could not be less than 1");
+        if (Quantity == 0) return 0;
 
         Quantity -= amountToDecrease;
 
         ReloadTotal();
+
+        return amountToDecrease;
     }
 
     public Basket(){}
