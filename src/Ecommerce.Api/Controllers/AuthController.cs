@@ -2,13 +2,13 @@ using Ecommerce.Core.Enums;
 using Ecommerce.Infrastructure.Jwt;
 using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Identity;
-using Ecommerce.Api.Dtos.Authentication;
+using Ecommerce.Api.BackgroundJobs;
+using Ecommerce.Contracts.Authentication;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Hangfire;
-using Ecommerce.Api.BackgroundJobs;
 
 namespace Ecommerce.Api.Controllers;
 

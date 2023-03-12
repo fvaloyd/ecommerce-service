@@ -1,4 +1,5 @@
-using Ecommerce.Api.Dtos.Category;
+using Ecommerce.Contracts.Categories;
+using Ecommerce.Contracts.Endpoints;
 using Ecommerce.Core.Entities;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers;
@@ -8,12 +9,12 @@ public class CategoryControllerTests
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
 
-    const string endPointPath = "api/category/";
-    const string GetAllCategoriesPath = $"{endPointPath}GetAllCategories/";
-    const string GetCategoryByIdPath = $"{endPointPath}GetCategoryById/";
-    const string CreateCategoryPath = $"{endPointPath}CreateCategory/";
-    const string EditCategoryPath = $"{endPointPath}EditCategory/";
-    const string DeleteCategoryPath = $"{endPointPath}DeleteCategory/";
+    const string ApiRoot = "api/";
+    const string GetAllCategoriesPath = $"{ApiRoot}{CategoryEndpoints.GetAllCategories}";
+    const string GetCategoryByIdPath = $"{ApiRoot}{CategoryEndpoints.GetCategoryById}";
+    const string CreateCategoryPath = $"{ApiRoot}{CategoryEndpoints.CreateCategory}";
+    const string EditCategoryPath = $"{ApiRoot}{CategoryEndpoints.EditCategory}";
+    const string DeleteCategoryPath = $"{ApiRoot}{CategoryEndpoints.DeleteCategory}";
 
 
     public CategoryControllerTests(BaseIntegrationTest baseIntegrationTest)

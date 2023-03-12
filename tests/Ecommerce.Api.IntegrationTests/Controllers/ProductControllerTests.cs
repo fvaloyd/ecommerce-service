@@ -1,4 +1,5 @@
-using Ecommerce.Api.Dtos.Product;
+using Ecommerce.Contracts.Endpoints;
+using Ecommerce.Contracts.Products;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers;
 
@@ -7,12 +8,12 @@ public class ProductControllerTests
 {
     private readonly BaseIntegrationTest _baseIntegrationTest;
 
-    const string endpointPath = "api/product";
+    const string ApiRoot = $"api/";
 
-    const string GetAllProductsPath = $"{endpointPath}/getallproducts/";
-    const string GetProductByIdPath = $"{endpointPath}/getproductbyid/";
-    const string EditProductPath = $"{endpointPath}/editproduct/";
-    const string DeleteProductPath = $"{endpointPath}/deleteproduct/";
+    const string GetAllProductsPath = $"{ApiRoot}{ProductEndpoints.GetAllProducts}";
+    const string GetProductByIdPath = $"{ApiRoot}{ProductEndpoints.GetProductById}";
+    const string EditProductPath = $"{ApiRoot}{ProductEndpoints.EditProduct}";
+    const string DeleteProductPath = $"{ApiRoot}{ProductEndpoints.DeleteProduct}";
 
     public ProductControllerTests(BaseIntegrationTest baseIntegrationTest)
     {

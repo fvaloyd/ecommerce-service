@@ -1,6 +1,6 @@
 using Ecommerce.Infrastructure.Jwt;
-using Ecommerce.Api.Dtos.Authentication;
 using Ecommerce.Infrastructure.Identity;
+using Ecommerce.Contracts.Authentication;
 
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;

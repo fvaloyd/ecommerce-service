@@ -1,9 +1,9 @@
 using Ecommerce.Core.Enums;
 using Ecommerce.Core.Entities;
-using Ecommerce.Api.Dtos.Product;
 using Ecommerce.Application.Data;
 using Ecommerce.Application.Products;
 using Ecommerce.Infrastructure.CloudImageStorage;
+using Ecommerce.Contracts.Products;
 
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +11,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Francisvac.Result;
 using AutoMapper.QueryableExtensions;
+using Ecommerce.Contracts.Endpoints;
 
 namespace Ecommerce.Api.Controllers;
 
+// public class ProductController : ApiControllerBase
 [Authorize]
-public class ProductController : ApiControllerBase
+[Route("api/")]
+[ApiController]
+public class ProductController : ControllerBase
 {
     private readonly IProductService _productService;
     private readonly IMapper _mapper;
@@ -34,19 +38,21 @@ public class ProductController : ApiControllerBase
         _db = db;
     }
 
-    [HttpGet("GetAllProducts")]
+    [HttpGet]
+    [Route(ProductEndpoints.GetAllProducts)]
     [ProducesResponseType(typeof(List<ProductResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ProductResponse>>> GetAllProducts()
+    public async Task<ActionResult<List<ProductResponse>>> Get()
     {
         var productsDto = await _db.Products.Include(p => p.Category).Include(p => p.Brand).ProjectTo<ProductResponse>(_mapper.ConfigurationProvider).ToListAsync();
         return productsDto;
     }
 
-    [HttpGet("GetProductById/{id}", Name = "GetProductById")]
+    [HttpGet]
+    [Route(ProductEndpoints.GetProductById + "{id}")]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ProductResponse>> GetProductById(int id)
+    public async Task<ActionResult<ProductResponse>> Get(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -57,11 +63,12 @@ public class ProductController : ApiControllerBase
         return _mapper.Map<ProductResponse>(product);
     }
 
-    [HttpPost("CreateProduct")]
+    [HttpPost]
+    [Route(ProductEndpoints.CreateProduct)]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status302Found)]
-    public async Task<IActionResult> CreateProduct([FromForm] CreateProductRequest productDto)
+    public async Task<IActionResult> Create([FromForm] CreateProductRequest productDto)
     {
         if (productDto.StoreId < 1) return BadRequest("Need to provide the Id of the store to which this product belongs");
 
@@ -79,15 +86,16 @@ public class ProductController : ApiControllerBase
 
         return !relatedToStoreResult.IsSuccess
           ? relatedToStoreResult.ToActionResult()
-          : (IActionResult)RedirectToRoute(nameof(GetProductById), new { id = product.Id });
+          : (IActionResult)RedirectToAction("Get", new { id = product.Id });
     }
 
-    [HttpPut("EditProduct/{id}", Name = "EditProduct")]
+    [HttpPut]
+    [Route(ProductEndpoints.EditProduct + "{id}")]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    public async Task<IActionResult> EditProduct(int id, [FromBody] EditProductRequest productDto)
+    public async Task<IActionResult> Edit(int id, [FromBody] EditProductRequest productDto)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -104,9 +112,10 @@ public class ProductController : ApiControllerBase
         return Ok("Product edited successfully");
     }
 
-    [HttpDelete("DeleteProduct/{id}", Name = "DeleteProduct")]
+    [HttpDelete]
+    [Route(ProductEndpoints.DeleteProduct + "{id}")]
     [Authorize(Roles = UserRoles.Admin)]
-    public async Task<IActionResult> DeleteProduct(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
 

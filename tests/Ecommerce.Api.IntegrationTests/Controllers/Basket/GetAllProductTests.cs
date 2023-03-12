@@ -1,4 +1,4 @@
-using Ecommerce.Api.Dtos.Basket;
+using Ecommerce.Contracts.Baskets;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers.Basket;
 

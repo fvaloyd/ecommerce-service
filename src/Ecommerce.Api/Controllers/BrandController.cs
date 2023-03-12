@@ -1,19 +1,22 @@
 using Ecommerce.Core.Enums;
 using Ecommerce.Core.Entities;
-using Ecommerce.APi.Dtos.Brand;
 using Ecommerce.Application.Data;
+using Ecommerce.Contracts.Brands;
 
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using Ecommerce.Api.Dtos.Brand;
 using AutoMapper.QueryableExtensions;
+using Ecommerce.Contracts.Endpoints;
 
 namespace Ecommerce.Api.Controllers;
 
+// public class BrandController : ApiControllerBase
 [Authorize]
-public class BrandController : ApiControllerBase
+[ApiController]
+[Route("api/")]
+public class BrandController : ControllerBase
 {
     private readonly IEcommerceDbContext _db;
     private readonly IMapper _mapper;
@@ -26,20 +29,22 @@ public class BrandController : ApiControllerBase
         _db = db;
     }
 
-    [HttpGet("GetAllBrands")]
+    [HttpGet]
+    [Route(BrandEndpoints.GetAllBrands)]
     [ProducesResponseType(typeof(List<BrandResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<BrandResponse>>> GetAllBrands()
+    public async Task<ActionResult<List<BrandResponse>>> Get()
     {
         List<BrandResponse> brands = await _db.Brands.ProjectTo<BrandResponse>(_mapper.ConfigurationProvider).ToListAsync();
 
         return Ok(brands);
     }
 
-    [HttpGet("GetBrandById/{id}", Name = "GetBrandById")]
+    [HttpGet]
+    [Route(BrandEndpoints.GetBrandById + "{id}")]
     [ProducesResponseType(typeof(BrandResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<BrandResponse>> GetBrandById(int id)
+    public async Task<ActionResult<BrandResponse>> Get(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -50,11 +55,12 @@ public class BrandController : ApiControllerBase
         return Ok(_mapper.Map<BrandResponse>(brand));
     }
 
-    [HttpPost("CreateBrand")]
+    [HttpPost]
+    [Route(BrandEndpoints.CreateBrand)]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(BrandResponse), StatusCodes.Status302Found)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateBrand([FromBody] CreateBrandRequest brandRequest)
+    public async Task<IActionResult> Create([FromBody] CreateBrandRequest brandRequest)
     {
         Brand brand = _mapper.Map<Brand>(brandRequest);
 
@@ -64,15 +70,16 @@ public class BrandController : ApiControllerBase
 
         if (brand.Id < 1) return BadRequest("Could not create the brand");
 
-        return RedirectToRoute(nameof(GetBrandById), new { id = brand.Id });
+        return RedirectToAction("Get", new { id = brand.Id });
     }
 
-    [HttpPut("EditBrand/{id}", Name = "EditBrand")]
+    [HttpPut]
+    [Route(BrandEndpoints.EditBrand + "{id}")]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> EditBrand(int id, [FromBody] EditBrandRequest brandRequest)
+    public async Task<IActionResult> Edit(int id, [FromBody] EditBrandRequest brandRequest)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -88,12 +95,13 @@ public class BrandController : ApiControllerBase
         return NoContent();
     }
 
-    [HttpDelete("DeleteBrand/{id}", Name = "DeleteBrand")]
+    [HttpDelete]
+    [Route(BrandEndpoints.DeleteBrand + "{id}")]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteBrand(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
 

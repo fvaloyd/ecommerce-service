@@ -4,6 +4,7 @@ using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Payment.Models;
 using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Api.BackgroundJobs;
 
 using Stripe;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Hangfire;
-using Ecommerce.Api.BackgroundJobs;
 
 namespace Ecommerce.Api.Controllers;
 

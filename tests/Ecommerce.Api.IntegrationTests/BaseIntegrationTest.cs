@@ -1,10 +1,10 @@
-using Ecommerce.Api.Dtos.Authentication;
 using Ecommerce.Api.IntegrationTests.Startup;
 
 using Respawn;
 using Respawn.Graph;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Ecommerce.Contracts.Authentication;
 
 namespace Ecommerce.Api.IntegrationTests;
 

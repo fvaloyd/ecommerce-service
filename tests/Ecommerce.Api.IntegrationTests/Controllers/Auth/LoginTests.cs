@@ -1,4 +1,4 @@
-using Ecommerce.Api.Dtos.Authentication;
+using Ecommerce.Contracts.Authentication;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers.Auth;
 
