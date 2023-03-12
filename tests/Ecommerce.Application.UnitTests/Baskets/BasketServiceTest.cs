@@ -235,6 +235,25 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
     }
 
     [Fact]
+    public async Task DecreaseProduct_ShouldRemoveTheProduct_WhenTheQuantityIsEqualToZero()
+    {
+        // Arrange
+        var basket = TestData.Baskets.First(b => b.Quantity == 0);
+
+        storeServiceMock.Setup(ss => ss.IncreaseProductAsync(It.IsAny<int>(), It.IsAny<int>()).Result).Returns(Result.Success(""));
+
+        var service = new BasketService(storeServiceMock.Object, _db);
+
+        // Act
+        Result result = await service.DecreaseProduct(basket.ProductId, basket.ApplicationUserId);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
+        result.Response.Message.Should().Contain("remove");
+    }
+
+    [Fact]
     public async Task GetAllProducts_ShouldReturnNotFoundResult_WhenTheUserHasNoProductsInBasket()
     {
         // Arrange
