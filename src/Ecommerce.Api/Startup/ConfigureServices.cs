@@ -10,12 +10,12 @@ public static class ConfigureServices
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddSingleton<GlobalFilters>();
+        services.AddSingleton<ApiExceptionFilter>();
 
         services.AddSwaggerConfiguration(); 
 
         services.AddControllers(config => {
-            config.Filters.Add(typeof(GlobalFilters));
+            config.Filters.Add(typeof(ApiExceptionFilter));
         });
 
         services.AddEndpointsApiExplorer();
