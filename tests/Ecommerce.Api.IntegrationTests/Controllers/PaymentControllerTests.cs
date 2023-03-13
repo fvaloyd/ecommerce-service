@@ -1,4 +1,5 @@
-﻿using Ecommerce.Infrastructure.Payment.Models;
+﻿using Ecommerce.Contracts.Endpoints;
+using Ecommerce.Infrastructure.Payment.Models;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers;
 [Collection("BaseIntegrationTestCollection")]
@@ -6,9 +7,9 @@ public class PaymentControllerTests
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
 
-    const string endPointPath = "api/payment/";
-    const string PayPath = $"{endPointPath}pay";
-    const string AddProductToBasketPath = "api/basket/AddProductToBasket?productId=";
+    const string ApiRoot = "api/";
+    const string PayPath = $"{ApiRoot}{PaymentEndpoints.Pay}";
+    const string AddProductToBasketPath = $"{ApiRoot}{BasketEndpoints.AddProduct}";
 
     public PaymentControllerTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -22,7 +23,7 @@ public class PaymentControllerTests
         var card = new PayRequest("3434343434343434", "11", "2023", "314");
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsJsonAsync(PayPath, card);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(PayPath, card);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);

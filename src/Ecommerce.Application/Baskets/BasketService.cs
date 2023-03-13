@@ -93,8 +93,15 @@ public class BasketService : IBasketService
         Result increaseProductFromStoreResult = await _storeService.IncreaseProductAsync(productId: productId, storeId: store.Id);
 
         if (!increaseProductFromStoreResult.IsSuccess) return increaseProductFromStoreResult;
+        
+        int amountDecreased = userBasket.DecreaseProductQuantity();
 
-        userBasket.DecreaseProductQuantity();
+        if (amountDecreased == 0 || userBasket.Quantity == 0)
+        {
+            _db.Baskets.Remove(userBasket);
+            await _db.SaveChangesAsync();
+            return Result.Success("The product was remove from the basket");
+        }
 
         if (await _db.SaveChangesAsync() < 1) return Result.Error("Changes were not saved to the database.");
 

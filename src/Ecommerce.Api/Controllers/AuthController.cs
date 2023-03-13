@@ -2,17 +2,20 @@ using Ecommerce.Core.Enums;
 using Ecommerce.Infrastructure.Jwt;
 using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Identity;
-using Ecommerce.Api.Dtos.Authentication;
+using Ecommerce.Api.BackgroundJobs;
+using Ecommerce.Contracts.Authentication;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Hangfire;
-using Ecommerce.Api.BackgroundJobs;
+using Ecommerce.Contracts.Endpoints;
 
 namespace Ecommerce.Api.Controllers;
 
-public class AuthController : ApiControllerBase
+[ApiController]
+[Route("api/")]
+public class AuthController : ControllerBase
 {
     private readonly IStripeService _stripeService;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -33,7 +36,8 @@ public class AuthController : ApiControllerBase
         _backgroundJobClient = backgroundJobClient;
     }
 
-    [HttpPost("register")]
+    [HttpPost]
+    [Route(AuthEndpoints.Register)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
@@ -64,7 +68,8 @@ public class AuthController : ApiControllerBase
         return Ok("Check you mail message and confirm your email");
     }
 
-    [HttpGet("confirm-email", Name = "ConfirmEmail")]
+    [HttpGet]
+    [Route(AuthEndpoints.ConfirmEmail)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -81,7 +86,8 @@ public class AuthController : ApiControllerBase
         return Ok("Email confirm successfully");
     }
 
-    [HttpPost("register-admin")]
+    [HttpPost]
+    [Route(AuthEndpoints.RegisterAdmin)]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
@@ -113,7 +119,8 @@ public class AuthController : ApiControllerBase
         return Ok("User created successfully");
     }
 
-    [HttpPost("login")]
+    [HttpPost]
+    [Route(AuthEndpoints.Login)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(AuthenticateResponse), StatusCodes.Status200OK)]
@@ -149,7 +156,8 @@ public class AuthController : ApiControllerBase
         return Ok(new AuthenticateResponse(AccessToken: accessToken, RefreshToken: refreshToken));
     }
 
-    [HttpPost("logout")]
+    [HttpPost]
+    [Route(AuthEndpoints.Logout)]
     [Authorize]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<IActionResult> LogOut()

@@ -1,5 +1,5 @@
-using Ecommerce.Api.Dtos.Brand;
-using Ecommerce.APi.Dtos.Brand;
+using Ecommerce.Contracts.Brands;
+using Ecommerce.Contracts.Endpoints;
 using Ecommerce.Core.Entities;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers;
@@ -9,13 +9,13 @@ public class BrandController
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
 
-    const string endPointPath = "api/brand/";
+    const string ApiRoot = "api/";
 
-    const string GetAllBrandsPath = $"{endPointPath}GetAllBrands/";
-    const string GetBrandByIdPath = $"{endPointPath}GetBrandById/";
-    const string CreateBrandPath = $"{endPointPath}CreateBrand/";
-    const string EditBrandPath = $"{endPointPath}EditBrand/";
-    const string DeleteBrandPath = $"{endPointPath}DeleteBrand/";
+    const string GetAllBrandsPath = $"{ApiRoot}{BrandEndpoints.GetAllBrands}";
+    const string GetBrandByIdPath = $"{ApiRoot}{BrandEndpoints.GetBrandById}";
+    const string CreateBrandPath = $"{ApiRoot}{BrandEndpoints.CreateBrand}";
+    const string EditBrandPath = $"{ApiRoot}{BrandEndpoints.EditBrand}";
+    const string DeleteBrandPath = $"{ApiRoot}{BrandEndpoints.DeleteBrand}";
 
     public BrandController(BaseIntegrationTest baseIntegrationTest)
     {

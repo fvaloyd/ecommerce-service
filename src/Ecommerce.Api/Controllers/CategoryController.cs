@@ -1,7 +1,8 @@
 using Ecommerce.Core.Enums;
 using Ecommerce.Core.Entities;
 using Ecommerce.Application.Data;
-using Ecommerce.Api.Dtos.Category;
+using Ecommerce.Contracts.Categories;
+using Ecommerce.Contracts.Endpoints;
 
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -11,8 +12,11 @@ using AutoMapper.QueryableExtensions;
 
 namespace Ecommerce.Api.Controllers;
 
+// public class CategoryController : ApiControllerBase
 [Authorize]
-public class CategoryController : ApiControllerBase
+[Route("api/")]
+[ApiController]
+public class CategoryController : ControllerBase
 {
     private readonly IEcommerceDbContext _db;
     private readonly IMapper _mapper;
@@ -25,9 +29,10 @@ public class CategoryController : ApiControllerBase
         _db = db;
     }
 
-    [HttpGet("GetAllCategories")]
+    [HttpGet]
+    [Route(CategoryEndpoints.GetAllCategories)]
     [ProducesResponseType(typeof(List<CategoryResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<CategoryResponse>>> GetAllCategories()
+    public async Task<ActionResult<List<CategoryResponse>>> Get()
     {
         List<CategoryResponse> categories = await _db.Categories
                                                 .ProjectTo<CategoryResponse>(_mapper.ConfigurationProvider)
@@ -36,11 +41,12 @@ public class CategoryController : ApiControllerBase
         return Ok(categories);
     }
 
-    [HttpGet("GetCategoryById/{id}", Name = "GetCategoryById")]
+    [HttpGet]
+    [Route(CategoryEndpoints.GetCategoryById + "{id}")]
     [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<CategoryResponse>> GetCategoryById(int id)
+    public async Task<ActionResult<CategoryResponse>> Get(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -51,11 +57,12 @@ public class CategoryController : ApiControllerBase
         return Ok(_mapper.Map<CategoryResponse>(category));
     }
 
-    [HttpPost("CreateCategory")]
+    [HttpPost]
+    [Route(CategoryEndpoints.CreateCategory)]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status302Found)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest categoryRequest)
+    public async Task<IActionResult> Create([FromBody] CreateCategoryRequest categoryRequest)
     {
         Category category = _mapper.Map<Category>(categoryRequest);
 
@@ -65,15 +72,16 @@ public class CategoryController : ApiControllerBase
 
         if (category.Id < 1) return BadRequest("Could not create the category");
 
-        return RedirectToRoute(nameof(GetCategoryById), new {id = category.Id} );
+        return RedirectToAction("Get", new {id = category.Id} );
     }
 
-    [HttpPut("EditCategory/{id}")]
+    [HttpPut]
+    [Route(CategoryEndpoints.EditCategory + "{id}")]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> EditCategory(int id, [FromBody] EditCategoryRequest categoryRequest)
+    public async Task<IActionResult> Edit(int id, [FromBody] EditCategoryRequest categoryRequest)
     {
         if (id < 1) return BadRequest("Invalid id");
 
@@ -90,12 +98,13 @@ public class CategoryController : ApiControllerBase
         return NoContent();
     }
 
-    [HttpDelete("DeleteCategory/{id}")]
+    [HttpDelete]
+    [Route(CategoryEndpoints.DeleteCategory + "{id}")]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteCategory(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
 

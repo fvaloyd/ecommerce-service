@@ -1,5 +1,7 @@
-using Ecommerce.Api.Dtos.Store;
 using Ecommerce.Application.Common.Models;
+using Ecommerce.Contracts.Endpoints;
+using Ecommerce.Contracts.Products;
+using Ecommerce.Contracts.Stores;
 using Ecommerce.Core.Entities;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers;
@@ -9,16 +11,18 @@ public class StoreControllerTests
 {
     private readonly BaseIntegrationTest _baseIntegrationTest;
 
-    const string endpointPath = "api/store/";
-    const string GetStoreWithProductPath = $"{endpointPath}GetStoreWithProduct/";
-    const string DecreaseProductInStorePath = $"{endpointPath}DecreaseProductInStore?";
-    const string IncreaseProductInStorePath = $"{endpointPath}IncreaseProductInStore?";
-    const string DeleteStorePath = $"{endpointPath}DeleteStore/";
-    const string EditStorePath = $"{endpointPath}EditStore/";
-    const string CreateStorePath = $"{endpointPath}CreateStore/";
-    const string GetStoreByIdPath = $"{endpointPath}GetStoreById/";
-    const string GetAllStoresPath = $"{endpointPath}GetAllStores/";
-    const string GetStoreWithProductPaginated = $"{endpointPath}GetStoreWithProductPaginated";
+    const string ApiRoot = "api/";
+    const string GetStoreWithProductPath = $"{ApiRoot}{StoreEndpoints.GetStoreWithProduct}";
+    // const string IncreaseProductInStorePath = $"{endpointPath}IncreaseProductInStore?";
+    // const string DecreaseProductInStorePath = $"{endpointPath}DecreaseProductInStore?";
+    const string DecreaseProductInStorePath = $"{ApiRoot}{StoreEndpoints.DecreaseProduct}";
+    const string IncreaseProductInStorePath = $"{ApiRoot}{StoreEndpoints.IncreaseProduct}";
+    const string DeleteStorePath = $"{ApiRoot}{StoreEndpoints.DeleteStore}";
+    const string EditStorePath = $"{ApiRoot}{StoreEndpoints.EditStore}";
+    const string CreateStorePath = $"{ApiRoot}{StoreEndpoints.CreateStore}";
+    const string GetStoreByIdPath = $"{ApiRoot}{StoreEndpoints.GetStoreById}";
+    const string GetAllStoresPath = $"{ApiRoot}{StoreEndpoints.GetAllStores}";
+    const string GetStoreWithProductPaginated = $"{ApiRoot}{StoreEndpoints.GetStoreWithProductPaginated}";
 
 
     public StoreControllerTests(BaseIntegrationTest baseIntegrationTest)
@@ -217,7 +221,7 @@ public class StoreControllerTests
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(IncreaseProductInStorePath +  $"storeId={invalidId}&productId={invalidId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(IncreaseProductInStorePath +  $"?storeId={invalidId}&productId={invalidId}", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -234,7 +238,7 @@ public class StoreControllerTests
         int unExistingId = 100_100_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(IncreaseProductInStorePath + $"storeId={storeId}&productId={unExistingId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(IncreaseProductInStorePath + $"?storeId={storeId}&productId={unExistingId}", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -251,7 +255,7 @@ public class StoreControllerTests
         var productId = db.Products.Select(p => p.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(IncreaseProductInStorePath + $"storeId={storeId}&productId={productId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(IncreaseProductInStorePath + $"?storeId={storeId}&productId={productId}", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -264,7 +268,7 @@ public class StoreControllerTests
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(DecreaseProductInStorePath + $"storeId={invalidId}&productId={invalidId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(DecreaseProductInStorePath + $"?storeId={invalidId}&productId={invalidId}", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -281,7 +285,7 @@ public class StoreControllerTests
         int unExistingId = 100_100_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(DecreaseProductInStorePath + $"storeId={storeId}&productId={unExistingId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(DecreaseProductInStorePath + $"?storeId={storeId}&productId={unExistingId}", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -298,7 +302,7 @@ public class StoreControllerTests
         var productId = db.Products.Select(p => p.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(DecreaseProductInStorePath + $"storeId={storeId}&productId={productId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(DecreaseProductInStorePath + $"?storeId={storeId}&productId={productId}", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -364,14 +368,14 @@ public class StoreControllerTests
 
         var readResponse = await response.Content.ReadAsStringAsync();
 
-        var storeWithProduct = JsonConvert.DeserializeObject<StoreWithProductResponse>(readResponse);
+        var paginatedProducts = JsonConvert.DeserializeObject<PaginatedList<ProductResponse>>(readResponse);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        storeWithProduct.Should().NotBeNull();
+        paginatedProducts.Should().NotBeNull();
 
-        storeWithProduct.Products.Should().NotBeNullOrEmpty();
+        paginatedProducts.Items.Should().NotBeNullOrEmpty();
     }
     
     [Fact]

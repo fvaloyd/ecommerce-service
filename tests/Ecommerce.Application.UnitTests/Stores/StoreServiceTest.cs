@@ -204,7 +204,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        Result<PaginatedList<ProductStore>> result = await service.StoreWithProductPaginated(pagination);
+        Result<PaginatedList<Product>> result = await service.ProductsPaginated(pagination);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -221,7 +221,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         var service = new StoreService(_db);
 
         // Act
-        Result<PaginatedList<ProductStore>> result = await service.StoreWithProductPaginated(pagination);
+        Result<PaginatedList<Product>> result = await service.ProductsPaginated(pagination);
 
         // Assert
         result.IsSuccess.Should().BeFalse();

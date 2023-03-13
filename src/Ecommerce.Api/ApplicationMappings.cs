@@ -1,12 +1,10 @@
-using Ecommerce.Api.Dtos.Category;
-using Ecommerce.Api.Dtos.Product;
-using Ecommerce.Api.Dtos.Store;
-using Ecommerce.APi.Dtos.Brand;
 using Ecommerce.Core.Entities;
+using Ecommerce.Contracts.Stores;
+using Ecommerce.Contracts.Products;
+using Ecommerce.Contracts.Brands;
+using Ecommerce.Contracts.Categories;
 
 using AutoMapper;
-using Ecommerce.Api.Dtos.Brand;
-using Ecommerce.Application.Common.Models;
 
 namespace Ecommerce.Api;
 

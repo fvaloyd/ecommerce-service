@@ -5,19 +5,6 @@ namespace Ecommerce.Core.UnitTests.Entities;
 public class BasketTest
 {
     [Fact]
-    public void IncreaseProductQuantity_ShouldThrowArgumentException_WhenInvalidQuanityIsPassed()
-    {
-        // Arrange
-        Basket basket = new();
-
-        // Act
-        Action act = () => basket.IncreaseProductQuantity(0);
-
-        // Assert
-        act.Should().Throw<ArgumentException>().WithMessage("Amount to increase could not be less than 1");
-    }
-
-    [Fact]
     public void IncreaseProductQuantity_ShouldIncreaseTheQuantity_WhenValidQuantityIsPassed()
     {
         // Arrange
@@ -33,30 +20,61 @@ public class BasketTest
     }
 
     [Fact]
-    public void DecreaseProductQuantity_ShouldThrowArgumentException_WhenInvalidQuantityIsPassed()
+    public void IncreaseProductQuantity_ShouldThrowArgumentOutOfRangeException_WhenInValidQuantityIsPassed()
     {
         // Arrange
+        int invalidAmountToIncrease = 0;
+        
+        Basket basket = new(){Product = new("test", 100f, 1, 1, "https://test.com")};
+
+        // Act
+        Func<int> result = () => basket.IncreaseProductQuantity(invalidAmountToIncrease);
+
+        // Assert
+        result.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
+    public void DecreaseProductQuantity_ShouldReturnDecreasedQuantity_WhenInvalidQuantityIsPassed()
+    {
+        // Arrange
+        int quantityToDecrease = 1;
         Basket basket = new() { Product = new("test", 100f, 1, 1, "https://test.com") };
 
         basket.IncreaseProductQuantity();
 
-        // Act
-        Action act = () => basket.DecreaseProductQuantity(0);
-
         // Assert
-        act.Should().Throw<ArgumentException>().WithMessage("Amount to decrease could not be less than 1");
+        var result = basket.DecreaseProductQuantity(quantityToDecrease);
+
+        // Act
+        result.Should().Be(quantityToDecrease);
+        basket.Quantity.Should().Be(0);
     }
 
     [Fact]
-    public void DecreaseProductQuantity_ShouldThrowInvalidOperationException_WhenTheProductDoesnHaveQuantity()
+    public void DecreaseProductQuantity_ShouldZero_WhenTheProductDoesnHaveQuantity()
     {
         // Arrange
+        Basket basketWithNoProductQuantity = new();
+
+        // Assert
+        int result = basketWithNoProductQuantity.DecreaseProductQuantity(1);
+
+        // Act
+        result.Should().Be(0);
+    }
+
+    [Fact]
+    public void DecreaseProductQuantity_ShouldThrowArgumentOutOfRangeException_WhenInvalidAmountToDecreaseIsSend()
+    {
+        // Arrange
+        int invalidAmountToDecrease = 0;
         Basket basket = new();
 
         // Assert
-        Action act = () => basket.DecreaseProductQuantity(1);
+        Func<int> result = () => basket.DecreaseProductQuantity(invalidAmountToDecrease);
 
         // Act
-        act.Should().Throw<InvalidOperationException>().WithMessage("The Basket doesn't have a quantity to decrease");
+        result.Should().Throw<ArgumentOutOfRangeException>();
     }
 }

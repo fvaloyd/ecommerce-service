@@ -4,6 +4,7 @@ using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Payment.Models;
 using Ecommerce.Application.Common.Interfaces;
+using Ecommerce.Api.BackgroundJobs;
 
 using Stripe;
 using Microsoft.AspNetCore.Mvc;
@@ -11,12 +12,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Hangfire;
-using Ecommerce.Api.BackgroundJobs;
+using Ecommerce.Contracts.Endpoints;
 
 namespace Ecommerce.Api.Controllers;
 
 [Authorize]
-public class PaymentController : ApiControllerBase
+[Route("api/")]
+[ApiController]
+public class PaymentController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IStripeService _stripeService;
@@ -38,10 +41,11 @@ public class PaymentController : ApiControllerBase
         _backgroundJobClient = backgroundJobClient;
     }
 
-    [HttpPost("refund")]
+    [HttpPost]
+    [Route(PaymentEndpoints.Refound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-    public async Task<IActionResult> RefundCharge(string chargeToken)
+    public async Task<IActionResult> Refund(string chargeToken)
     {
         Stripe.Refund refundToken = await _stripeService.CreateRefundToken(chargeToken);
 
@@ -55,10 +59,11 @@ public class PaymentController : ApiControllerBase
         });
     }
 
-    [HttpPost("pay")]
+    [HttpPost]
+    [Route(PaymentEndpoints.Pay)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-    public async Task<IActionResult> CreateOrder(PayRequest card)
+    public async Task<IActionResult> Pay(PayRequest card)
     {
         ApplicationUser? user = await GetUser();
 
