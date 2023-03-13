@@ -6,10 +6,13 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Ecommerce.Contracts.Endpoints;
 
 namespace Ecommerce.Api.Controllers;
 
-public class TokenController : ApiControllerBase
+[ApiController]
+[Route("api/")]
+public class TokenController : ControllerBase
 {
     private readonly ITokenService _tokenService;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -22,10 +25,11 @@ public class TokenController : ApiControllerBase
         _userManager = userManager;
     }
 
-    [HttpPost("refresh",Name = "refresh")]
+    [HttpPost]
+    [Route(TokenEndpoints.Refresh)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(AuthenticateResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult> RefreshToken([FromBody] RefreshTokenRequest apiToken)
+    public async Task<ActionResult> Refresh([FromBody] RefreshTokenRequest apiToken)
     {
         if (apiToken is null) return BadRequest("Invalid apiToken");
 
@@ -49,7 +53,8 @@ public class TokenController : ApiControllerBase
         return Ok(new AuthenticateResponse(RefreshToken: newRefreshToken, AccessToken: newAccessToken));
     }
 
-    [HttpPost("revoke")]
+    [HttpPost]
+    [Route(TokenEndpoints.Revoke)]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
