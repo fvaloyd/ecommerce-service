@@ -5,6 +5,7 @@ using Respawn.Graph;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ecommerce.Contracts.Authentication;
+using Ecommerce.Contracts.Endpoints;
 
 namespace Ecommerce.Api.IntegrationTests;
 
@@ -55,7 +56,7 @@ public class BaseIntegrationTest : IAsyncLifetime
 
     private static async Task<HttpClient> CreateCustomHttpClient(EcommerceProgram program, HttpClient httpClient, LoginRequest user)
     {
-        var httpResponse = await httpClient.PostAsJsonAsync("api/auth/login", user);
+        var httpResponse = await httpClient.PostAsJsonAsync("api/"+AuthEndpoints.Login, user);
         
         var httpResponseReadedAsString = await httpResponse.Content.ReadAsStringAsync();
         
