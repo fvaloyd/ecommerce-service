@@ -4,22 +4,19 @@ using Ecommerce.Application.Data;
 using Ecommerce.Application.Products;
 using Ecommerce.Infrastructure.CloudImageStorage;
 using Ecommerce.Contracts.Products;
+using Ecommerce.Contracts.Endpoints;
 
 using AutoMapper;
+using Francisvac.Result;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using Francisvac.Result;
 using AutoMapper.QueryableExtensions;
-using Ecommerce.Contracts.Endpoints;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.Api.Controllers;
 
-// public class ProductController : ApiControllerBase
 [Authorize]
-[Route("api/")]
-[ApiController]
-public class ProductController : ControllerBase
+public class ProductController : ApiControllerBase
 {
     private readonly IProductService _productService;
     private readonly IMapper _mapper;

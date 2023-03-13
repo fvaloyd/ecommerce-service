@@ -1,10 +1,9 @@
+using Ecommerce.Contracts.Endpoints;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.Api.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
-public class ApiControllerBase : ControllerBase
-{
-
-}
+[Route(ApiEndpoints.Root)]
+public class ApiControllerBase : ControllerBase {}

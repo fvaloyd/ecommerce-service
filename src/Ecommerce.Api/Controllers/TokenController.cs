@@ -1,4 +1,5 @@
 using Ecommerce.Infrastructure.Jwt;
+using Ecommerce.Contracts.Endpoints;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Contracts.Authentication;
 
@@ -6,13 +7,10 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
-using Ecommerce.Contracts.Endpoints;
 
 namespace Ecommerce.Api.Controllers;
 
-[ApiController]
-[Route("api/")]
-public class TokenController : ControllerBase
+public class TokenController : ApiControllerBase
 {
     private readonly ITokenService _tokenService;
     private readonly UserManager<ApplicationUser> _userManager;

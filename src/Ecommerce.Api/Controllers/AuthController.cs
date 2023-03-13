@@ -1,21 +1,19 @@
 using Ecommerce.Core.Enums;
+using Ecommerce.Api.BackgroundJobs;
 using Ecommerce.Infrastructure.Jwt;
+using Ecommerce.Contracts.Endpoints;
 using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Identity;
-using Ecommerce.Api.BackgroundJobs;
 using Ecommerce.Contracts.Authentication;
 
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
-using Hangfire;
-using Ecommerce.Contracts.Endpoints;
 
 namespace Ecommerce.Api.Controllers;
 
-[ApiController]
-[Route("api/")]
-public class AuthController : ControllerBase
+public class AuthController : ApiControllerBase
 {
     private readonly IStripeService _stripeService;
     private readonly UserManager<ApplicationUser> _userManager;

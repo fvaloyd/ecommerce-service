@@ -6,16 +6,14 @@ using Ecommerce.Contracts.Products;
 using Ecommerce.Contracts.Endpoints;
 
 using AutoMapper;
+using Francisvac.Result;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Francisvac.Result;
 
 namespace Ecommerce.Api.Controllers;
 
 [Authorize]
-[Route("api/")]
-[ApiController]
-public class BasketController : ControllerBase
+public class BasketController : ApiControllerBase
 {
     private readonly ICurrentUserService _currentUserService;
     private readonly IBasketService _basketService;

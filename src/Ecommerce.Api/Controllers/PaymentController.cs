@@ -1,25 +1,23 @@
 using Ecommerce.Core.Entities;
 using Ecommerce.Application.Data;
+using Ecommerce.Api.BackgroundJobs;
+using Ecommerce.Contracts.Endpoints;
 using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Payment.Models;
 using Ecommerce.Application.Common.Interfaces;
-using Ecommerce.Api.BackgroundJobs;
 
 using Stripe;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using Hangfire;
-using Ecommerce.Contracts.Endpoints;
 
 namespace Ecommerce.Api.Controllers;
 
 [Authorize]
-[Route("api/")]
-[ApiController]
-public class PaymentController : ControllerBase
+public class PaymentController : ApiControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IStripeService _stripeService;

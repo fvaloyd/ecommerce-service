@@ -5,21 +5,19 @@ using Ecommerce.Application.Stores;
 using Ecommerce.Application.Common.Models;
 using Ecommerce.Contracts.Products;
 using Ecommerce.Contracts.Stores;
+using Ecommerce.Contracts.Endpoints;
 
 using AutoMapper;
+using Francisvac.Result;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using Francisvac.Result;
 using AutoMapper.QueryableExtensions;
-using Ecommerce.Contracts.Endpoints;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.Api.Controllers;
 
 [Authorize(Roles = UserRoles.Admin)]
-[Route("api/")]
-[ApiController]
-public class StoreController : ControllerBase
+public class StoreController : ApiControllerBase
 {
     private readonly IStoreService _storeService;
     private readonly IEcommerceDbContext _db;

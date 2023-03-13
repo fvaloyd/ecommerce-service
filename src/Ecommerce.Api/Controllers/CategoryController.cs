@@ -7,16 +7,13 @@ using Ecommerce.Contracts.Endpoints;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.Api.Controllers;
 
-// public class CategoryController : ApiControllerBase
 [Authorize]
-[Route("api/")]
-[ApiController]
-public class CategoryController : ControllerBase
+public class CategoryController : ApiControllerBase
 {
     private readonly IEcommerceDbContext _db;
     private readonly IMapper _mapper;

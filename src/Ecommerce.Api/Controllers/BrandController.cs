@@ -2,21 +2,18 @@ using Ecommerce.Core.Enums;
 using Ecommerce.Core.Entities;
 using Ecommerce.Application.Data;
 using Ecommerce.Contracts.Brands;
+using Ecommerce.Contracts.Endpoints;
 
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 using AutoMapper.QueryableExtensions;
-using Ecommerce.Contracts.Endpoints;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.Api.Controllers;
 
-// public class BrandController : ApiControllerBase
 [Authorize]
-[ApiController]
-[Route("api/")]
-public class BrandController : ControllerBase
+public class BrandController : ApiControllerBase
 {
     private readonly IEcommerceDbContext _db;
     private readonly IMapper _mapper;
