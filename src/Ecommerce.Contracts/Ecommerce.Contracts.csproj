@@ -4,6 +4,15 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+	  <PackageId>Ecommerce.Contracts</PackageId>
+	  <Authors>Francisvac</Authors>
+	  <Company>Francisvac</Company>
+	  <Description>Library to centralize a Ecommerce contracts</Description>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <PackageTags>Ecommerce</PackageTags>
+	  <RepositoryUrl>https://github.com/Antsy15400/ecommerce-service/tree/main/src/Ecommerce.Contracts</RepositoryUrl>
+	  <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
