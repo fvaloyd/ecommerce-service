@@ -90,15 +90,26 @@ public class StoreService : IStoreService
         return Result.Success("The product was increase successfully");
     }
 
-    public async Task<Result<PaginatedList<Product>>> ProductsPaginated(Pagination pagination)
+    public async Task<Result<PaginatedList<Product>>> ProductsFiltered(Pagination pagination, string? nameFilter, string? categoryFilter)
     {
-        var productPaginated = await _db.ProductStores
+        var productFilterQuery = _db.ProductStores
                                     .AsNoTracking()
                                     .Include(s => s.Store)
                                     .Include(ps => ps.Product).ThenInclude(p => p.Brand)
                                     .Include(ps => ps.Product).ThenInclude(p => p.Category)
-                                    .Select(ps => ps.Product)
-                                    .PaginatedListAsync(pagination);
+                                    .Select(ps => ps.Product);
+
+        if (!string.IsNullOrEmpty(nameFilter))
+        {
+            productFilterQuery = productFilterQuery.Where(p => p.Name.Contains(nameFilter!));
+        }
+
+        if (!string.IsNullOrEmpty(categoryFilter))
+        {
+            productFilterQuery = productFilterQuery.Where(p => p.Category.Name.Contains(categoryFilter));
+        }
+
+        var productPaginated = await productFilterQuery.PaginatedListAsync(pagination);
 
         return productPaginated.Items.Any()
                 ? productPaginated

@@ -196,32 +196,35 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
     }
 
     [Fact]
-    public async Task StoreWithProductsPaginated_ShouldReturnSuccessResult_WhenProductsAreFound()
+    public async Task StoreWithProductsFiltered_ShouldReturnSuccessResult_WhenProductsAreFound()
     {
         // Arrange
-        Pagination pagination = new(pageSize: 3, pageNumber: 1);
+        string nameFilter = "t";
+        string categoryFilter = "t";
+        Pagination pagination = new(pageSize: 2, pageNumber: 1);
 
         var service = new StoreService(_db);
 
         // Act
-        Result<PaginatedList<Product>> result = await service.ProductsPaginated(pagination);
+        Result<PaginatedList<Product>> result = await service.ProductsFiltered(pagination, nameFilter, categoryFilter);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        // result.Data.Count.Should().Be(3);
-        result.Data.Items.Count().Should().Be(3);
+        result.Data.Items.Count().Should().Be(2);
     }
 
     [Fact]
     public async Task StoreWithProductsPaginated_ShouldReturnNotFoundResult_WhenNoProductFound()
     {
         // Arrange
-        Pagination pagination = new(pageSize: 100_000, pageNumber: 10);
+        string nameFilter = "xxxxxxx";
+        string categoryFilter = "xxxxxxxx";
+        Pagination pagination = new(2, 1);
 
         var service = new StoreService(_db);
 
         // Act
-        Result<PaginatedList<Product>> result = await service.ProductsPaginated(pagination);
+        Result<PaginatedList<Product>> result = await service.ProductsFiltered(pagination, nameFilter, categoryFilter);
 
         // Assert
         result.IsSuccess.Should().BeFalse();

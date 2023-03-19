@@ -9,11 +9,19 @@ public class PaginatedList<T>
     public int PageNumber {get;}
     public int TotalPages {get;}
 
-    public PaginatedList(IReadOnlyCollection<T> items, int count, int pageSize, int pageNumber)
+    private PaginatedList(IReadOnlyCollection<T> items, int count, int pageSize, int pageNumber)
     {
         PageNumber = pageNumber;
         TotalPages = (int)Math.Ceiling(count / (double)pageSize);
         TotalCount = count;
+        Items = items;
+    }
+
+    public PaginatedList(int pageNumber, int totalPages, int totalCount, IReadOnlyCollection<T> items)
+    {
+        PageNumber = pageNumber;
+        TotalPages = totalPages;
+        TotalCount = totalCount;
         Items = items;
     }
 
@@ -27,4 +35,16 @@ public class PaginatedList<T>
 
         return new PaginatedList<T>(items, count, pagination.PageSize, pagination.PageNumber);
     }
+}
+
+public static class PaginatedListExtension
+{
+    public static PaginatedList<TDestination> To<TDestination, TSource>(
+        this PaginatedList<TSource> source,
+        IReadOnlyCollection<TDestination> items)
+        => new PaginatedList<TDestination>(
+            pageNumber: source.PageNumber,
+            totalPages: source.TotalPages,
+            totalCount: source.TotalCount,
+            items: items);
 }

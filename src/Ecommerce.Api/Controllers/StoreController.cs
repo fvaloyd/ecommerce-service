@@ -174,17 +174,28 @@ public class StoreController : ApiControllerBase
     [AllowAnonymous]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(PaginatedList<ProductResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetStoreWithProductPaginated([FromQuery] Pagination pagination)
+    public async Task<IActionResult> GetStoreWithProductPaginated([FromQuery] Pagination pagination, [FromQuery] string? nameFilter = null, [FromQuery] string? categoryFilter = null)
     {
-        var productPaginated = await _storeService.ProductsPaginated(pagination);
+        var productFilteredResult = await _storeService.ProductsFiltered(pagination, nameFilter, categoryFilter);
 
-        if (!productPaginated.IsSuccess)
+        if (!productFilteredResult.IsSuccess)
         {
-            return productPaginated.ToActionResult();
+            return productFilteredResult.ToActionResult();
         }
 
-        productPaginated.Data.Items.Select(i => _mapper.Map<ProductResponse>(i));
+        var productFiltered = productFilteredResult.Data;
+        var productFilteredList = productFiltered.Items.Select(i => _mapper.Map<ProductResponse>(i)).ToList();
+        
+        // var productFiltered = productFilteredResult.Data;
 
-        return productPaginated.ToActionResult();
+        // var productPaginatedResponse = new PaginatedList<ProductResponse>(
+        //     pageNumber: productFiltered.PageNumber,
+        //     totalPages: productFiltered.TotalPages,
+        //     totalCount: productFiltered.TotalCount,
+        //     items: productFilteredList);
+
+        // return productFilteredResult.ToActionResult();
+
+        return Ok(productFiltered.To<ProductResponse, Product>(productFilteredList));
     }
 }
