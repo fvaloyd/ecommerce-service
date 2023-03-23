@@ -185,16 +185,6 @@ public class StoreController : ApiControllerBase
 
         var productFiltered = productFilteredResult.Data;
         var productFilteredList = productFiltered.Items.Select(i => _mapper.Map<ProductResponse>(i)).ToList();
-        
-        // var productFiltered = productFilteredResult.Data;
-
-        // var productPaginatedResponse = new PaginatedList<ProductResponse>(
-        //     pageNumber: productFiltered.PageNumber,
-        //     totalPages: productFiltered.TotalPages,
-        //     totalCount: productFiltered.TotalCount,
-        //     items: productFilteredList);
-
-        // return productFilteredResult.ToActionResult();
 
         return Ok(productFiltered.To<ProductResponse, Product>(productFilteredList));
     }
