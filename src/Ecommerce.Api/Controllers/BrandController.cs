@@ -27,6 +27,7 @@ public class BrandController : ApiControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     [Route(BrandEndpoints.GetAllBrands)]
     [ProducesResponseType(typeof(List<BrandResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<BrandResponse>>> Get()

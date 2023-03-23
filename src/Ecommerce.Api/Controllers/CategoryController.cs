@@ -27,6 +27,7 @@ public class CategoryController : ApiControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     [Route(CategoryEndpoints.GetAllCategories)]
     [ProducesResponseType(typeof(List<CategoryResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<CategoryResponse>>> Get()
