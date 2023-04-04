@@ -1,5 +1,6 @@
-using Ecommerce.Contracts.Endpoints;
-using Ecommerce.Contracts.Products;
+using Ecommerce.Contracts;
+using Ecommerce.Contracts.Requests;
+using Ecommerce.Contracts.Responses;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers;
 
@@ -7,13 +8,6 @@ namespace Ecommerce.Api.IntegrationTests.Controllers;
 public class ProductControllerTests
 {
     private readonly BaseIntegrationTest _baseIntegrationTest;
-
-    const string ApiRoot = $"api/";
-
-    const string GetAllProductsPath = $"{ApiRoot}{ProductEndpoints.GetAllProducts}";
-    const string GetProductByIdPath = $"{ApiRoot}{ProductEndpoints.GetProductById}";
-    const string EditProductPath = $"{ApiRoot}{ProductEndpoints.EditProduct}";
-    const string DeleteProductPath = $"{ApiRoot}{ProductEndpoints.DeleteProduct}";
 
     public ProductControllerTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -24,7 +18,7 @@ public class ProductControllerTests
     public async Task GetAllProducts_ShouldReturnOkWithAListOfProduct()
     {
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetAllProductsPath);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(ApiRoutes.Product.GetAll);
 
         var responseRead = await response.Content.ReadAsStringAsync();
 
@@ -43,7 +37,7 @@ public class ProductControllerTests
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetProductByIdPath + invalidId);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(ApiRoutes.Product.GetById.Replace("{id}", invalidId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -56,7 +50,7 @@ public class ProductControllerTests
         int unExistingId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetProductByIdPath + unExistingId);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(ApiRoutes.Product.GetById.Replace("{id}", unExistingId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -71,7 +65,7 @@ public class ProductControllerTests
         var productId = db.Products.Select(p => p.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetProductByIdPath + productId);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(ApiRoutes.Product.GetById.Replace("{id}", productId.ToString()));
 
         var responseRead = await response.Content.ReadAsStringAsync();
 
@@ -93,12 +87,12 @@ public class ProductControllerTests
 
         var brandId = db.Brands.Select(b => b.Id).First();
 
-        EditProductRequest dto = new("test", 100f, brandId, categoryId);
+        var dto = new EditProductRequest("test", 100f, brandId, categoryId);
 
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditProductPath + invalidId, dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(ApiRoutes.Product.Edit.Replace("{id}", invalidId.ToString()), dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -114,12 +108,12 @@ public class ProductControllerTests
 
         var brandId = db.Brands.Select(b => b.Id).First();
 
-        EditProductRequest dto = new("test", 100f, brandId, categoryId);
+        var dto = new EditProductRequest("test", 100f, brandId, categoryId);
 
         int unExistingId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditProductPath + unExistingId, dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(ApiRoutes.Product.Edit.Replace("{id}", unExistingId.ToString()), dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -137,10 +131,10 @@ public class ProductControllerTests
 
         var productId = db.Products.Select(p => p.Id).First();
 
-        EditProductRequest dto = new("test", 100f, brandId, categoryId);
+        var dto = new EditProductRequest("test", 100f, brandId, categoryId);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditProductPath + productId, dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(ApiRoutes.Product.Edit.Replace("{id}", productId.ToString()), dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -153,7 +147,7 @@ public class ProductControllerTests
         var invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteProductPath + invalidId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(ApiRoutes.Product.Delete.Replace("{id}", invalidId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -166,7 +160,7 @@ public class ProductControllerTests
         var unExistingId = 100_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteProductPath + unExistingId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(ApiRoutes.Product.Delete.Replace("{id}", unExistingId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -181,7 +175,7 @@ public class ProductControllerTests
         var productId = db.Products.Select(p => p.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteProductPath + productId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(ApiRoutes.Product.Delete.Replace("{id}", productId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

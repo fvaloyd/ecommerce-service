@@ -1,8 +1,6 @@
 using Ecommerce.Core.Entities;
-using Ecommerce.Contracts.Stores;
-using Ecommerce.Contracts.Products;
-using Ecommerce.Contracts.Brands;
-using Ecommerce.Contracts.Categories;
+using Ecommerce.Contracts.Requests;
+using Ecommerce.Contracts.Responses;
 
 using AutoMapper;
 

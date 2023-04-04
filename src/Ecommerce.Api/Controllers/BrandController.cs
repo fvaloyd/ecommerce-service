@@ -1,8 +1,10 @@
+using Ecommerce.Contracts;
 using Ecommerce.Core.Enums;
 using Ecommerce.Core.Entities;
 using Ecommerce.Application.Data;
-using Ecommerce.Contracts.Brands;
-using Ecommerce.Contracts.Endpoints;
+using Ecommerce.Contracts.Requests;
+using Ecommerce.Contracts.Responses;
+
 
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +30,7 @@ public class BrandController : ApiControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    [Route(BrandEndpoints.GetAllBrands)]
+    [Route(ApiRoutes.Brand.GetAll)]
     [ProducesResponseType(typeof(List<BrandResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<BrandResponse>>> Get()
     {
@@ -38,10 +40,10 @@ public class BrandController : ApiControllerBase
     }
 
     [HttpGet]
-    [Route(BrandEndpoints.GetBrandById + "{id}")]
+    [Route(ApiRoutes.Brand.GetById)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BrandResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<BrandResponse>> Get(int id)
     {
         if (id < 1) return BadRequest("Invalid id");
@@ -54,10 +56,10 @@ public class BrandController : ApiControllerBase
     }
 
     [HttpPost]
-    [Route(BrandEndpoints.CreateBrand)]
+    [Route(ApiRoutes.Brand.Create)]
     [Authorize(Roles = UserRoles.Admin)]
-    [ProducesResponseType(typeof(BrandResponse), StatusCodes.Status302Found)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(BrandResponse), StatusCodes.Status302Found)]
     public async Task<IActionResult> Create([FromBody] CreateBrandRequest brandRequest)
     {
         Brand brand = _mapper.Map<Brand>(brandRequest);
@@ -72,7 +74,7 @@ public class BrandController : ApiControllerBase
     }
 
     [HttpPut]
-    [Route(BrandEndpoints.EditBrand + "{id}")]
+    [Route(ApiRoutes.Brand.Edit)]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -94,11 +96,11 @@ public class BrandController : ApiControllerBase
     }
 
     [HttpDelete]
-    [Route(BrandEndpoints.DeleteBrand + "{id}")]
+    [Route(ApiRoutes.Brand.Delete)]
     [Authorize(Roles = UserRoles.Admin)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Delete(int id)
     {
         if (id < 1) return BadRequest("Invalid id");

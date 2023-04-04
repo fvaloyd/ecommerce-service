@@ -1,6 +1,7 @@
-using Ecommerce.Contracts.Categories;
-using Ecommerce.Contracts.Endpoints;
+using Ecommerce.Contracts;
 using Ecommerce.Core.Entities;
+using Ecommerce.Contracts.Requests;
+using Ecommerce.Contracts.Responses;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers;
 
@@ -8,14 +9,6 @@ namespace Ecommerce.Api.IntegrationTests.Controllers;
 public class CategoryControllerTests
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
-
-    const string ApiRoot = "api/";
-    const string GetAllCategoriesPath = $"{ApiRoot}{CategoryEndpoints.GetAllCategories}";
-    const string GetCategoryByIdPath = $"{ApiRoot}{CategoryEndpoints.GetCategoryById}";
-    const string CreateCategoryPath = $"{ApiRoot}{CategoryEndpoints.CreateCategory}";
-    const string EditCategoryPath = $"{ApiRoot}{CategoryEndpoints.EditCategory}";
-    const string DeleteCategoryPath = $"{ApiRoot}{CategoryEndpoints.DeleteCategory}";
-
 
     public CategoryControllerTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -31,7 +24,7 @@ public class CategoryControllerTests
         var categoriesDb = db.Categories.ToList();
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetAllCategoriesPath);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(ApiRoutes.Category.GetAll);
 
         var responseReaded = await response.Content.ReadAsStringAsync();
 
@@ -52,7 +45,7 @@ public class CategoryControllerTests
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetCategoryByIdPath + invalidId);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(ApiRoutes.Category.GetById.Replace("{id}", invalidId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -65,7 +58,7 @@ public class CategoryControllerTests
         int unExistingId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetCategoryByIdPath + unExistingId);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(ApiRoutes.Category.GetById.Replace("{id}", unExistingId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -80,7 +73,7 @@ public class CategoryControllerTests
         int validId = db.Categories.Select(c => c.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetCategoryByIdPath + validId);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(ApiRoutes.Category.GetById.Replace("{id}", validId.ToString()));
 
         var responseReaded = await response.Content.ReadAsStringAsync();
 
@@ -98,10 +91,10 @@ public class CategoryControllerTests
     public async Task CreateCategory_ShouldReturnRedirect_WhenValidCategoryIsSending()
     {
         // Arrange
-        CreateCategoryRequest dto = new("test", true);
+        var dto = new CreateCategoryRequest("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(CreateCategoryPath, dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(ApiRoutes.Category.Create, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
@@ -113,10 +106,10 @@ public class CategoryControllerTests
         // Arrange
         int invalidId = 0;
 
-        EditCategoryRequest dto = new("test", true);
+        var dto = new EditCategoryRequest("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditCategoryPath + invalidId, dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(ApiRoutes.Category.Edit.Replace("{id}", invalidId.ToString()), dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -128,10 +121,10 @@ public class CategoryControllerTests
         // Arrange
         int unExistingId = 100_000_000;
 
-        EditCategoryRequest dto = new("test", true);
+        var dto = new EditCategoryRequest("test", true);
         
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditCategoryPath + unExistingId, dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(ApiRoutes.Category.Edit.Replace("{id}", unExistingId.ToString()), dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -145,10 +138,10 @@ public class CategoryControllerTests
         
         var categoryDb = db.Categories.First();       
 
-        EditCategoryRequest dto = new("test", true);
+        var dto = new EditCategoryRequest("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditCategoryPath + categoryDb.Id, dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(ApiRoutes.Category.Edit.Replace("{id}", categoryDb.Id.ToString()), dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
@@ -161,7 +154,7 @@ public class CategoryControllerTests
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteCategoryPath + invalidId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(ApiRoutes.Category.Delete.Replace("{id}", invalidId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -174,7 +167,7 @@ public class CategoryControllerTests
         int unExisitingId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteCategoryPath +  unExisitingId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(ApiRoutes.Category.Delete.Replace("{id}", unExisitingId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -184,7 +177,7 @@ public class CategoryControllerTests
     public async Task DeleteCategory_ShouldReturnNoContent_WhenValidIdIsSending()
     {
         // Arrange
-        Category cat = new("test", true);
+        var cat = new Category("test", true);
         
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
         
@@ -193,7 +186,7 @@ public class CategoryControllerTests
         await db.SaveChangesAsync();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteCategoryPath + cat.Id);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(ApiRoutes.Category.Delete.Replace("{id}", cat.Id.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);

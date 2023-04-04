@@ -1,7 +1,7 @@
+using Ecommerce.Contracts;
 using Ecommerce.Core.Entities;
 using Ecommerce.Application.Data;
 using Ecommerce.Api.BackgroundJobs;
-using Ecommerce.Contracts.Endpoints;
 using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Payment.Models;
@@ -40,9 +40,9 @@ public class PaymentController : ApiControllerBase
     }
 
     [HttpPost]
-    [Route(PaymentEndpoints.Refound)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [Route(ApiRoutes.Payment.Refound)]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Refund(string chargeToken)
     {
         Stripe.Refund refundToken = await _stripeService.CreateRefundToken(chargeToken);
@@ -58,9 +58,9 @@ public class PaymentController : ApiControllerBase
     }
 
     [HttpPost]
-    [Route(PaymentEndpoints.Pay)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [Route(ApiRoutes.Payment.Pay)]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Pay(PayRequest card)
     {
         ApplicationUser? user = await GetUser();

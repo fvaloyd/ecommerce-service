@@ -1,26 +1,11 @@
+using Ecommerce.Contracts;
+using Ecommerce.Contracts.Requests;
+using Ecommerce.Contracts.Responses;
 using Ecommerce.Api.IntegrationTests;
-using Ecommerce.Contracts.Authentication;
-using Ecommerce.Contracts.Endpoints;
 
 [Collection("BaseIntegrationTestCollection")]
 public class AuthControllerTests
 {
-    const string ApiRoot = "api/";
-    const string LoginPath = $"{ApiRoot}{AuthEndpoints.Login}";
-    const string LogoutPath = $"{ApiRoot}{AuthEndpoints.Logout}";
-    const string RegisterAdminPath = $"{ApiRoot}{AuthEndpoints.RegisterAdmin}";
-    const string RegisterPath = $"{ApiRoot}{AuthEndpoints.Register}";
-
-    readonly RegisterRequest ValidUser = new("registeradmintest", "8888888888", "registeradmintest@gmail.com", "test.324234");
-
-    readonly RegisterRequest ExistingUser = new("admin", "8888888888", "admin@gmail.com", "password.123"); 
-
-    readonly LoginRequest authenticatedUser = new("admin@gmail.com", "password.123");
-
-    readonly LoginRequest authenticatedUserWithIncorrectPassword = new("admin@gmail.com", "password");
-
-    readonly LoginRequest unAuthenticatedUser = new("invalid@gmail.com", "invalid.123"); 
-
     readonly BaseIntegrationTest _baseIntegrationTest;
 
     public AuthControllerTests(BaseIntegrationTest baseIntegrationTest)
@@ -31,8 +16,11 @@ public class AuthControllerTests
     [Fact]
     public async Task Login_ShouldReturnAnAuthenticationResponse_WhenTheUserIsAuthenticate()
     {
+        // Arrange
+        var authenticatedUser = new LoginRequest("admin@gmail.com", "password.123");
+
         // Act
-        var httpResponse = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(LoginPath, authenticatedUser);
+        var httpResponse = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(ApiRoutes.Auth.Login, authenticatedUser);
 
         var stringResult = await httpResponse.Content.ReadAsStringAsync();
 
@@ -53,8 +41,10 @@ public class AuthControllerTests
     [Fact]
     public async Task Login_ShouldReturnUnauthorize_WhenUnAuthorizeUserTryToLogin()
     {
+        // Arrange
+        var unAuthenticatedUser = new LoginRequest("invalid@gmail.com", "invalid.123");
         // Act
-        var httpResponse = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(LoginPath, unAuthenticatedUser);
+        var httpResponse = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(ApiRoutes.Auth.Login, unAuthenticatedUser);
 
         // Assert
         httpResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -63,8 +53,10 @@ public class AuthControllerTests
     [Fact]
     public async Task Login_ShouldReturnBadRequest_WhenIncorrectPasswordIsSent()
     {
+        // Arrange
+        var authenticatedUserWithIncorrectPassword = new LoginRequest("admin@gmail.com", "password");
         // Act
-        var httpResponse = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(LoginPath, authenticatedUserWithIncorrectPassword);
+        var httpResponse = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(ApiRoutes.Auth.Login, authenticatedUserWithIncorrectPassword);
         
         // Assert
         httpResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -74,7 +66,7 @@ public class AuthControllerTests
     public async Task Logout_ShouldReturnOk_WhenTheUserIsLoged()
     {
         // Act
-        var logoutResponse = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(LogoutPath, null);
+        var logoutResponse = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(ApiRoutes.Auth.Logout, null);
 
         // Assert
         logoutResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -83,8 +75,11 @@ public class AuthControllerTests
     [Fact]
     public async Task RegisterAdmin_ShouldReturnForbidden_WhenNoAdminUserTriesToCreateAnAdminUser()
     {
+        // Arrange
+        var ValidUser = new RegisterRequest("registeradmintest", "8888888888", "registeradmintest@gmail.com", "test.324234");
+
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsJsonAsync(RegisterAdminPath, ValidUser);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsJsonAsync(ApiRoutes.Auth.RegisterAdmin, ValidUser);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -93,8 +88,11 @@ public class AuthControllerTests
     [Fact]
     public async Task RegisterAdmin_ShouldReturnUnAuthorize_UnAuthenticateUserTriesToCreateAnAdministrator()
     {
+        // Arrange
+        var ValidUser = new RegisterRequest("registeradmintest", "8888888888", "registeradmintest@gmail.com", "test.324234");
+
         // Act
-        var response = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(RegisterAdminPath, ValidUser);
+        var response = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(ApiRoutes.Auth.RegisterAdmin, ValidUser);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -103,8 +101,11 @@ public class AuthControllerTests
     [Fact]
     public async Task RegisterAdmin_ShouldReturnOk_WhenAdminUserTriesToRegisterAnValidUser()
     {
+        // Arrange
+        var ValidUser = new RegisterRequest("registeradmintest", "8888888888", "registeradmintest@gmail.com", "test.324234");
+
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(RegisterAdminPath, ValidUser);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(ApiRoutes.Auth.RegisterAdmin, ValidUser);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -113,8 +114,11 @@ public class AuthControllerTests
     [Fact]
     public async Task RegisterAdmin_ShouldReturnBadRequest_WhenAdminUserTriesToRegisterAnAlreadyAuthenticateUser()
     {
+        // Arrange
+        var ExistingUser = new RegisterRequest("admin", "8888888888", "admin@gmail.com", "password.123");
+
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(RegisterAdminPath, ExistingUser);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(ApiRoutes.Auth.RegisterAdmin, ExistingUser);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -123,9 +127,11 @@ public class AuthControllerTests
     [Fact]
     public async Task Register_ShouldReturnOk_WhenValidUserIsSending()
     {
-        RegisterRequest ValidUser = new("registertest", "8888888888", "registertest@gmail.com", "test.123324234");
+        // Arrange
+        var ValidUser = new RegisterRequest("registertest", "8888888888", "registertest@gmail.com", "test.123324234");
+
         // Act
-        var response = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(RegisterPath, ValidUser);
+        var response = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(ApiRoutes.Auth.Register, ValidUser);
         
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -134,9 +140,11 @@ public class AuthControllerTests
     [Fact]
     public async Task Register_ShouldReturnBadRequest_WhenExistingUserIsSending()
     {
-        RegisterRequest ExistingUser = new("admin", "8888888888", "admin@gmail.com", "password.123"); 
+        // Arrange
+        var ExistingUser = new RegisterRequest("admin", "8888888888", "admin@gmail.com", "password.123");
+
         // Act
-        var response = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(RegisterPath, ExistingUser);
+        var response = await _baseIntegrationTest.HttpClient.PostAsJsonAsync(ApiRoutes.Auth.Register, ExistingUser);
         
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);

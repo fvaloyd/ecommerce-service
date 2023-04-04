@@ -1,6 +1,6 @@
-using Ecommerce.Contracts.Products;
+using Ecommerce.Contracts.Responses;
 
-namespace Ecommerce.Contracts.Baskets;
+namespace Ecommerce.Contracts.Responses;
 
 public record BasketResponse(
     float Total,

@@ -1,7 +1,6 @@
-namespace Ecommerce.Contracts.Products;
+namespace Ecommerce.Contracts.Responses;
 
-public record ProductResponse
-(
+public record ProductResponse(
     int Id,
     string Name,
     float Price,

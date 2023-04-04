@@ -1,15 +1,13 @@
-﻿using Ecommerce.Contracts.Endpoints;
+﻿using Ecommerce.Contracts;
 using Ecommerce.Infrastructure.Payment.Models;
+
+using System.Text;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers;
 [Collection("BaseIntegrationTestCollection")]
 public class PaymentControllerTests
 {
     readonly BaseIntegrationTest _baseIntegrationTest;
-
-    const string ApiRoot = "api/";
-    const string PayPath = $"{ApiRoot}{PaymentEndpoints.Pay}";
-    const string AddProductToBasketPath = $"{ApiRoot}{BasketEndpoints.AddProduct}";
 
     public PaymentControllerTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -23,7 +21,7 @@ public class PaymentControllerTests
         var card = new PayRequest("3434343434343434", "11", "2023", "314");
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(PayPath, card);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(ApiRoutes.Payment.Pay, card);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -39,10 +37,14 @@ public class PaymentControllerTests
 
         var productId = db.Products.Select(p => p.Id).First();
 
-        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductToBasketPath + productId, null);
+        var addProductUri = new StringBuilder(ApiRoutes.Basket.AddProduct)
+                        .Append($"?productId={productId}")
+                        .ToString();
+
+        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(addProductUri, null);
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsJsonAsync(PayPath, card);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsJsonAsync(ApiRoutes.Payment.Pay, card);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

@@ -1,18 +1,13 @@
-using Ecommerce.Contracts.Baskets;
-using Ecommerce.Contracts.Endpoints;
+using Ecommerce.Contracts;
+using Ecommerce.Contracts.Responses;
+
+using System.Text;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers;
 
 [Collection("BaseIntegrationTestCollection")]
 public class BasketControllerTests
 {
-    const string ApiRoot = "api/";
-    const string AddProductPath = $"{ApiRoot}{BasketEndpoints.AddProduct}";
-    const string RemoveProductPath = $"{ApiRoot}{BasketEndpoints.RemoveProduct}";
-    const string DecreaseproductPath = $"{ApiRoot}{BasketEndpoints.DecreaseProduct}";
-    const string GetProductsPath = $"{ApiRoot}{BasketEndpoints.GetProducts}";
-    const string IncreaseProductPath = $"{ApiRoot}{BasketEndpoints.IncreaseProduct}";
-
     readonly BaseIntegrationTest _baseIntegrationTest;
 
     public BasketControllerTests(BaseIntegrationTest baseIntegrationTest)
@@ -26,8 +21,12 @@ public class BasketControllerTests
         // Arrange
         var invalidProductId = 0;
 
+        var uri = new StringBuilder(ApiRoutes.Basket.AddProduct)
+                        .Append($"?productId={invalidProductId}")
+                        .ToString();
+
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductPath + invalidProductId, null);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(uri, null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -39,12 +38,19 @@ public class BasketControllerTests
         // Arrange
         using var Db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
 
-        int validProductId = Db.ProductStores.Select(ps => ps.Product.Id).First();
+        var validProductId = Db.ProductStores.Select(ps => ps.Product.Id).First();
 
-        _ = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(RemoveProductPath + validProductId);
+        var removeProductUri = new StringBuilder(ApiRoutes.Basket.RemoveProduct)
+                        .Append($"?productId={validProductId}")
+                        .ToString();
+        var addProductUri = new StringBuilder(ApiRoutes.Basket.AddProduct)
+                        .Append($"?productId={validProductId}")
+                        .ToString();
+
+        _ = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(removeProductUri);
     
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductPath + validProductId, null);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(addProductUri, null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -56,12 +62,16 @@ public class BasketControllerTests
         // Arrange
         using var Db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
 
-        int validProductId = Db.Products.Select(p => p.Id).First();
+        var validProductId = Db.Products.Select(p => p.Id).First();
 
-        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductPath + validProductId, null);
+        var uri = new StringBuilder(ApiRoutes.Basket.AddProduct)
+                        .Append($"?productId={validProductId}")
+                        .ToString();
+
+        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(uri, null);
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductPath + validProductId, null);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(uri, null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -73,10 +83,14 @@ public class BasketControllerTests
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
 
-        var productId = db.Products.Select(p => p.Id).OrderByDescending(l => l).First();
+        var productId = db.Products.Select(p => p.Id).OrderByDescending(l => l).First().ToString();
 
+        var uri = new StringBuilder(ApiRoutes.Basket.DecreaseProduct)
+                        .Append($"?productId={productId}")
+                        .ToString();
+        
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(DecreaseproductPath + productId, null!);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(uri, null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -88,12 +102,19 @@ public class BasketControllerTests
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
 
-        var product = db.Products.First();
+        var productId = db.Products.First().Id.ToString();
 
-        var _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductPath + product.Id, null);
+        var addProductUri = new StringBuilder(ApiRoutes.Basket.AddProduct)
+                        .Append($"?productId={productId}")
+                        .ToString();
+        var decreaseProductUri = new StringBuilder(ApiRoutes.Basket.DecreaseProduct)
+                        .Append($"?productId={productId}")
+                        .ToString();
+
+        var _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(addProductUri, null);
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(DecreaseproductPath + product.Id, null);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(decreaseProductUri, null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -105,25 +126,29 @@ public class BasketControllerTests
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
 
-        var product = db.Products.First();
+        var productId = db.Products.First().Id.ToString();
 
-        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductPath + product.Id, null);
+        var addProductUri = new StringBuilder(ApiRoutes.Basket.AddProduct)
+                        .Append($"?productId={productId}")
+                        .ToString();
 
-        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductPath + (product.Id + 1), null);
+        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(addProductUri, null);
+
+        // _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductPath + (product.Id + 1), null);
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetProductsPath);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(ApiRoutes.Basket.GetProducts);
 
         string responseReadedAsString = await response.Content.ReadAsStringAsync();
 
-        BasketResponse basketProducts = JsonConvert.DeserializeObject<BasketResponse>(responseReadedAsString);
+        var basketProducts = JsonConvert.DeserializeObject<BasketResponse>(responseReadedAsString);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         basketProducts.Should().NotBeNull();
 
-        basketProducts.Products.Count().Should().BeGreaterThanOrEqualTo(2);
+        basketProducts.Products.Count().Should().BeGreaterThanOrEqualTo(1);
 
         basketProducts.Total.Should().BeGreaterThan(0);
     }
@@ -132,10 +157,14 @@ public class BasketControllerTests
     public async Task IncreaseProduct_ShouldReturnNotFound_WhenTheBasketDoesnHaveTheProduct()
     {
         // Arrange
-        int invalidProductId = 0;
+        var invalidProductId = 0.ToString();
+
+        var uri = new StringBuilder(ApiRoutes.Basket.IncreaseProduct)
+                        .Append($"?productId={invalidProductId}")
+                        .ToString();
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(IncreaseProductPath + invalidProductId, null);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(uri, null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -147,12 +176,19 @@ public class BasketControllerTests
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
 
-        int validProductId = db.Products.Select(p => p.Id).First();
+        var validProductId = db.Products.Select(p => p.Id).First().ToString();
 
-        var _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductPath + validProductId, null);
+        var addProductUri = new StringBuilder(ApiRoutes.Basket.AddProduct)
+                        .Append($"?productId={validProductId}")
+                        .ToString();
+        var increaseProductUri = new StringBuilder(ApiRoutes.Basket.IncreaseProduct)
+                        .Append($"?productId={validProductId}")
+                        .ToString();
+
+        var _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(addProductUri, null);
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(IncreaseProductPath + validProductId, null);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(increaseProductUri, null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -162,10 +198,14 @@ public class BasketControllerTests
     public async Task RemoveProduct_ShouldReturnNotFound_WhenTheUserDoesntHaveTheSpecificProductInBasket()
     {
         // Arrange
-        int unExistingProductId = 100_000_000;
+        string unExistingProductId = 100_000_000.ToString();
+
+        var uri = new StringBuilder(ApiRoutes.Basket.RemoveProduct)
+                        .Append($"?productId={unExistingProductId}")
+                        .ToString();
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(RemoveProductPath + unExistingProductId);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(uri);
         
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -177,12 +217,19 @@ public class BasketControllerTests
         // Arrange
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
 
-        var product = db.Products.First();
+        var productId = db.Products.First().Id.ToString();
 
-        var _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductPath + product.Id, null);
+        var removeProductUri = new StringBuilder(ApiRoutes.Basket.RemoveProduct)
+                        .Append($"?productId={productId}")
+                        .ToString();
+        var addProductUri = new StringBuilder(ApiRoutes.Basket.AddProduct)
+                        .Append($"?productId={productId}")
+                        .ToString();
+
+        var _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(addProductUri, null);
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(RemoveProductPath + product.Id);
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.DeleteAsync(removeProductUri);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

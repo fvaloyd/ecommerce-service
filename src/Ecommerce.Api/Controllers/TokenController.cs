@@ -1,7 +1,8 @@
+using Ecommerce.Contracts;
 using Ecommerce.Infrastructure.Jwt;
-using Ecommerce.Contracts.Endpoints;
 using Ecommerce.Infrastructure.Identity;
-using Ecommerce.Contracts.Authentication;
+using Ecommerce.Contracts.Responses;
+using Ecommerce.Contracts.Requests;
 
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,7 @@ public class TokenController : ApiControllerBase
     }
 
     [HttpPost]
-    [Route(TokenEndpoints.Refresh)]
+    [Route(ApiRoutes.Token.Refresh)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(AuthenticateResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult> Refresh([FromBody] RefreshTokenRequest apiToken)
@@ -52,10 +53,10 @@ public class TokenController : ApiControllerBase
     }
 
     [HttpPost]
-    [Route(TokenEndpoints.Revoke)]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Route(ApiRoutes.Token.Refresh)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Revoke()
     {
         ClaimsPrincipal userPrincipal = HttpContext.User;

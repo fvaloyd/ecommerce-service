@@ -1,10 +1,11 @@
+using Ecommerce.Contracts;
 using Ecommerce.Core.Enums;
 using Ecommerce.Core.Entities;
 using Ecommerce.Application.Data;
+using Ecommerce.Contracts.Responses;
+using Ecommerce.Contracts.Requests;
 using Ecommerce.Application.Products;
 using Ecommerce.Infrastructure.CloudImageStorage;
-using Ecommerce.Contracts.Products;
-using Ecommerce.Contracts.Endpoints;
 
 using AutoMapper;
 using Francisvac.Result;
@@ -36,7 +37,7 @@ public class ProductController : ApiControllerBase
     }
 
     [HttpGet]
-    [Route(ProductEndpoints.GetAllProducts)]
+    [Route(ApiRoutes.Product.GetAll)]
     [ProducesResponseType(typeof(List<ProductResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<ProductResponse>>> Get()
     {
@@ -45,9 +46,9 @@ public class ProductController : ApiControllerBase
     }
 
     [HttpGet]
-    [Route(ProductEndpoints.GetProductById + "{id}")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [Route(ApiRoutes.Product.GetById)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ProductResponse>> Get(int id)
     {
@@ -61,8 +62,8 @@ public class ProductController : ApiControllerBase
     }
 
     [HttpPost]
-    [Route(ProductEndpoints.CreateProduct)]
     [Authorize(Roles = UserRoles.Admin)]
+    [Route(ApiRoutes.Product.Create)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status302Found)]
     public async Task<IActionResult> Create([FromForm] CreateProductRequest productDto)
@@ -87,7 +88,7 @@ public class ProductController : ApiControllerBase
     }
 
     [HttpPut]
-    [Route(ProductEndpoints.EditProduct + "{id}")]
+    [Route(ApiRoutes.Product.Edit)]
     [Authorize(Roles = UserRoles.Admin)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -110,7 +111,7 @@ public class ProductController : ApiControllerBase
     }
 
     [HttpDelete]
-    [Route(ProductEndpoints.DeleteProduct + "{id}")]
+    [Route(ApiRoutes.Product.Delete)]
     [Authorize(Roles = UserRoles.Admin)]
     public async Task<IActionResult> Delete(int id)
     {

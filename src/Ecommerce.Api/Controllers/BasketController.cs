@@ -1,9 +1,8 @@
+using Ecommerce.Contracts;
 using Ecommerce.Core.Entities;
+using Ecommerce.Contracts.Responses;
 using Ecommerce.Application.Baskets;
 using Ecommerce.Application.Common.Interfaces;
-using Ecommerce.Contracts.Baskets;
-using Ecommerce.Contracts.Products;
-using Ecommerce.Contracts.Endpoints;
 
 using AutoMapper;
 using Francisvac.Result;
@@ -30,27 +29,27 @@ public class BasketController : ApiControllerBase
     }
 
     [HttpPost]
-    [Route(BasketEndpoints.AddProduct + "{productId}")]
-    public async Task<IActionResult> AddProduct(int productId)
+    [Route(ApiRoutes.Basket.AddProduct)]
+    public async Task<IActionResult> AddProduct([FromQuery] int productId)
         => await _basketService.AddProductAsync(productId, _currentUserService.UserId!).ToActionResult();
 
     [HttpPost]
-    [Route(BasketEndpoints.IncreaseProduct + "{productId}")]
-    public async Task<IActionResult> IncreaseProduct(int productId)
+    [Route(ApiRoutes.Basket.IncreaseProduct)]
+    public async Task<IActionResult> IncreaseProduct([FromQuery] int productId)
         => await _basketService.IncreaseProduct(productId, _currentUserService.UserId!).ToActionResult();
 
     [HttpPost]
-    [Route(BasketEndpoints.DecreaseProduct + "{productId}")]
-    public async Task<IActionResult> DecreaseProduct(int productId)
+    [Route(ApiRoutes.Basket.DecreaseProduct)]
+    public async Task<IActionResult> DecreaseProduct([FromQuery] int productId)
         => await _basketService.DecreaseProduct(productId, _currentUserService.UserId!).ToActionResult();
 
     [HttpDelete]
-    [Route(BasketEndpoints.RemoveProduct + "{productId}")]
-    public async Task<IActionResult> RemoveProduct(int productId)
+    [Route(ApiRoutes.Basket.RemoveProduct)]
+    public async Task<IActionResult> RemoveProduct([FromQuery] int productId)
         => await _basketService.RemoveProduct(productId, _currentUserService.UserId!).ToActionResult();
 
     [HttpGet]
-    [Route(BasketEndpoints.GetProducts)]
+    [Route(ApiRoutes.Basket.GetProducts)]
     public async Task<ActionResult<BasketResponse>> GetProducts()
     {
         var userId = _currentUserService.UserId;

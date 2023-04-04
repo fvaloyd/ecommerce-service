@@ -1,11 +1,13 @@
+using System.ComponentModel;
 using Ecommerce.Api.IntegrationTests.Startup;
 
 using Respawn;
 using Respawn.Graph;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Ecommerce.Contracts.Authentication;
-using Ecommerce.Contracts.Endpoints;
+using Ecommerce.Contracts.Requests;
+using Ecommerce.Contracts;
+using Ecommerce.Contracts.Responses;
 
 namespace Ecommerce.Api.IntegrationTests;
 
@@ -56,7 +58,7 @@ public class BaseIntegrationTest : IAsyncLifetime
 
     private static async Task<HttpClient> CreateCustomHttpClient(EcommerceProgram program, HttpClient httpClient, LoginRequest user)
     {
-        var httpResponse = await httpClient.PostAsJsonAsync("api/"+AuthEndpoints.Login, user);
+        var httpResponse = await httpClient.PostAsJsonAsync(ApiRoutes.Auth.Login, user);
         
         var httpResponseReadedAsString = await httpResponse.Content.ReadAsStringAsync();
         

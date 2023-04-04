@@ -1,8 +1,10 @@
-using Ecommerce.Application.Common.Models;
-using Ecommerce.Contracts.Endpoints;
-using Ecommerce.Contracts.Products;
-using Ecommerce.Contracts.Stores;
+using Ecommerce.Contracts;
 using Ecommerce.Core.Entities;
+using Ecommerce.Contracts.Requests;
+using Ecommerce.Contracts.Responses;
+using Ecommerce.Application.Common.Models;
+
+using System.Text;
 
 namespace Ecommerce.Api.IntegrationTests.Controllers;
 
@@ -10,20 +12,6 @@ namespace Ecommerce.Api.IntegrationTests.Controllers;
 public class StoreControllerTests
 {
     private readonly BaseIntegrationTest _baseIntegrationTest;
-
-    const string ApiRoot = "api/";
-    const string GetStoreWithProductPath = $"{ApiRoot}{StoreEndpoints.GetStoreWithProduct}";
-    // const string IncreaseProductInStorePath = $"{endpointPath}IncreaseProductInStore?";
-    // const string DecreaseProductInStorePath = $"{endpointPath}DecreaseProductInStore?";
-    const string DecreaseProductInStorePath = $"{ApiRoot}{StoreEndpoints.DecreaseProduct}";
-    const string IncreaseProductInStorePath = $"{ApiRoot}{StoreEndpoints.IncreaseProduct}";
-    const string DeleteStorePath = $"{ApiRoot}{StoreEndpoints.DeleteStore}";
-    const string EditStorePath = $"{ApiRoot}{StoreEndpoints.EditStore}";
-    const string CreateStorePath = $"{ApiRoot}{StoreEndpoints.CreateStore}";
-    const string GetStoreByIdPath = $"{ApiRoot}{StoreEndpoints.GetStoreById}";
-    const string GetAllStoresPath = $"{ApiRoot}{StoreEndpoints.GetAllStores}";
-    const string GetStoreWithProductPaginated = $"{ApiRoot}{StoreEndpoints.GetStoreWithProductPaginated}";
-
 
     public StoreControllerTests(BaseIntegrationTest baseIntegrationTest)
     {
@@ -34,7 +22,7 @@ public class StoreControllerTests
     public async Task GetAllStores_ShouldReturnOkWithAListOfStores()
     {
         // Arrange
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetAllStoresPath);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(ApiRoutes.Store.GetAll);
 
         // Act
         var readResponse = await response.Content.ReadAsStringAsync();
@@ -54,7 +42,7 @@ public class StoreControllerTests
         var invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetStoreByIdPath + invalidId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(ApiRoutes.Store.GetById.Replace("{id}", invalidId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -67,7 +55,7 @@ public class StoreControllerTests
         var unExistinId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetStoreByIdPath + unExistinId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(ApiRoutes.Store.GetById.Replace("{id}", unExistinId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -82,7 +70,7 @@ public class StoreControllerTests
         var storeId = db.Stores.Select(s => s.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetStoreByIdPath + storeId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(ApiRoutes.Store.GetById.Replace("{id}", storeId.ToString()));
 
         var readResponse = await response.Content.ReadAsStringAsync();
 
@@ -100,10 +88,10 @@ public class StoreControllerTests
         // Arrange
         string invalidStoreName = "";
 
-        CreateStoreRequest dto = new(invalidStoreName, true);
+        var dto = new CreateStoreRequest(invalidStoreName, true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(CreateStorePath, dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(ApiRoutes.Store.Create, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -113,10 +101,10 @@ public class StoreControllerTests
     public async Task CreateStore_ShouldReturnRedirect_WhenValidCreateStoreRequestIsSent()
     {
         // Arrange
-        CreateStoreRequest dto = new("test", true);
+        var dto = new CreateStoreRequest("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(CreateStorePath, dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(ApiRoutes.Store.Create, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
@@ -131,7 +119,7 @@ public class StoreControllerTests
         EditStoreRequest dto = new("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditStorePath + invalidId, dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(ApiRoutes.Store.Edit.Replace("{id}", invalidId.ToString()), dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -143,10 +131,10 @@ public class StoreControllerTests
         // Arrange
         int unExistingId = 100_000_000;
 
-        EditStoreRequest dto = new("test", true);
+        var dto = new EditStoreRequest("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditStorePath + unExistingId, dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(ApiRoutes.Store.Edit.Replace("{id}", unExistingId.ToString()), dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -160,10 +148,10 @@ public class StoreControllerTests
         
         var storeId = db.Stores.OrderBy(s => s).Select(s => s.Id).Last();
 
-        EditStoreRequest dto = new("test", true);
+        var dto = new EditStoreRequest("test", true);
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(EditStorePath + storeId, dto);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PutAsJsonAsync(ApiRoutes.Store.Edit.Replace("{id}", storeId.ToString()), dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
@@ -176,7 +164,7 @@ public class StoreControllerTests
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteStorePath + invalidId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(ApiRoutes.Store.Delete.Replace("{id}", invalidId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -189,7 +177,7 @@ public class StoreControllerTests
         int unExistingId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteStorePath + unExistingId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(ApiRoutes.Store.Delete.Replace("{id}", unExistingId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -199,16 +187,16 @@ public class StoreControllerTests
     public async Task DeleteStore_ShouldReturnNoContent_WhenValidIdIsSent()
     {
         // Arrange
-        CreateStoreRequest dto = new("test", true);
+        var dto = new CreateStoreRequest("test", true);
 
         using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
 
-        _ = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(CreateStorePath, dto);
+        _ = await _baseIntegrationTest.AdminUserHttpClient.PostAsJsonAsync(ApiRoutes.Store.Create, dto);
 
         var storeId = db.Stores.OrderBy(s => s).Select(s => s.Id).Last();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(DeleteStorePath + storeId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.DeleteAsync(ApiRoutes.Store.Delete.Replace("{id}", storeId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
@@ -220,8 +208,12 @@ public class StoreControllerTests
         // Arrange
         int invalidId = 0;
 
+        var uri = new StringBuilder(ApiRoutes.Store.IncreaseProduct)
+                        .Append($"?productId={invalidId}")
+                        .ToString();
+
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(IncreaseProductInStorePath +  $"?storeId={invalidId}&productId={invalidId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(uri.Replace("{id}", invalidId.ToString()), null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -237,8 +229,12 @@ public class StoreControllerTests
 
         int unExistingId = 100_100_000;
 
+        var uri = new StringBuilder(ApiRoutes.Store.IncreaseProduct)
+                .Append($"?productId={unExistingId}")
+                .ToString();
+
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(IncreaseProductInStorePath + $"?storeId={storeId}&productId={unExistingId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(uri.Replace("{id}", storeId.ToString()), null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -254,8 +250,12 @@ public class StoreControllerTests
 
         var productId = db.Products.Select(p => p.Id).First();
 
+        var uri = new StringBuilder(ApiRoutes.Store.IncreaseProduct)
+                .Append($"?productId={productId}")
+                .ToString();
+
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(IncreaseProductInStorePath + $"?storeId={storeId}&productId={productId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(uri.Replace("{id}", storeId.ToString()), null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -267,8 +267,12 @@ public class StoreControllerTests
         // Arrange
         int invalidId = 0;
 
+        var uri = new StringBuilder(ApiRoutes.Store.DecreaseProduct)
+                .Append($"?productId={invalidId}")
+                .ToString();
+
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(DecreaseProductInStorePath + $"?storeId={invalidId}&productId={invalidId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(uri.Replace("{id}", invalidId.ToString()), null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -284,8 +288,12 @@ public class StoreControllerTests
 
         int unExistingId = 100_100_000;
 
+        var uri = new StringBuilder(ApiRoutes.Store.IncreaseProduct)
+                .Append($"?productId={unExistingId}")
+                .ToString();
+
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(DecreaseProductInStorePath + $"?storeId={storeId}&productId={unExistingId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(uri.Replace("{id}", storeId.ToString()), null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -301,8 +309,13 @@ public class StoreControllerTests
 
         var productId = db.Products.Select(p => p.Id).First();
 
+        var uri = new StringBuilder(ApiRoutes.Store.IncreaseProduct)
+                .Append($"?productId={productId}")
+                .ToString()
+                .Replace("{id}", storeId.ToString());
+
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(DecreaseProductInStorePath + $"?storeId={storeId}&productId={productId}", null);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.PostAsync(uri, null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -315,7 +328,7 @@ public class StoreControllerTests
         int invalidId = 0;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetStoreWithProductPath + invalidId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(ApiRoutes.Store.GetStoreWithProduct.Replace("{id}", invalidId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -328,7 +341,7 @@ public class StoreControllerTests
         int unExistingId = 100_000_000;
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetStoreWithProductPath + unExistingId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(ApiRoutes.Store.GetStoreWithProduct.Replace("{id}", unExistingId.ToString()));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -343,7 +356,7 @@ public class StoreControllerTests
         var storeId = db.Stores.Select(s => s.Id).First();
 
         // Act
-        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(GetStoreWithProductPath + storeId);
+        var response = await _baseIntegrationTest.AdminUserHttpClient.GetAsync(ApiRoutes.Store.GetStoreWithProduct.Replace("{id}", storeId.ToString()));
 
         var readResponse = await response.Content.ReadAsStringAsync();
 
@@ -361,10 +374,14 @@ public class StoreControllerTests
     public async Task GetStoreWithProductPaginated_ShouldReturnOk_WhenValidPaginationIsSent()
     {
         // Arrange
-        Pagination pagination = new(3, 1);
+        var pagination = new Pagination(3, 1);
+
+        var uri = new StringBuilder(ApiRoutes.Store.GetStoreProductsPaginated)
+                .Append($"?pageSize={pagination.PageSize}&pageNumber={pagination.PageNumber}")
+                .ToString();
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetStoreWithProductPaginated + $"?pageSize={pagination.PageSize}&pageNumber={pagination.PageNumber}");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(uri);
 
         var readResponse = await response.Content.ReadAsStringAsync();
 
@@ -382,10 +399,14 @@ public class StoreControllerTests
     public async Task GetStoreWithProductPaginated_ShouldReturnNotFound_WhenInValidPaginationIsSent()
     {
         // Arrange
-        Pagination pagination = new(100_000, 100);
+        var pagination = new Pagination(100_000, 100);
+
+        var uri = new StringBuilder(ApiRoutes.Store.GetStoreProductsPaginated)
+                .Append($"?pageSize={pagination.PageSize}&pageNumber={pagination.PageNumber}")
+                .ToString();
 
         // Act
-        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(GetStoreWithProductPaginated + $"?pageSize={pagination.PageSize}&pageNumber={pagination.PageNumber}");
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(uri);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

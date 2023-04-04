@@ -1,10 +1,11 @@
+using Ecommerce.Contracts;
 using Ecommerce.Core.Enums;
 using Ecommerce.Api.BackgroundJobs;
 using Ecommerce.Infrastructure.Jwt;
-using Ecommerce.Contracts.Endpoints;
+using Ecommerce.Contracts.Requests;
+using Ecommerce.Contracts.Responses;
 using Ecommerce.Infrastructure.Payment;
 using Ecommerce.Infrastructure.Identity;
-using Ecommerce.Contracts.Authentication;
 
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ public class AuthController : ApiControllerBase
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IBackgroundJobClient _backgroundJobClient;
     private readonly ITokenService _tokenService;
+    
     public AuthController(
         UserManager<ApplicationUser> userManager,
         ITokenService tokenService,
@@ -35,9 +37,9 @@ public class AuthController : ApiControllerBase
     }
 
     [HttpPost]
-    [Route(AuthEndpoints.Register)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [Route(ApiRoutes.Auth.Register)]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
     {
         ApplicationUser? userExist = await _userManager.FindByEmailAsync(registerRequest.Email);
@@ -67,10 +69,10 @@ public class AuthController : ApiControllerBase
     }
 
     [HttpGet]
-    [Route(AuthEndpoints.ConfirmEmail)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [Route(ApiRoutes.Auth.ConfirmEmail)]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ConfirmEmail(string token, string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
@@ -85,10 +87,10 @@ public class AuthController : ApiControllerBase
     }
 
     [HttpPost]
-    [Route(AuthEndpoints.RegisterAdmin)]
     [Authorize(Roles = UserRoles.Admin)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [Route(ApiRoutes.Auth.RegisterAdmin)]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RegisterAdmin([FromBody] RegisterRequest model)
     {
         ApplicationUser? userExist = await _userManager.FindByEmailAsync(model.Email);
@@ -118,9 +120,9 @@ public class AuthController : ApiControllerBase
     }
 
     [HttpPost]
-    [Route(AuthEndpoints.Login)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [Route(ApiRoutes.Auth.Login)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(AuthenticateResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> Login([FromBody] LoginRequest model)
     {
@@ -155,8 +157,8 @@ public class AuthController : ApiControllerBase
     }
 
     [HttpPost]
-    [Route(AuthEndpoints.Logout)]
     [Authorize]
+    [Route(ApiRoutes.Auth.Logout)]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<IActionResult> LogOut()
     {
