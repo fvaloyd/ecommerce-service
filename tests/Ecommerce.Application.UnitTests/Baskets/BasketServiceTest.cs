@@ -328,4 +328,36 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         result.IsSuccess.Should().BeTrue();
         result.Response.ResultStatus.Should().Be(ResultStatus.Success);
     }
+
+    [Fact]
+    public async Task GetProductIds_ShouldReturnTheProductIds_WhenTheAreProductInCart()
+    {
+        // Arrange
+        Basket basket = TestData.Baskets.FirstOrDefault(b => b.ApplicationUserId == "1")!;
+
+        var service = new BasketService(storeServiceMock.Object, _db);
+
+        // Act
+        var result = await service.GetProductIds(basket.ApplicationUserId);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Data.Length.Should().BeGreaterThanOrEqualTo(1);
+    }
+
+    [Fact]
+    public async Task GetProductIds_ShouldReturnNotFoundResult_WhenTheAreNotProductInCart()
+    {
+        // Arrange
+        string userId = "un_existing_user_id";
+
+        var service = new BasketService(storeServiceMock.Object, _db);
+
+        // Act
+        var result = await service.GetProductIds(userId);
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+    }
 }

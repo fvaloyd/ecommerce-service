@@ -145,4 +145,16 @@ public class BasketService : IBasketService
 
         return Result.Success("The product was removed from the basket successfully.");
     }
+
+    public async Task<Result<int[]>> GetProductIds(string userId)
+    {
+        var userBasket = await _db.Baskets.Where(b => b.ApplicationUserId == userId)
+                                    .Select(b => b.Product.Id)
+                                    .ToArrayAsync();
+
+        if (userBasket.Length < 1)
+            return Result.NotFound("The user doesn't has product in cart");
+
+        return userBasket;
+    }
 }

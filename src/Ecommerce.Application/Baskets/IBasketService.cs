@@ -11,4 +11,5 @@ public interface IBasketService
     Task<Result> RestoreTheQuantityIntoStore(Basket basket);
     Task<Result<(IEnumerable<Product>, float)>> GetAllProducts(string userId);
     Task<Result> RemoveProduct(int productId, string UserId);
+    Task<Result<int[]>> GetProductIds(string userId);
 }
