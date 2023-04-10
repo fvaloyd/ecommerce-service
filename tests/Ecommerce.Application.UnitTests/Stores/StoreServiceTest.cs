@@ -72,18 +72,18 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
     }
 
     [Fact]
-    public async Task DecreaseProductAsync_ShouldRemoveTheProduct_WhenProductQuantityAreLessOrEqualThanOne()
+    public async Task DecreaseProduct_ShouldReturnErrorResult_WhenProductStockAreLessThanOne()
     {
         // Arrange
         var productStoreWithZeroQuantity = TestData.ProductStores.FirstOrDefault(ps => ps.Quantity == 0);
-        
+
         var service = new StoreService(_db);
 
         // Act
-        Result result = await service.DecreaseProductAsync(productStoreWithZeroQuantity!.ProductId, productStoreWithZeroQuantity.StoreId);
-        
+        var result = await service.DecreaseProductAsync(productStoreWithZeroQuantity!.ProductId, productStoreWithZeroQuantity.StoreId);
+
         // Assert
-        result.IsSuccess.Should().BeTrue();
+        result.IsSuccess.Should().BeFalse();
     }
 
     [Fact]

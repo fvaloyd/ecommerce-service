@@ -35,13 +35,9 @@ public class StoreService : IStoreService
 
         if (productStore is null) return Result.NotFound("The product is not found in the store");
 
-        if (productStore.Quantity <= 1)
+        if (productStore.Quantity < 1)
         {
-            _db.ProductStores.Remove(productStore);
-
-            if (await _db.SaveChangesAsync() < 1) return Result.Error("Could not remove the product");
-
-            return Result.Success("The product was removed successfully");
+            return Result.Error("Stock sold out");
         }
 
         productStore.DecreaseQuantity();
