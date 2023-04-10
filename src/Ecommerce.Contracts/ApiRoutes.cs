@@ -20,6 +20,7 @@ public static class ApiRoutes
         public const string DecreaseProduct = Root + "/basket/decrease-product";
         public const string RemoveProduct = Root + "/basket/remove-product";
         public const string GetProducts = Root + "/basket/get-products";
+        public const string GetProductIds = Root + "/basket/get-product-ids";
     }
 
     public static class Brand

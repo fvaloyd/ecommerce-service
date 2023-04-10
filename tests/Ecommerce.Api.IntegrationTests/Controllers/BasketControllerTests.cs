@@ -134,8 +134,6 @@ public class BasketControllerTests
 
         _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(addProductUri, null);
 
-        // _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(AddProductPath + (product.Id + 1), null);
-
         // Act
         var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(ApiRoutes.Basket.GetProducts);
 
@@ -233,5 +231,31 @@ public class BasketControllerTests
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task GetProductIds_ShouldReturnOk_WhenTheAreProductInCart()
+    {
+        // Arrange
+        using var db = _baseIntegrationTest.EcommerceProgram.CreateApplicationDbContext();
+
+        var productId = db.Products.First().Id.ToString();
+
+        var addProductUri = new StringBuilder(ApiRoutes.Basket.AddProduct)
+                        .Append($"?productId={productId}")
+                        .ToString();
+
+        _ = await _baseIntegrationTest.DefaultUserHttpClient.PostAsync(addProductUri, null);
+
+        // Act
+        var response = await _baseIntegrationTest.DefaultUserHttpClient.GetAsync(ApiRoutes.Basket.GetProductIds);
+
+        string responseReadedAsString = await response.Content.ReadAsStringAsync();
+
+        var productIds = JsonConvert.DeserializeObject<int[]>(responseReadedAsString);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        productIds.Length.Should().BeGreaterThanOrEqualTo(1);
     }
 }

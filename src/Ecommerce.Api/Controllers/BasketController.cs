@@ -62,4 +62,9 @@ public class BasketController : ApiControllerBase
 
         return Ok(basketResponse);
     }
+
+    [HttpGet]
+    [Route(ApiRoutes.Basket.GetProductIds)]
+    public async Task<IActionResult> GetProductIds()
+        => await  _basketService.GetProductIds(_currentUserService.UserId!).ToActionResult();
 }
