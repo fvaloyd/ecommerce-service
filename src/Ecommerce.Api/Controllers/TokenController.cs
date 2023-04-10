@@ -54,7 +54,7 @@ public class TokenController : ApiControllerBase
 
     [HttpPost]
     [Authorize]
-    [Route(ApiRoutes.Token.Refresh)]
+    [Route(ApiRoutes.Token.Revoke)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Revoke()
