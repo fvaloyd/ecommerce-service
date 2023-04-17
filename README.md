@@ -47,6 +47,10 @@ The command should look like this:
 
 The application needs two database for hangfire.
 
+```sh
+docker exect -it <containerId> /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P <yourPassword>
+```
+
 ```sql
 CREATE DATABASE [Hangfire]
 GO
@@ -68,6 +72,10 @@ In this layer you find the domain services and some abstractions of the app
 ### Infrastructure
 
 This layer manages all external dependencies such as stripe, Cloudinary, and so on and also only depends on the core layer
+
+### Contracts
+
+This layer is a shared classlib to be able to communicate with the api from other app, for example a web-client or mobil-client can communicate with the api using this classlib with refit.
 
 ### Api
 
