@@ -54,4 +54,9 @@ public class Product : BaseEntity
         CategoryId = categoryId;
         SetImage(imageUrl);
     }
+
+    public Product(string imageUrl)
+    {
+        SetImage(imageUrl);
+    }
 }
