@@ -52,10 +52,10 @@ docker exect -it <containerId> /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P
 ```
 
 ```sql
-CREATE DATABASE [Hangfire]
+CREATE DATABASE [HangfireDb]
 GO
 
-CREATE DATABASE [HangfireForTest]
+CREATE DATABASE [HangfireTestDb]
 GO
 ```
 
