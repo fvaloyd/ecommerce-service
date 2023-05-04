@@ -7,6 +7,7 @@ namespace Ecommerce.Api.Filters;
 public class ApiExceptionFilter : IExceptionFilter
 {
     private readonly IDictionary<Type, Action<ExceptionContext>> _exceptionsHandlers;
+    
     public ApiExceptionFilter()
     {
         _exceptionsHandlers = new Dictionary<Type, Action<ExceptionContext>>
@@ -17,6 +18,7 @@ public class ApiExceptionFilter : IExceptionFilter
             {typeof(StripeException), HandleStripeException},
         };
     }
+
     public void OnException(ExceptionContext context)
     {
         HandleException(context);
