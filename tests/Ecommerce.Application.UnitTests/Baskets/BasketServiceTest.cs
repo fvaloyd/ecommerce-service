@@ -36,7 +36,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+        result.Status.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Arrange
         result.IsSuccess.Should().BeTrue();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
+        result.Status.Should().Be(ResultStatus.Success);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Error);
+        result.Status.Should().Be(ResultStatus.Error);
     }
 
     [Fact]
@@ -84,7 +84,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Error);
+        result.Status.Should().Be(ResultStatus.Error);
     }
 
     [Fact]
@@ -104,7 +104,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Error);
+        result.Status.Should().Be(ResultStatus.Error);
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
+        result.Status.Should().Be(ResultStatus.Success);
     }
 
     [Fact]
@@ -142,7 +142,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+        result.Status.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -160,7 +160,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Error);
+        result.Status.Should().Be(ResultStatus.Error);
     }
 
     [Fact]
@@ -178,7 +178,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
+        result.Status.Should().Be(ResultStatus.Success);
     }
 
     [Fact]
@@ -195,7 +195,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+        result.Status.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -213,7 +213,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Error);
+        result.Status.Should().Be(ResultStatus.Error);
     }
 
     [Fact]
@@ -231,7 +231,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
+        result.Status.Should().Be(ResultStatus.Success);
     }
 
     [Fact]
@@ -249,8 +249,8 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
-        result.Response.Message.Should().Contain("remove");
+        result.Status.Should().Be(ResultStatus.Success);
+        result.Message.Should().Contain("remove");
     }
 
     [Fact]
@@ -270,7 +270,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
         // Assert
         //act.Should().ThrowAsync<InvalidOperationException>();
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+        result.Status.Should().Be(ResultStatus.NotFound);
         result.Data.Item1.Should().BeNullOrEmpty();
     }
 
@@ -289,7 +289,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
+        result.Status.Should().Be(ResultStatus.Success);
         result.Data.Item1.Should().NotBeNullOrEmpty();
     }
 
@@ -310,7 +310,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+        result.Status.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -326,7 +326,7 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
+        result.Status.Should().Be(ResultStatus.Success);
     }
 
     [Fact]
@@ -358,6 +358,6 @@ public class BasketServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+        result.Status.Should().Be(ResultStatus.NotFound);
     }
 }

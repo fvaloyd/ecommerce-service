@@ -8,6 +8,7 @@ using AutoMapper;
 using Francisvac.Result;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Francisvac.Result.AspNetCore;
 
 namespace Ecommerce.Api.Controllers;
 

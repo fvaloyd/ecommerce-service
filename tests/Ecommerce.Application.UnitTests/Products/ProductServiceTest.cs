@@ -32,7 +32,7 @@ public class ProductServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+        result.Status.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class ProductServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
+        result.Status.Should().Be(ResultStatus.Success);
     }
 
     [Fact]
@@ -64,7 +64,7 @@ public class ProductServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Error);
+        result.Status.Should().Be(ResultStatus.Error);
     }
 
     [Fact]
@@ -82,6 +82,6 @@ public class ProductServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Response.ResultStatus.Should().Be(ResultStatus.Success);
+        result.Status.Should().Be(ResultStatus.Success);
     }
 }

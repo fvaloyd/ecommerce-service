@@ -68,7 +68,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+        result.Status.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -113,7 +113,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+        result.Status.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -146,7 +146,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+        result.Status.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -177,7 +177,7 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
         
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+        result.Status.Should().Be(ResultStatus.NotFound);
     }
 
     [Fact]
@@ -228,6 +228,6 @@ public class StoreServiceTest : IClassFixture<DbContextFixture>
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Response.ResultStatus.Should().Be(ResultStatus.NotFound);
+        result.Status.Should().Be(ResultStatus.NotFound);
     }
 }
