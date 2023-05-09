@@ -50,7 +50,7 @@ public static class SeedData
     }
     static Store GetStore()
     {
-        return new Store("Default");
+        return new Store{Name = "Default", State = true};
     }
     static IEnumerable<ProductStore> GetProductStores()
     {
@@ -72,25 +72,25 @@ public static class SeedData
     {
         return new List<Brand>
         {
-            new Brand("Hp",         true),
-            new Brand("Dell",       true),
-            new Brand("Xiaomi",     true),
-            new Brand("Apple",      true),
-            new Brand("Keycron",    true),
-            new Brand("Razer",      true),
-            new Brand("Logitec",   true),
-            new Brand("Skullcandy", true),
+            new Brand{Name = "Hp",         State = true},
+            new Brand{Name = "Dell",       State = true},
+            new Brand{Name = "Xiaomi",     State = true},
+            new Brand{Name = "Apple",      State = true},
+            new Brand{Name = "Keycron",    State = true},
+            new Brand{Name = "Razer",      State = true},
+            new Brand{Name = "Logitec",   State = true},
+            new Brand{Name = "Skullcandy", State = true},
         };
     }
     static IEnumerable<Category> GetCategories()
     {
         return new List<Category>
         {
-            new Category("Computer",   true),
-            new Category("Cell Phone", true),
-            new Category("Keyboard",   true),
-            new Category("Mouse",      true),
-            new Category("Headphones", true),
+            new Category{Name = "Computer",   State = true},
+            new Category{Name = "Cell Phone", State = true},
+            new Category{Name = "Keyboard",   State = true},
+            new Category{Name = "Mouse",      State = true},
+            new Category{Name = "Headphones", State = true},
         };
     }
     static List<Product> GetProducts()

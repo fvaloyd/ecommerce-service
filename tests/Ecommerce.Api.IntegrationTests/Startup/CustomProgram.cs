@@ -32,10 +32,11 @@ internal class EcommerceProgram : WebApplicationFactory<Program>
             configurationBuilder.AddConfiguration(integrationConfig);
         });
 
-        builder.ConfigureServices((builder, services) => {
+        builder.UseEnvironment("testing");
 
+        builder.ConfigureServices((builder, services) => {
             services.Remove<DbContextOptions<EcommerceDbContext>>()
-                    .AddDbContextFactory<EcommerceDbContext>((sp, options) => {
+                    .AddDbContextFactory<EcommerceDbContext>((_, options) => {
                         options.UseSqlServer(builder.Configuration.GetConnectionString("TestConnection"),
                         builder => builder.MigrationsAssembly(typeof(Ecommerce.Infrastructure.AssemblyReference).Assembly.FullName));
                     });

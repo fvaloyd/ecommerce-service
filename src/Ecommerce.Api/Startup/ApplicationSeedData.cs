@@ -16,6 +16,8 @@ public static class ApplicationSeedData
             try
             {
                 var db = serviceProvider.GetRequiredService<EcommerceDbContext>();
+                if (app.Environment.IsEnvironment("testing"))
+                    await db.Database.EnsureDeletedAsync();
                 var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
