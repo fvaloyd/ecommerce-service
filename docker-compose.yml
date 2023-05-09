@@ -2,18 +2,18 @@ version: '3.8'
 
 services:
 
-  sqlServer:
+  mssql:
     ports:
       - 1433:1433
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=francis.123
-    container_name: sqlServer
-    image: mcr.microsoft.com/mssql/server:2022-latest
+      - MSSQL_SA_PASSWORD=francis.123
+    container_name: mssql
+    image: mcr.microsoft.com/mssql/server:2019-CU14-ubuntu-20.04
 
   EcommerceApi:
     ports:
-      - 5200:80
+      - 8080:80
     depends_on:
-      - sqlServer
+      - mssql
     image: ecommerce:v1
