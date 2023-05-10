@@ -16,4 +16,4 @@ services:
       - 8080:80
     depends_on:
       - mssql
-    image: ecommerce:v1
+    image: ecommerce:runtime

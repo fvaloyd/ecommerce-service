@@ -3,9 +3,10 @@ version: '3.8'
 services:
   EcommerceApi:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings:ApplicationConnection=Server=mssql; user=sa; password=francis.123; Database=EcommerceDb; MultipleActiveResultSets=True; Trust Server Certificate=true; Encrypt=False;
+      - ConnectionStrings:HangfireConnection=Server=mssql; user=sa; password=francis.123; Database=HangfireDb; Encrypt=False;
+      - ConnectionStrings:TestConnection=Server=mssql; user=sa; password=francis.123; Database=EcommerceTestDb; MultipleActiveResultSets=True; Trust Server Certificate=true; Encrypt=False;
+      - ConnectionStrings:HangfireConnection=Server=mssql; user=sa; password=francis.123; Database=HangfireTestDb; Encrypt=False;
     volumes:
       - ~/AppData/Roaming/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ~/.aspnet/https:/root/.aspnet/https:ro
